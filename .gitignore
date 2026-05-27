@@ -55,3 +55,44 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# IDE and user-specific files
+.vs/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.csproj.user
+.idea/
+
+# Build artifacts and generated files
+*.apk
+*.idsig
+*.pdb
+*.db
+*.sqlite
+*.sqlite3
+
+# Local environment and secret files
+.env
+local.settings.json
+
+# Rider
+.idea/
+*.sln.iml
+
+# MAUI / Xamarin build outputs and intermediates
+**/bin/
+**/obj/
+*.db3
+*.class
+*.dex
+*.so
+*.ap_
+*.aab
+*.keystore
+*.userprefs
+*.log
+
+# NuGet packages and package caches
+## Already covered by standard .gitignore entries

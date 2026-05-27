@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:KrishiAI.App.ViewModels"
+             xmlns:models="clr-namespace:KrishiAI.App.Models"
+             x:Class="KrishiAI.App.Views.HistoryPage"
+             x:DataType="viewmodels:HistoryViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+
+        <!-- Header -->
+        <Frame Grid.Row="0" CornerRadius="10" Padding="15" BackgroundColor="{StaticResource Primary}">
+            <Label Text="Disease Detection History" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   TextColor="White" 
+                   HorizontalOptions="Center"/>
+        </Frame>
+
+        <!-- History List -->
+        <ScrollView Grid.Row="1" Margin="0,20,0,20">
+            <VerticalStackLayout Spacing="15">
+                
+                <!-- Empty State -->
+                <VerticalStackLayout IsVisible="{Binding HasHistory, Converter={StaticResource InvertedBoolConverter}}"
+                                   Spacing="20" 
+                                   VerticalOptions="Center" 
+                                   Margin="0,50,0,0">
+                    <Label Text="📋" FontSize="80" HorizontalOptions="Center" Opacity="0.5"/>
+                    <Label Text="No history yet" 
+                           FontSize="20" 
+                           TextColor="{StaticResource TextSecondary}" 
+                           HorizontalOptions="Center"/>
+                    <Label Text="Start analyzing crops to see history here" 
+                           FontSize="14" 
+                           TextColor="{StaticResource TextSecondary}" 
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+                <!-- History Items -->
+                <CollectionView ItemsSource="{Binding HistoryItems}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:DiseaseDetectionResult">
+                            <Frame CornerRadius="15" Padding="15" BackgroundColor="{StaticResource CardBackground}" Margin="0,5">
+                                <Grid ColumnDefinitions="100,*,Auto" ColumnSpacing="15">
+                                    
+                                    <!-- Image Thumbnail -->
+                                    <Image Grid.Column="0" 
+                                           Source="{Binding ImagePath}" 
+                                           Aspect="AspectFill"
+                                           HeightRequest="100"
+                                           WidthRequest="100">
+                                        <Image.Clip>
+                                            <RoundRectangleGeometry CornerRadius="10" Rect="0,0,100,100"/>
+                                        </Image.Clip>
+                                    </Image>
+
+                                    <!-- Details -->
+                                    <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                                        <Label Text="{Binding DiseaseName}" 
+                                               FontSize="18" 
+                                               FontAttributes="Bold" 
+                                               TextColor="{StaticResource TextPrimary}"/>
+                                        <Label Text="{Binding Confidence, StringFormat='Confidence: {0:F1}%'}" 
+                                               FontSize="14" 
+                                               TextColor="{StaticResource TextSecondary}"/>
+                                        <Frame BackgroundColor="{StaticResource Error}" 
+                                               CornerRadius="5" 
+                                               Padding="8,4" 
+                                               HorizontalOptions="Start">
+                                            <Label Text="{Binding Severity}" 
+                                                   FontSize="12" 
+                                                   TextColor="White" 
+                                                   FontAttributes="Bold"/>
+                                        </Frame>
+                                        <Label Text="{Binding DetectedDate, StringFormat='{0:MMM dd, yyyy HH:mm}'}" 
+                                               FontSize="12" 
+                                               TextColor="{StaticResource TextSecondary}"/>
+                                    </VerticalStackLayout>
+
+                                    <!-- Delete Button -->
+                                    <Button Grid.Column="2" 
+                                            Text="🗑️" 
+                                            FontSize="24"
+                                            BackgroundColor="Transparent"
+                                            TextColor="{StaticResource Error}"
+                                            VerticalOptions="Center"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:HistoryViewModel}}, Path=DeleteItemCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Bottom Actions -->
+        <VerticalStackLayout Grid.Row="2" Spacing="10">
+            <Button Text="Refresh"
+                    Command="{Binding LoadHistoryCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    HeightRequest="50"
+                    CornerRadius="10"
+                    IsVisible="{Binding HasHistory}"/>
+            
+            <Button Text="Clear All History"
+                    Command="{Binding ClearAllHistoryCommand}"
+                    BackgroundColor="{StaticResource Error}"
+                    TextColor="White"
+                    HeightRequest="50"
+                    CornerRadius="10"
+                    IsVisible="{Binding HasHistory}"/>
+        </VerticalStackLayout>
+
+    </Grid>
+
+</ContentPage>

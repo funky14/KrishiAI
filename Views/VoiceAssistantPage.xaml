@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:KrishiAI.App.ViewModels"
+             xmlns:models="clr-namespace:KrishiAI.App.Models"
+             x:Class="KrishiAI.App.Views.VoiceAssistantPage"
+             x:DataType="viewmodels:VoiceAssistantViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+
+        <!-- Language Selector -->
+        <Frame Grid.Row="0" CornerRadius="10" Padding="15" BackgroundColor="{StaticResource CardBackground}">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Select Language" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}"/>
+                <Picker ItemsSource="{Binding SupportedLanguages}"
+                        SelectedItem="{Binding SelectedLanguage}"
+                        ItemDisplayBinding="{Binding NativeName}"
+                        BackgroundColor="White"
+                        TextColor="{StaticResource TextPrimary}"/>
+            </VerticalStackLayout>
+        </Frame>
+
+        <!-- Conversation History -->
+        <ScrollView Grid.Row="1" Margin="0,20,0,20">
+            <VerticalStackLayout Spacing="10">
+                <CollectionView ItemsSource="{Binding ConversationHistory}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:VoiceCommand">
+                            <Grid>
+                                <!-- User Message -->
+                                <Frame BackgroundColor="{StaticResource Accent}" 
+                                       CornerRadius="15" 
+                                       Padding="15" 
+                                       Margin="0,5,50,5"
+                                       HorizontalOptions="Start"
+                                       IsVisible="{Binding IsUserMessage}">
+                                    <VerticalStackLayout Spacing="5">
+                                        <Label Text="{Binding CommandText}" 
+                                               TextColor="White" 
+                                               FontSize="15"/>
+                                        <Label Text="{Binding Timestamp, StringFormat='{0:HH:mm}'}" 
+                                               TextColor="White" 
+                                               FontSize="11" 
+                                               Opacity="0.8"/>
+                                    </VerticalStackLayout>
+                                </Frame>
+
+                                <!-- AI Response -->
+                                <Frame BackgroundColor="{StaticResource Success}" 
+                                       CornerRadius="15" 
+                                       Padding="15" 
+                                       Margin="50,5,0,5"
+                                       HorizontalOptions="End"
+                                       IsVisible="{Binding IsUserMessage, Converter={StaticResource InvertedBoolConverter}}">
+                                    <VerticalStackLayout Spacing="5">
+                                        <Label Text="{Binding CommandText}" 
+                                               TextColor="White" 
+                                               FontSize="15"/>
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Timestamp, StringFormat='{0:HH:mm}'}" 
+                                                   TextColor="White" 
+                                                   FontSize="11" 
+                                                   Opacity="0.8"/>
+                                            <Label Grid.Column="1" 
+                                                   Text="🔊" 
+                                                   FontSize="16">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:VoiceAssistantViewModel}}, Path=PlayResponseCommand}"
+                                                                        CommandParameter="{Binding .}"/>
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Current Transcription -->
+                <Frame BackgroundColor="{StaticResource Primary}" 
+                       CornerRadius="15" 
+                       Padding="20"
+                       IsVisible="{Binding CurrentTranscription, Converter={StaticResource StringNotEmptyConverter}}">
+                    <Label Text="{Binding CurrentTranscription}" 
+                           TextColor="White" 
+                           FontSize="16"
+                           FontAttributes="Italic"
+                           HorizontalOptions="Center"/>
+                </Frame>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Bottom Controls -->
+        <VerticalStackLayout Grid.Row="2" Spacing="15">
+            
+            <!-- Recording Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsRecording}"
+                             IsVisible="{Binding IsRecording}"
+                             Color="{StaticResource Error}"
+                             HeightRequest="40"/>
+
+            <Label Text="🎤 Recording..."
+                   IsVisible="{Binding IsRecording}"
+                   FontSize="16"
+                   TextColor="{StaticResource Error}"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+
+            <!-- Processing Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsProcessing}"
+                             IsVisible="{Binding IsProcessing}"
+                             Color="{StaticResource Primary}"
+                             HeightRequest="40"/>
+
+            <Label Text="🤖 Processing..."
+                   IsVisible="{Binding IsProcessing}"
+                   FontSize="16"
+                   TextColor="{StaticResource Primary}"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+
+            <!-- Microphone Button -->
+            <Frame CornerRadius="50" 
+                   Padding="0" 
+                   HeightRequest="100" 
+                   WidthRequest="100"
+                   HorizontalOptions="Center"
+                   BackgroundColor="{StaticResource Primary}"
+                   HasShadow="True">
+                <Grid>
+                    <Label Text="🎤" 
+                           FontSize="50" 
+                           HorizontalOptions="Center" 
+                           VerticalOptions="Center"/>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding StartRecordingCommand}"/>
+                    </Frame.GestureRecognizers>
+                </Grid>
+            </Frame>
+
+            <!-- Clear History Button -->
+            <Button Text="Clear History"
+                    Command="{Binding ClearHistoryCommand}"
+                    BackgroundColor="{StaticResource Secondary}"
+                    TextColor="White"
+                    HeightRequest="50"
+                    CornerRadius="10"/>
+        </VerticalStackLayout>
+
+    </Grid>
+
+</ContentPage>

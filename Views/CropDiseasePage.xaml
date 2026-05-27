@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:KrishiAI.App.ViewModels"
+             x:Class="KrishiAI.App.Views.CropDiseasePage"
+             x:DataType="viewmodels:CropDiseaseViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Image Preview Section -->
+            <Frame CornerRadius="15" Padding="0" BackgroundColor="{StaticResource CardBackground}" HeightRequest="300">
+                <Grid>
+                    <!-- Placeholder when no image -->
+                    <VerticalStackLayout IsVisible="{Binding HasImage, Converter={StaticResource InvertedBoolConverter}}"
+                                       HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
+                        <Label Text="📷" FontSize="80" HorizontalOptions="Center"/>
+                        <Label Text="No image selected" FontSize="16" TextColor="{StaticResource TextSecondary}" HorizontalOptions="Center"/>
+                        <Label Text="Capture or select a crop image" FontSize="14" TextColor="{StaticResource TextSecondary}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+
+                    <!-- Image Display -->
+                    <Image Source="{Binding SelectedImagePath}" 
+                           IsVisible="{Binding HasImage}"
+                           Aspect="AspectFill"/>
+                </Grid>
+            </Frame>
+
+            <!-- Action Buttons -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0"
+                        Text="📷 Capture"
+                        Command="{Binding CapturePhotoCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        HeightRequest="60"
+                        FontSize="16"
+                        CornerRadius="10"/>
+                
+                <Button Grid.Column="1"
+                        Text="🖼️ Gallery"
+                        Command="{Binding PickPhotoCommand}"
+                        BackgroundColor="{StaticResource Secondary}"
+                        TextColor="White"
+                        HeightRequest="60"
+                        FontSize="16"
+                        CornerRadius="10"/>
+            </Grid>
+
+            <!-- Analyze Button -->
+            <Button Text="🔍 Analyze Disease"
+                    Command="{Binding AnalyzeImageCommand}"
+                    IsEnabled="{Binding HasImage}"
+                    BackgroundColor="{StaticResource Accent}"
+                    TextColor="White"
+                    HeightRequest="70"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    CornerRadius="15"/>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsAnalyzing}"
+                             IsVisible="{Binding IsAnalyzing}"
+                             Color="{StaticResource Primary}"
+                             HeightRequest="50"/>
+
+            <Label Text="Analyzing crop image..."
+                   IsVisible="{Binding IsAnalyzing}"
+                   FontSize="16"
+                   TextColor="{StaticResource Primary}"
+                   HorizontalOptions="Center"/>
+
+            <!-- Results Section -->
+            <Frame IsVisible="{Binding HasResult}" 
+                   CornerRadius="15" 
+                   Padding="20" 
+                   BackgroundColor="{StaticResource CardBackground}">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Detection Results" 
+                           FontSize="22" 
+                           FontAttributes="Bold" 
+                           TextColor="{StaticResource Primary}"/>
+
+                    <Frame BackgroundColor="{StaticResource Error}" CornerRadius="10" Padding="15">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="{Binding DetectionResult.DiseaseName}" 
+                                   FontSize="20" 
+                                   FontAttributes="Bold" 
+                                   TextColor="White"/>
+                            <Label Text="{Binding DetectionResult.Confidence, StringFormat='Confidence: {0:F1}%'}" 
+                                   FontSize="16" 
+                                   TextColor="White"/>
+                            <Frame BackgroundColor="White" CornerRadius="5" Padding="8,4" HorizontalOptions="Start">
+                                <Label Text="{Binding DetectionResult.Severity, StringFormat='Severity: {0}'}" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold" 
+                                       TextColor="{StaticResource Error}"/>
+                            </Frame>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Recommendations -->
+                    <Label Text="Treatment Recommendations" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="{StaticResource TextPrimary}"
+                           Margin="0,10,0,0"/>
+
+                    <!-- Organic Treatment -->
+                    <Frame BackgroundColor="{StaticResource Success}" CornerRadius="10" Padding="15" IsVisible="{Binding Recommendation, Converter={StaticResource NotNullConverter}}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="🌿 Organic Treatment" FontSize="16" FontAttributes="Bold" TextColor="White"/>
+                            <CollectionView ItemsSource="{Binding Recommendation.OrganicTreatment}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Label Text="{Binding ., StringFormat='• {0}'}" TextColor="White" FontSize="14" Margin="10,2"/>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Chemical Treatment -->
+                    <Frame BackgroundColor="{StaticResource Secondary}" CornerRadius="10" Padding="15" IsVisible="{Binding Recommendation, Converter={StaticResource NotNullConverter}}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="🧪 Chemical Treatment" FontSize="16" FontAttributes="Bold" TextColor="White"/>
+                            <CollectionView ItemsSource="{Binding Recommendation.ChemicalTreatment}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Label Text="{Binding ., StringFormat='• {0}'}" TextColor="White" FontSize="14" Margin="10,2"/>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Prevention Tips -->
+                    <Frame BackgroundColor="{StaticResource Accent}" CornerRadius="10" Padding="15" IsVisible="{Binding Recommendation, Converter={StaticResource NotNullConverter}}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="✓ Prevention Tips" FontSize="16" FontAttributes="Bold" TextColor="White"/>
+                            <CollectionView ItemsSource="{Binding Recommendation.PreventionTips}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Label Text="{Binding ., StringFormat='• {0}'}" TextColor="White" FontSize="14" Margin="10,2"/>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- New Analysis Button -->
+                    <Button Text="New Analysis"
+                            Command="{Binding ClearResultCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"
+                            HeightRequest="50"
+                            CornerRadius="10"/>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
