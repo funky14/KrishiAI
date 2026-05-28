@@ -1,4 +1,4 @@
-# Get Pre-trained MobileNetV2 Model for KrishiAI
+# Get Pre-trained ResNet50 Model for KrishiAI
 
 ## Quick Start - Download Pre-trained Model
 
@@ -7,16 +7,16 @@
 Download from these sources:
 
 1. **ONNX Model Zoo:**
-   - https://github.com/onnx/models/tree/main/vision/classification/mobilenet
+   - https://github.com/onnx/models/tree/main/vision/classification/resnet
 
 2. **Kaggle Models:**
-   - https://www.kaggle.com/models?search=plant+disease+mobilenet
+   - https://www.kaggle.com/models?search=plant+disease+resnet
    - https://www.kaggle.com/datasets/vipoooool/new-plant-diseases-dataset
 
 3. **Hugging Face:**
-   - https://huggingface.co/models?search=mobilenet+plant+disease
+   - https://huggingface.co/models?search=resnet+plant+disease
 
-After downloading, rename to `mobilenetv2_cropdisease.onnx` and place in `Resources/Raw/`
+After downloading, rename to `resnet50_cropdisease.onnx` and place in `Resources/Raw/`
 
 ---
 
@@ -35,7 +35,7 @@ After downloading, rename to `mobilenetv2_cropdisease.onnx` and place in `Resour
 
 3. **Copy generated model:**
    ```powershell
-   copy mobilenetv2_cropdisease.onnx ..\Resources\Raw\
+   copy resnet50_cropdisease.onnx ..\Resources\Raw\
    ```
 
 ---
@@ -55,7 +55,7 @@ After downloading, rename to `mobilenetv2_cropdisease.onnx` and place in `Resour
 
 3. **Copy generated model:**
    ```powershell
-   copy mobilenetv2_cropdisease.onnx ..\Resources\Raw\
+   copy resnet50_cropdisease.onnx ..\Resources\Raw\
    ```
 
 ---
@@ -64,7 +64,7 @@ After downloading, rename to `mobilenetv2_cropdisease.onnx` and place in `Resour
 
 1. **Verify model exists:**
    ```
-   C:\Chetan\Projects\Hackathon\KrishiAI\Resources\Raw\mobilenetv2_cropdisease.onnx
+   C:\Chetan\Projects\Hackathon\KrishiAI\Resources\Raw\resnet50_cropdisease.onnx
    ```
 
 2. **(Optional) Update disease labels** in `Resources/Raw/disease_labels.txt` to match your model
@@ -77,7 +77,7 @@ After downloading, rename to `mobilenetv2_cropdisease.onnx` and place in `Resour
 
 4. **Check logs** for successful loading:
    ```
-   ✅ MobileNetV2 ONNX Model loaded successfully
+   ✅ ResNet50 ONNX Model loaded successfully
    📊 Supporting 38 disease classes
    ```
 

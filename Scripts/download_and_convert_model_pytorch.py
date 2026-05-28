@@ -49,6 +49,5 @@ torch.onnx.export(
 print(f"✅ ONNX model saved to: {output_path}")
 print("\n📋 Next steps:")
 print(f"   1. Copy '{output_path}' to: C:\\Chetan\\Projects\\Hackathon\\KrishiAI\\Resources\\Raw\\")
-print(f"   2. Rename it to: mobilenetv2_cropdisease.onnx")
-print("   3. Rebuild the app")
+print("   2. Rebuild the app: dotnet build -f net9.0-android -c Debug -t:Run")
 print("\n⚠️  Note: This is a base ResNet50 model. For production, train on actual plant disease images!")
