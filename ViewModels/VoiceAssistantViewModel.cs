@@ -34,17 +34,39 @@ public partial class VoiceAssistantViewModel : BaseViewModel
         ITextToSpeechService ttsService,
         IAIChatService chatService)
     {
-        _speechService = speechService;
-        _ttsService = ttsService;
-        _chatService = chatService;
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("🎤 Initializing VoiceAssistantViewModel...");
+            
+            _speechService = speechService;
+            _ttsService = ttsService;
+            _chatService = chatService;
 
-        Title = "Voice Assistant";
-        
-        var languages = _speechService.GetSupportedLanguages();
-        SupportedLanguages = new ObservableCollection<SupportedLanguage>(languages);
-        
-        // Auto-detect device language
-        selectedLanguage = DetectDeviceLanguage(languages);
+            Title = "Voice Assistant";
+            
+            var languages = _speechService.GetSupportedLanguages();
+            System.Diagnostics.Debug.WriteLine($"   Languages loaded: {languages?.Count ?? 0}");
+            
+            SupportedLanguages = new ObservableCollection<SupportedLanguage>(languages ?? new List<SupportedLanguage>());
+            
+            // Auto-detect device language
+            if (languages != null && languages.Any())
+            {
+                SelectedLanguage = DetectDeviceLanguage(languages);
+                System.Diagnostics.Debug.WriteLine($"   Selected language: {SelectedLanguage?.LanguageName ?? "None"}");
+            }
+            
+            System.Diagnostics.Debug.WriteLine("✅ VoiceAssistantViewModel initialized successfully");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ VoiceAssistantViewModel initialization error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"   Stack trace: {ex.StackTrace}");
+            
+            // Ensure minimum initialization
+            Title = "Voice Assistant";
+            SupportedLanguages = new ObservableCollection<SupportedLanguage>();
+        }
     }
 
     private SupportedLanguage DetectDeviceLanguage(List<SupportedLanguage> languages)

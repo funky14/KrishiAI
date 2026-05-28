@@ -56,18 +56,26 @@ public partial class App : Application
     {
         var window = base.CreateWindow(activationState);
 
-        // Handle global exceptions
+        // Handle global exceptions - IMPROVED
         AppDomain.CurrentDomain.UnhandledException += (s, e) =>
         {
             var exception = e.ExceptionObject as Exception;
-            System.Diagnostics.Debug.WriteLine($"Unhandled Exception: {exception?.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌❌❌ Unhandled Exception: {exception?.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌ Exception Type: {exception?.GetType().Name}");
+            System.Diagnostics.Debug.WriteLine($"❌ Stack Trace: {exception?.StackTrace}");
+            System.Diagnostics.Debug.WriteLine($"❌ Inner Exception: {exception?.InnerException?.Message}");
         };
 
         TaskScheduler.UnobservedTaskException += (s, e) =>
         {
-            System.Diagnostics.Debug.WriteLine($"Unobserved Task Exception: {e.Exception?.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌❌❌ Unobserved Task Exception: {e.Exception?.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌ Exception Type: {e.Exception?.GetType().Name}");
+            System.Diagnostics.Debug.WriteLine($"❌ Inner Exception: {e.Exception?.InnerException?.Message}");
             e.SetObserved();
         };
+        
+        // Catch navigation errors
+        Microsoft.Maui.Controls.Routing.RegisterRoute("voiceassistant", typeof(Views.VoiceAssistantPage));
 
         return window;
     }
