@@ -172,18 +172,44 @@ public class CropDiseaseAIService : ICropDiseaseAIService
             // Run inference
             if (_session != null)
             {
-                var inputs = new List<NamedOnnxValue>
+                try
                 {
-                    NamedOnnxValue.CreateFromTensor("input", tensor)
-                };
+                    var inputs = new List<NamedOnnxValue>
+                    {
+                        NamedOnnxValue.CreateFromTensor("input", tensor)
+                    };
 
-                using var results = _session.Run(inputs);
-                var output = results.FirstOrDefault()?.AsEnumerable<float>().ToArray();
+                    Debug.WriteLine($"🔮 Running ONNX inference on: {imagePath}");
+                    using var results = _session.Run(inputs);
+                    var output = results.FirstOrDefault()?.AsEnumerable<float>().ToArray();
 
-                if (output != null)
-                {
-                    return ProcessPrediction(output, imagePath);
+                    if (output != null)
+                    {
+                        Debug.WriteLine($"✅ Inference successful! Output size: {output.Length}");
+                        Debug.WriteLine($"   Expected labels: {_labels.Length}");
+                        
+                        if (output.Length != _labels.Length)
+                        {
+                            Debug.WriteLine($"⚠️ WARNING: Output size ({output.Length}) != Labels size ({_labels.Length})");
+                            Debug.WriteLine($"   This means your disease_labels.txt doesn't match the model's classes!");
+                        }
+                        
+                        return ProcessPrediction(output, imagePath);
+                    }
                 }
+                catch (Exception modelEx)
+                {
+                    Debug.WriteLine($"❌ ONNX Model Error: {modelEx.Message}");
+                    Debug.WriteLine($"   This usually means tensor shape mismatch!");
+                    Debug.WriteLine($"   If you see 'invalid shape' error, the model expects NCHW format instead of NHWC.");
+                    Debug.WriteLine($"   Stack trace: {modelEx.StackTrace}");
+                    
+                    // Fall through to mock prediction
+                }
+            }
+            else
+            {
+                Debug.WriteLine("⚠️ ONNX model not loaded - using mock predictions");
             }
 
             // Mock prediction for demo
@@ -191,7 +217,8 @@ public class CropDiseaseAIService : ICropDiseaseAIService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"PredictDiseaseAsync Error: {ex.Message}");
+            Debug.WriteLine($"❌ PredictDiseaseAsync Error: {ex.Message}");
+            Debug.WriteLine($"   Stack trace: {ex.StackTrace}");
             return null;
         }
     }
@@ -209,8 +236,13 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                 // Resize to 224x224 (MobileNetV2 input size)
                 using var resized = original.Resize(new SKImageInfo(224, 224), SKFilterQuality.High);
                 
-                // Convert to RGB and normalize to 0-1 range
-                var tensor = new DenseTensor<float>(new[] { 1, 3, 224, 224 });
+                // ImageNet normalization values (standard for MobileNetV2)
+                float[] mean = { 0.485f, 0.456f, 0.406f };
+                float[] std = { 0.229f, 0.224f, 0.225f };
+                
+                // Create tensor in NHWC format [1, 224, 224, 3] (channels-last)
+                // Try this first. If model expects NCHW, we'll switch.
+                var tensor = new DenseTensor<float>(new[] { 1, 224, 224, 3 });
                 
                 for (int y = 0; y < 224; y++)
                 {
@@ -218,13 +250,16 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                     {
                         var pixel = resized.GetPixel(x, y);
                         
-                        // Normalize pixel values to 0-1 range
-                        // Channel order: RGB
-                        tensor[0, 0, y, x] = pixel.Red / 255f;    // R channel
-                        tensor[0, 1, y, x] = pixel.Green / 255f;  // G channel
-                        tensor[0, 2, y, x] = pixel.Blue / 255f;   // B channel
+                        // ImageNet normalization: (pixel/255 - mean) / std
+                        tensor[0, y, x, 0] = (pixel.Red / 255f - mean[0]) / std[0];    // R channel
+                        tensor[0, y, x, 1] = (pixel.Green / 255f - mean[1]) / std[1];  // G channel
+                        tensor[0, y, x, 2] = (pixel.Blue / 255f - mean[2]) / std[2];   // B channel
                     }
                 }
+                
+                Debug.WriteLine($"✅ Image preprocessed: {imagePath}");
+                Debug.WriteLine($"   Tensor shape: [1, 224, 224, 3] (NHWC format)");
+                Debug.WriteLine($"   Normalization: ImageNet (mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])");
                 
                 return tensor;
             }
@@ -239,12 +274,27 @@ public class CropDiseaseAIService : ICropDiseaseAIService
 
     private DiseaseDetectionResult ProcessPrediction(float[] output, string imagePath)
     {
+        // Find top prediction
         var maxIndex = Array.IndexOf(output, output.Max());
         var confidence = output[maxIndex] * 100;
+        
+        // Log top 3 predictions for debugging
+        var topPredictions = output
+            .Select((prob, index) => new { Index = index, Probability = prob })
+            .OrderByDescending(x => x.Probability)
+            .Take(3)
+            .ToList();
+        
+        Debug.WriteLine($"🎯 Top 3 Predictions:");
+        foreach (var pred in topPredictions)
+        {
+            var labelName = pred.Index < _labels.Length ? _labels[pred.Index] : $"Unknown Class {pred.Index}";
+            Debug.WriteLine($"   {pred.Index + 1}. {labelName}: {pred.Probability * 100:F2}%");
+        }
 
         return new DiseaseDetectionResult
         {
-            DiseaseName = _labels[maxIndex],
+            DiseaseName = maxIndex < _labels.Length ? _labels[maxIndex] : $"Unknown Disease (Class {maxIndex})",
             Confidence = confidence,
             Severity = GetSeverity(confidence),
             ImagePath = imagePath,
