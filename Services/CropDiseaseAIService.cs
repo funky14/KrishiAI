@@ -91,8 +91,27 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                 if (!string.IsNullOrEmpty(modelPath) && File.Exists(modelPath))
                 {
                     _session = new InferenceSession(modelPath);
+                    
+                    // Log model metadata
                     Debug.WriteLine($"✅ MobileNetV2 ONNX Model loaded successfully from: {modelPath}");
                     Debug.WriteLine($"📊 Supporting {_labels.Length} disease classes");
+                    
+                    // Log input/output metadata
+                    Debug.WriteLine("📋 Model Input Metadata:");
+                    foreach (var input in _session.InputMetadata)
+                    {
+                        Debug.WriteLine($"   Input Name: '{input.Key}'");
+                        Debug.WriteLine($"   Dimensions: [{string.Join(", ", input.Value.Dimensions)}]");
+                        Debug.WriteLine($"   Element Type: {input.Value.ElementType}");
+                    }
+                    
+                    Debug.WriteLine("📋 Model Output Metadata:");
+                    foreach (var output in _session.OutputMetadata)
+                    {
+                        Debug.WriteLine($"   Output Name: '{output.Key}'");
+                        Debug.WriteLine($"   Dimensions: [{string.Join(", ", output.Value.Dimensions)}]");
+                        Debug.WriteLine($"   Element Type: {output.Value.ElementType}");
+                    }
                 }
                 else
                 {
@@ -200,9 +219,13 @@ public class CropDiseaseAIService : ICropDiseaseAIService
             {
                 try
                 {
+                    // Get the actual input name from model metadata
+                    var inputName = _session.InputMetadata.Keys.FirstOrDefault() ?? "input";
+                    Debug.WriteLine($"📥 Using input name: '{inputName}'");
+                    
                     var inputs = new List<NamedOnnxValue>
                     {
-                        NamedOnnxValue.CreateFromTensor("input", tensor)
+                        NamedOnnxValue.CreateFromTensor(inputName, tensor)
                     };
 
                     Debug.WriteLine($"🔮 Running ONNX inference on: {imagePath}");
