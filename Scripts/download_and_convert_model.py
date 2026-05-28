@@ -8,10 +8,14 @@ import numpy as np
 import subprocess
 import shutil
 
-# Number of disease classes (customize based on your dataset)
-NUM_CLASSES = 38  # PlantVillage has 38 classes
+# ============================================
+# CONFIGURATION: Change this to match your dataset
+# ============================================
+NUM_CLASSES = 38  # Number of disease classes in your dataset
+                  # The app will automatically detect this from the model!
+# ============================================
 
-print("🔽 Downloading ResNet50 pre-trained on ImageNet...")
+print(f"🔽 Downloading ResNet50 for {NUM_CLASSES} disease classes...")
 
 # Load ResNet50 pre-trained on ImageNet
 base_model = tf.keras.applications.ResNet50(

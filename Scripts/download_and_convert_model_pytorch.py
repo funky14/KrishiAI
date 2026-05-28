@@ -6,10 +6,14 @@ import torch
 import torchvision.models as models
 import torch.nn as nn
 
-# Number of disease classes
-NUM_CLASSES = 38  # Customize based on your dataset
+# ============================================
+# CONFIGURATION: Change this to match your dataset
+# ============================================
+NUM_CLASSES = 38  # Number of disease classes in your dataset
+                  # The app will automatically detect this from the model!
+# ============================================
 
-print("🔽 Downloading ResNet50 pre-trained on ImageNet...")
+print(f"🔽 Downloading ResNet50 for {NUM_CLASSES} disease classes...")
 
 # Load pre-trained ResNet50
 model = models.resnet50(pretrained=True)

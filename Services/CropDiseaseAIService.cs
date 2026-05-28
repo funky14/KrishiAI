@@ -9,72 +9,7 @@ namespace KrishiAI.App.Services;
 public class CropDiseaseAIService : ICropDiseaseAIService
 {
     private InferenceSession? _session;
-    private string[] _labels = new[]
-    {
-        // Rice Diseases
-        "Rice Blast",
-        "Brown Spot",
-        "Bacterial Blight",
-        "Rice Sheath Blight",
-        "Rice Tungro",
-        
-        // Tomato Diseases
-        "Tomato Leaf Curl",
-        "Early Blight",
-        "Late Blight",
-        "Tomato Septoria Leaf Spot",
-        "Tomato Yellow Leaf Curl Virus",
-        "Tomato Mosaic Virus",
-        "Tomato Bacterial Spot",
-        "Tomato Target Spot",
-        
-        // Potato Diseases
-        "Potato Early Blight",
-        "Potato Late Blight",
-        "Potato Blight",
-        
-        // Wheat Diseases
-        "Wheat Rust",
-        "Wheat Leaf Blight",
-        "Wheat Powdery Mildew",
-        
-        // Cotton Diseases
-        "Cotton Leaf Disease",
-        "Cotton Bacterial Blight",
-        
-        // Corn/Maize Diseases
-        "Corn Northern Leaf Blight",
-        "Corn Common Rust",
-        "Corn Gray Leaf Spot",
-        
-        // Grape Diseases
-        "Grape Black Rot",
-        "Grape Leaf Blight",
-        "Grape Powdery Mildew",
-        
-        // Apple Diseases
-        "Apple Scab",
-        "Apple Black Rot",
-        "Apple Cedar Rust",
-        
-        // Pepper/Chili Diseases
-        "Pepper Bacterial Spot",
-        "Pepper Leaf Curl",
-        
-        // Sugarcane Diseases
-        "Sugarcane Red Rot",
-        "Sugarcane Rust",
-        
-        // Other Common Diseases
-        "Powdery Mildew",
-        "Downy Mildew",
-        "Anthracnose",
-        "Leaf Spot",
-        "Root Rot",
-        
-        // Healthy
-        "Healthy Plant"
-    };
+    private string[] _labels = Array.Empty<string>();  // Will be populated dynamically from model output
 
     public async Task InitializeAsync()
     {
@@ -82,19 +17,31 @@ public class CropDiseaseAIService : ICropDiseaseAIService
         {
             await Task.Run(async () =>
             {
-                // Load custom labels if available
-                await LoadLabelsAsync();
-                
-                // Try loading from Resources/Raw first (bundled with app)
+                // Try loading model from Resources/Raw (bundled with app)
                 var modelPath = await LoadModelFromResourcesAsync();
                 
                 if (!string.IsNullOrEmpty(modelPath) && File.Exists(modelPath))
                 {
                     _session = new InferenceSession(modelPath);
                     
-                    // Log model metadata
-                    Debug.WriteLine($"✅ ResNet50 ONNX Model loaded successfully from: {modelPath}");
-                    Debug.WriteLine($"📊 Supporting {_labels.Length} disease classes");
+                    // Automatically detect number of classes from model output
+                    var outputMetadata = _session.OutputMetadata.FirstOrDefault();
+                    if (outputMetadata.Value != null)
+                    {
+                        var outputDimensions = outputMetadata.Value.Dimensions;
+                        int numClasses = outputDimensions.Length > 1 ? outputDimensions[^1] : 0;
+                        
+                        if (numClasses > 0)
+                        {
+                            // Generate dynamic labels: "Class 1", "Class 2", etc.
+                            _labels = Enumerable.Range(1, numClasses)
+                                               .Select(i => $"Disease Class {i}")
+                                               .ToArray();
+                            
+                            Debug.WriteLine($"✅ ResNet50 ONNX Model loaded successfully from: {modelPath}");
+                            Debug.WriteLine($"📊 Auto-detected {numClasses} output classes from model");
+                        }
+                    }
                     
                     // Log input/output metadata
                     Debug.WriteLine("📋 Model Input Metadata:");
@@ -118,40 +65,15 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                     Debug.WriteLine("⚠️ ResNet50 ONNX Model not found - using mock predictions");
                     Debug.WriteLine("📋 To enable real disease detection:");
                     Debug.WriteLine("   1. Place 'resnet50_cropdisease.onnx' in Resources/Raw/ folder");
-                    Debug.WriteLine("   2. (Optional) Place 'disease_labels.txt' in Resources/Raw/ for custom labels");
-                    Debug.WriteLine("   3. Rebuild the app");
+                    Debug.WriteLine("   2. Rebuild the app");
+                    Debug.WriteLine("");
+                    Debug.WriteLine("💡 The app will automatically detect the number of classes from your model!");
                 }
             });
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"❌ InitializeAsync Error: {ex.Message}");
-        }
-    }
-    
-    private async Task LoadLabelsAsync()
-    {
-        try
-        {
-            // Try to load custom labels from disease_labels.txt
-            using var stream = await FileSystem.OpenAppPackageFileAsync("disease_labels.txt");
-            using var reader = new StreamReader(stream);
-            var content = await reader.ReadToEndAsync();
-            var customLabels = content.Split('\n', StringSplitOptions.RemoveEmptyEntries)
-                                     .Select(l => l.Trim())
-                                     .Where(l => !string.IsNullOrEmpty(l))
-                                     .ToArray();
-            
-            if (customLabels.Length > 0)
-            {
-                _labels = customLabels;
-                Debug.WriteLine($"✅ Loaded {customLabels.Length} custom disease labels from disease_labels.txt");
-            }
-        }
-        catch
-        {
-            // Use default labels if custom file not found
-            Debug.WriteLine("ℹ️ Using default disease labels (38+ diseases)");
         }
     }
 

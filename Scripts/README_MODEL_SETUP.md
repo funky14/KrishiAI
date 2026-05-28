@@ -1,5 +1,12 @@
 # Get Pre-trained ResNet50 Model for KrishiAI
 
+## 🎯 Dynamic Architecture - No Label Files Needed!
+
+**The app automatically detects the number of disease classes from your model!**  
+No need for `disease_labels.txt` - just change `NUM_CLASSES` in the Python script and the app adapts.
+
+---
+
 ## Quick Start - Download Pre-trained Model
 
 ### **Method 1: Download Ready-made ONNX Model** (Fastest)
@@ -62,24 +69,51 @@ After downloading, rename to `resnet50_cropdisease.onnx` and place in `Resources
 
 ## After Getting the Model
 
-1. **Verify model exists:**
-   ```
-   C:\Chetan\Projects\Hackathon\KrishiAI\Resources\Raw\resnet50_cropdisease.onnx
+1. **Copy model to Resources/Raw:**
+   ```powershell
+   copy resnet50_cropdisease.onnx ..\Resources\Raw\
    ```
 
-2. **(Optional) Update disease labels** in `Resources/Raw/disease_labels.txt` to match your model
-
-3. **Rebuild and deploy:**
+2. **Rebuild and deploy:**
    ```powershell
    cd "C:\Chetan\Projects\Hackathon\KrishiAI"
    dotnet build -f net9.0-android -c Debug -t:Run
    ```
 
-4. **Check logs** for successful loading:
+3. **Check logs - the app auto-detects the model's output size:**
    ```
    ✅ ResNet50 ONNX Model loaded successfully
-   📊 Supporting 38 disease classes
+   📊 Auto-detected 38 output classes from model
    ```
+
+---
+
+## 🎨 Customizing Number of Classes
+
+Want a different number of disease classes? Just change one line!
+
+**1. Edit the Python script:**
+   ```python
+   # In download_and_convert_model.py or download_and_convert_model_pytorch.py
+   NUM_CLASSES = 50  # Change from 38 to whatever you need
+   ```
+
+**2. Regenerate the model:**
+   ```powershell
+   python download_and_convert_model.py
+   copy resnet50_cropdisease.onnx ..\Resources\Raw\
+   ```
+
+**3. The app automatically adapts!**
+   ```
+   📊 Auto-detected 50 output classes from model  ← Updated automatically!
+   ```
+
+**Predictions will show:**
+- Disease Class 1
+- Disease Class 2
+- ...
+- Disease Class 50
 
 ---
 
