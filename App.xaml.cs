@@ -1,12 +1,29 @@
+using KrishiAI.App.Services;
+
 namespace KrishiAI.App;
 
 public partial class App : Application
 {
-    public App()
+    private readonly IConfigurationService _configService;
+
+    public App(IConfigurationService configurationService)
     {
         InitializeComponent();
+        _configService = configurationService;
 
         MainPage = new AppShell();
+    }
+
+    protected override async void OnStart()
+    {
+        base.OnStart();
+        
+        // Force initialization of azure_config.json on app startup
+        System.Diagnostics.Debug.WriteLine("📁 Initializing azure_config.json...");
+        var config = await _configService.GetConfigurationAsync();
+        System.Diagnostics.Debug.WriteLine($"✅ Configuration initialized at: {Path.Combine(FileSystem.AppDataDirectory, "azure_config.json")}");
+        System.Diagnostics.Debug.WriteLine($"   - Speech configured: {!string.IsNullOrEmpty(config.SpeechServiceKey)}");
+        System.Diagnostics.Debug.WriteLine($"   - OpenAI configured: {!string.IsNullOrEmpty(config.OpenAIKey)}");
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
