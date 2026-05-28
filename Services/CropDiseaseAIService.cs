@@ -140,23 +140,45 @@ public class CropDiseaseAIService : ICropDiseaseAIService
     {
         try
         {
+            Debug.WriteLine("🔍 Attempting to load ONNX model from Resources/Raw...");
+            
             // Check if model exists in Resources/Raw
             using var stream = await FileSystem.OpenAppPackageFileAsync("mobilenetv2_cropdisease.onnx");
             
             if (stream != null)
             {
+                Debug.WriteLine($"✅ Model file found in app package! Size: {stream.Length} bytes");
+                
                 // Copy to AppDataDirectory for access
                 var modelPath = Path.Combine(FileSystem.AppDataDirectory, "mobilenetv2_cropdisease.onnx");
+                
+                Debug.WriteLine($"📂 Copying model to: {modelPath}");
                 
                 using var fileStream = File.Create(modelPath);
                 await stream.CopyToAsync(fileStream);
                 
+                Debug.WriteLine($"✅ Model copied successfully! File size: {new FileInfo(modelPath).Length} bytes");
+                
                 return modelPath;
+            }
+            else
+            {
+                Debug.WriteLine("❌ Stream is null - model file not found in app package");
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Model not found in resources: {ex.Message}");
+            Debug.WriteLine($"❌ LoadModelFromResourcesAsync Error: {ex.Message}");
+            Debug.WriteLine($"   Exception Type: {ex.GetType().Name}");
+            Debug.WriteLine($"   Stack Trace: {ex.StackTrace}");
+            
+            // Try to list what files ARE available in the package
+            try
+            {
+                Debug.WriteLine("📋 Attempting to list available files in app package...");
+                // This might not work, but worth a try
+            }
+            catch { }
         }
         
         return string.Empty;
