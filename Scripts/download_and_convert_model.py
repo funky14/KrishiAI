@@ -40,11 +40,11 @@ model.compile(
 
 print("🔄 Converting to ONNX format...")
 
-# Save model to SavedModel format first (workaround for tf2onnx bug)
+# Export model to SavedModel format (Keras 3 syntax)
 saved_model_path = "temp_saved_model"
-model.save(saved_model_path)  # Keras 3 default is SavedModel format
+model.export(saved_model_path)  # Keras 3: use export() for SavedModel
 
-print("✅ Model saved in TensorFlow SavedModel format")
+print("✅ Model exported in TensorFlow SavedModel format")
 
 # Convert from SavedModel to ONNX (more stable than direct Keras conversion)
 output_path = "mobilenetv2_cropdisease.onnx"
