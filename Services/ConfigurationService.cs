@@ -26,10 +26,26 @@ public class ConfigurationService : IConfigurationService
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"⚠️ Config file not found, creating new...");
-                _cachedConfig = new AzureConfiguration();
-                await SaveConfigurationAsync(_cachedConfig);
-                System.Diagnostics.Debug.WriteLine($"✅ New config file created");
+                System.Diagnostics.Debug.WriteLine($"⚠️ Config file not found, copying from bundled resources...");
+                
+                // Try to copy bundled config file from Resources/Raw
+                await CopyBundledConfigAsync(configPath);
+                
+                // Load the copied file
+                if (File.Exists(configPath))
+                {
+                    System.Diagnostics.Debug.WriteLine($"✅ Bundled config copied successfully");
+                    var json = await File.ReadAllTextAsync(configPath);
+                    _cachedConfig = JsonSerializer.Deserialize<AzureConfiguration>(json) ?? new AzureConfiguration();
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"⚠️ No bundled config, creating default...");
+                    _cachedConfig = new AzureConfiguration();
+                    await SaveConfigurationAsync(_cachedConfig);
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"✅ Config file initialized");
             }
         }
         catch (Exception ex)
@@ -40,6 +56,26 @@ public class ConfigurationService : IConfigurationService
         }
 
         return _cachedConfig;
+    }
+
+    private async Task CopyBundledConfigAsync(string targetPath)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"📦 Attempting to copy bundled config...");
+            
+            using var stream = await FileSystem.OpenAppPackageFileAsync(ConfigFileName);
+            using var reader = new StreamReader(stream);
+            var json = await reader.ReadToEndAsync();
+            
+            await File.WriteAllTextAsync(targetPath, json);
+            
+            System.Diagnostics.Debug.WriteLine($"✅ Bundled config copied ({json.Length} bytes)");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"⚠️ Could not copy bundled config: {ex.Message}");
+        }
     }
 
     public async Task SaveConfigurationAsync(AzureConfiguration config)
