@@ -26,6 +26,7 @@ public static class MauiProgram
 #endif
 
         // Register Services
+        builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
         builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
         builder.Services.AddSingleton<ICameraService, CameraService>();
         builder.Services.AddSingleton<ICropDiseaseAIService, CropDiseaseAIService>();

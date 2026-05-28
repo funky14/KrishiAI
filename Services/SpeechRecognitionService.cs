@@ -1,10 +1,19 @@
 using KrishiAI.App.Models;
+using Microsoft.CognitiveServices.Speech;
+using Microsoft.CognitiveServices.Speech.Audio;
 using System.Diagnostics;
 
 namespace KrishiAI.App.Services;
 
 public class SpeechRecognitionService : ISpeechRecognitionService
 {
+    private readonly IConfigurationService _configService;
+
+    public SpeechRecognitionService(IConfigurationService configService)
+    {
+        _configService = configService;
+    }
+
     public async Task<string?> StartListeningAsync(string languageCode)
     {
         try
@@ -20,16 +29,66 @@ public class SpeechRecognitionService : ISpeechRecognitionService
                 }
             }
 
-            // In production, integrate Azure Speech SDK or platform-specific APIs
-            // For demo, simulate speech recognition
-            await Task.Delay(2000); // Simulate listening
+            var config = await _configService.GetConfigurationAsync();
 
-            // Mock transcription
+            // Use real Azure Speech if configured
+            if (config.UseRealSpeechRecognition && 
+                !string.IsNullOrEmpty(config.SpeechServiceKey))
+            {
+                return await RecognizeWithAzureSpeechAsync(languageCode, config);
+            }
+
+            // Fallback to mock for testing
+            Debug.WriteLine("⚠️ Using mock speech recognition (Azure Speech not configured)");
+            await Task.Delay(2000); // Simulate listening
             return GetMockTranscription(languageCode);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"StartListeningAsync Error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task<string?> RecognizeWithAzureSpeechAsync(string languageCode, AzureConfiguration config)
+    {
+        try
+        {
+            var speechConfig = SpeechConfig.FromSubscription(config.SpeechServiceKey, config.SpeechServiceRegion);
+            speechConfig.SpeechRecognitionLanguage = languageCode;
+
+            using var audioConfig = AudioConfig.FromDefaultMicrophoneInput();
+            using var recognizer = new SpeechRecognizer(speechConfig, audioConfig);
+
+            Debug.WriteLine($"🎤 Listening in {languageCode}...");
+            var result = await recognizer.RecognizeOnceAsync();
+
+            switch (result.Reason)
+            {
+                case ResultReason.RecognizedSpeech:
+                    Debug.WriteLine($"✅ Recognized: {result.Text}");
+                    return result.Text;
+                    
+                case ResultReason.NoMatch:
+                    Debug.WriteLine("⚠️ No speech could be recognized.");
+                    return null;
+                    
+                case ResultReason.Canceled:
+                    var cancellation = CancellationDetails.FromResult(result);
+                    Debug.WriteLine($"❌ Recognition canceled: {cancellation.Reason}");
+                    if (cancellation.Reason == CancellationReason.Error)
+                    {
+                        Debug.WriteLine($"Error: {cancellation.ErrorDetails}");
+                    }
+                    return null;
+                    
+                default:
+                    return null;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"RecognizeWithAzureSpeechAsync Error: {ex.Message}");
             return null;
         }
     }

@@ -42,7 +42,41 @@ public partial class VoiceAssistantViewModel : BaseViewModel
         
         var languages = _speechService.GetSupportedLanguages();
         SupportedLanguages = new ObservableCollection<SupportedLanguage>(languages);
-        selectedLanguage = languages.First();
+        
+        // Auto-detect device language
+        selectedLanguage = DetectDeviceLanguage(languages);
+    }
+
+    private SupportedLanguage DetectDeviceLanguage(List<SupportedLanguage> languages)
+    {
+        try
+        {
+            // Get device's current culture/language
+            var deviceLanguage = System.Globalization.CultureInfo.CurrentCulture.Name; // e.g., "en-US", "hi-IN"
+            
+            // Try exact match first
+            var matchedLanguage = languages.FirstOrDefault(l => 
+                l.LanguageCode.Equals(deviceLanguage, StringComparison.OrdinalIgnoreCase));
+            
+            if (matchedLanguage != null)
+                return matchedLanguage;
+            
+            // Try partial match (e.g., "hi" matches "hi-IN")
+            var languagePrefix = deviceLanguage.Split('-')[0]; // Get "hi" from "hi-IN"
+            matchedLanguage = languages.FirstOrDefault(l => 
+                l.LanguageCode.StartsWith(languagePrefix, StringComparison.OrdinalIgnoreCase));
+            
+            if (matchedLanguage != null)
+                return matchedLanguage;
+            
+            // Default to English if no match
+            return languages.FirstOrDefault(l => l.LanguageCode.StartsWith("en")) ?? languages.First();
+        }
+        catch
+        {
+            // Fallback to first language (English)
+            return languages.First();
+        }
     }
 
     [RelayCommand]

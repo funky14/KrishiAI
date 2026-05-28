@@ -1,5 +1,90 @@
 # KrishiAI - Next Steps & Setup Guide
 
+## ⚠️ IMPORTANT: Common Issues & Fixes
+
+**If you encounter build errors, follow these solutions:**
+
+### Issue 1: Android SDK Not Found
+**Error:** "The Android SDK directory could not be found"
+**Solution:**
+```powershell
+# Install Android workload
+dotnet workload install android
+
+# Or install via Visual Studio Installer:
+# Modify VS 2026 → Check ".NET Multi-platform App UI development"
+```
+
+### Issue 2: Java JDK Not Found
+**Error:** "The Java SDK directory could not be found"
+**Solution:**
+```powershell
+# Install Microsoft OpenJDK 17
+winget install Microsoft.OpenJDK.17
+
+# Restart terminal after installation
+```
+
+### Issue 3: Missing Resources (Splash/Icon/Fonts)
+**Error:** "Failed to compute hash for file 'Resources\Splash\splash.svg'"
+**Solution:** These are already commented out in the .csproj file. If you see errors:
+- Remove references to splash screens and app icons from .csproj
+- Comment out font configuration in MauiProgram.cs
+- Use default resources initially
+
+### Issue 4: .NET Version Outdated
+**Error:** "The workload 'net8.0-android' is out of support"
+**Solution:** Project uses .NET 9.0 (already updated)
+```xml
+<TargetFrameworks>net9.0-android</TargetFrameworks>
+```
+
+### Issue 5: XAML DataTemplate Multiple Children
+**Error:** "Multiple child elements in DataTemplate"
+**Solution:** Wrap multiple elements in a single container (Grid/StackLayout)
+```xml
+<DataTemplate>
+    <Grid>  <!-- Single root element -->
+        <Frame IsVisible="{Binding IsUserMessage}">...</Frame>
+        <Frame IsVisible="{Binding IsAIMessage}">...</Frame>
+    </Grid>
+</DataTemplate>
+```
+
+### Issue 6: Locale Constructor Not Found
+**Error:** "Locale does not contain a constructor that takes 2 arguments"
+**Solution:** Remove locale parameter from TextToSpeech (already fixed)
+```csharp
+await TextToSpeech.Default.SpeakAsync(text, new SpeechOptions
+{
+    Pitch = 1.0f,
+    Volume = 1.0f
+});
+```
+
+### Issue 7: Android Target SDK Version
+**Warning:** "targetSdkVersion '34' is less than TargetFrameworkVersion"
+**Solution:** Updated to API 35 in AndroidManifest.xml
+```xml
+<uses-sdk android:minSdkVersion="24" android:targetSdkVersion="35" />
+```
+
+### Issue 8: Build Cache Issues
+**Solution:** Clean and rebuild
+```powershell
+dotnet clean
+Remove-Item -Recurse -Force bin,obj
+dotnet restore
+dotnet build -f net9.0-android
+```
+
+**Or in Visual Studio:**
+- Build → Clean Solution
+- Manually delete bin/obj folders from project directory
+- Build → Rebuild Solution
+
+---
+
 ## ✅ Implementation Complete!
 
 The complete KrishiAI MAUI application has been implemented with all core features:
@@ -11,26 +96,42 @@ The complete KrishiAI MAUI application has been implemented with all core featur
 ✅ All service interfaces and implementations  
 ✅ Complete ViewModels for all pages  
 ✅ XAML UI for all pages (Home, Disease Detection, Voice Assistant, History, Settings)  
-✅ Platform-specific configurations (Android & iOS)  
+✅ Platform-specific configurations (Android only - iOS removed)  
 ✅ Permissions setup for camera, microphone, storage  
 ✅ Value converters and helpers  
 ✅ Styling and theming  
+✅ .NET 9.0 with Android API 35 support
 
 ---
 
 ## 🚀 Next Steps to Run the App
 
-### 1. Build the Project
+### 1. Install Prerequisites
 
-Open PowerShell in the project directory and run:
+**Required Software:**
+- Visual Studio 2026 with ".NET Multi-platform App UI development" workload
+- OR .NET 9 SDK with Android workload: `dotnet workload install android`
+- Microsoft OpenJDK 17: `winget install Microsoft.OpenJDK.17`
 
+### 2. Build the Project
+
+**Using Visual Studio 2026:**
+1. Open KrishiAI.App.sln
+2. Build → Clean Solution
+3. Build → Rebuild Solution
+4. Select net9.0-android from dropdown
+5. Select Android Emulator
+6. Press F5
+
+**Using Command Line:**
 ```powershell
 cd "c:\Chetan\Projects\Hackathon\AI Farmer Assistant\KrishiAI.App"
+dotnet clean
 dotnet restore
-dotnet build -f net8.0-android
+dotnet build -f net9.0-android
 ```
 
-### 2. Add MobileNetV2 ONNX Model
+### 3. Add MobileNetV2 ONNX Model (Optional)
 
 **Option A: Use your trained model**
 - Place your `mobilenetv2_cropdisease.onnx` file in `Resources/Raw/` folder

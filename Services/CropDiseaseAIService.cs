@@ -1,6 +1,7 @@
 using KrishiAI.App.Models;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
+using SkiaSharp;
 using System.Diagnostics;
 
 namespace KrishiAI.App.Services;
@@ -8,17 +9,70 @@ namespace KrishiAI.App.Services;
 public class CropDiseaseAIService : ICropDiseaseAIService
 {
     private InferenceSession? _session;
-    private readonly string[] _labels = new[]
+    private string[] _labels = new[]
     {
+        // Rice Diseases
         "Rice Blast",
         "Brown Spot",
         "Bacterial Blight",
+        "Rice Sheath Blight",
+        "Rice Tungro",
+        
+        // Tomato Diseases
         "Tomato Leaf Curl",
         "Early Blight",
         "Late Blight",
+        "Tomato Septoria Leaf Spot",
+        "Tomato Yellow Leaf Curl Virus",
+        "Tomato Mosaic Virus",
+        "Tomato Bacterial Spot",
+        "Tomato Target Spot",
+        
+        // Potato Diseases
+        "Potato Early Blight",
+        "Potato Late Blight",
         "Potato Blight",
+        
+        // Wheat Diseases
         "Wheat Rust",
+        "Wheat Leaf Blight",
+        "Wheat Powdery Mildew",
+        
+        // Cotton Diseases
         "Cotton Leaf Disease",
+        "Cotton Bacterial Blight",
+        
+        // Corn/Maize Diseases
+        "Corn Northern Leaf Blight",
+        "Corn Common Rust",
+        "Corn Gray Leaf Spot",
+        
+        // Grape Diseases
+        "Grape Black Rot",
+        "Grape Leaf Blight",
+        "Grape Powdery Mildew",
+        
+        // Apple Diseases
+        "Apple Scab",
+        "Apple Black Rot",
+        "Apple Cedar Rust",
+        
+        // Pepper/Chili Diseases
+        "Pepper Bacterial Spot",
+        "Pepper Leaf Curl",
+        
+        // Sugarcane Diseases
+        "Sugarcane Red Rot",
+        "Sugarcane Rust",
+        
+        // Other Common Diseases
+        "Powdery Mildew",
+        "Downy Mildew",
+        "Anthracnose",
+        "Leaf Spot",
+        "Root Rot",
+        
+        // Healthy
         "Healthy Plant"
     };
 
@@ -26,27 +80,86 @@ public class CropDiseaseAIService : ICropDiseaseAIService
     {
         try
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
-                var modelPath = Path.Combine(FileSystem.AppDataDirectory, "mobilenetv2_cropdisease.onnx");
+                // Load custom labels if available
+                await LoadLabelsAsync();
                 
-                // For demo purposes, we'll skip actual model loading if file doesn't exist
-                // In production, you would bundle the ONNX model with the app
-                if (File.Exists(modelPath))
+                // Try loading from Resources/Raw first (bundled with app)
+                var modelPath = await LoadModelFromResourcesAsync();
+                
+                if (!string.IsNullOrEmpty(modelPath) && File.Exists(modelPath))
                 {
                     _session = new InferenceSession(modelPath);
-                    Debug.WriteLine("ONNX Model loaded successfully");
+                    Debug.WriteLine($"✅ MobileNetV2 ONNX Model loaded successfully from: {modelPath}");
+                    Debug.WriteLine($"📊 Supporting {_labels.Length} disease classes");
                 }
                 else
                 {
-                    Debug.WriteLine("ONNX Model not found - using mock predictions");
+                    Debug.WriteLine("⚠️ MobileNetV2 ONNX Model not found - using mock predictions");
+                    Debug.WriteLine("📋 To enable real disease detection:");
+                    Debug.WriteLine("   1. Place 'mobilenetv2_cropdisease.onnx' in Resources/Raw/ folder");
+                    Debug.WriteLine("   2. (Optional) Place 'disease_labels.txt' in Resources/Raw/ for custom labels");
+                    Debug.WriteLine("   3. Rebuild the app");
                 }
             });
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"InitializeAsync Error: {ex.Message}");
+            Debug.WriteLine($"❌ InitializeAsync Error: {ex.Message}");
         }
+    }
+    
+    private async Task LoadLabelsAsync()
+    {
+        try
+        {
+            // Try to load custom labels from disease_labels.txt
+            using var stream = await FileSystem.OpenAppPackageFileAsync("disease_labels.txt");
+            using var reader = new StreamReader(stream);
+            var content = await reader.ReadToEndAsync();
+            var customLabels = content.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(l => l.Trim())
+                                     .Where(l => !string.IsNullOrEmpty(l))
+                                     .ToArray();
+            
+            if (customLabels.Length > 0)
+            {
+                _labels = customLabels;
+                Debug.WriteLine($"✅ Loaded {customLabels.Length} custom disease labels from disease_labels.txt");
+            }
+        }
+        catch
+        {
+            // Use default labels if custom file not found
+            Debug.WriteLine("ℹ️ Using default disease labels (38+ diseases)");
+        }
+    }
+
+    private async Task<string> LoadModelFromResourcesAsync()
+    {
+        try
+        {
+            // Check if model exists in Resources/Raw
+            using var stream = await FileSystem.OpenAppPackageFileAsync("mobilenetv2_cropdisease.onnx");
+            
+            if (stream != null)
+            {
+                // Copy to AppDataDirectory for access
+                var modelPath = Path.Combine(FileSystem.AppDataDirectory, "mobilenetv2_cropdisease.onnx");
+                
+                using var fileStream = File.Create(modelPath);
+                await stream.CopyToAsync(fileStream);
+                
+                return modelPath;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Model not found in resources: {ex.Message}");
+        }
+        
+        return string.Empty;
     }
 
     public async Task<DiseaseDetectionResult?> PredictDiseaseAsync(string imagePath)
@@ -87,15 +200,40 @@ public class CropDiseaseAIService : ICropDiseaseAIService
     {
         return await Task.Run(() =>
         {
-            // In production, you would:
-            // 1. Load image using SkiaSharp or ImageSharp
-            // 2. Resize to 224x224
-            // 3. Normalize RGB values (0-1)
-            // 4. Convert to tensor format
-
-            // For now, create a dummy tensor
-            var tensor = new DenseTensor<float>(new[] { 1, 3, 224, 224 });
-            return tensor;
+            try
+            {
+                // Load image using SkiaSharp
+                using var inputStream = File.OpenRead(imagePath);
+                using var original = SKBitmap.Decode(inputStream);
+                
+                // Resize to 224x224 (MobileNetV2 input size)
+                using var resized = original.Resize(new SKImageInfo(224, 224), SKFilterQuality.High);
+                
+                // Convert to RGB and normalize to 0-1 range
+                var tensor = new DenseTensor<float>(new[] { 1, 3, 224, 224 });
+                
+                for (int y = 0; y < 224; y++)
+                {
+                    for (int x = 0; x < 224; x++)
+                    {
+                        var pixel = resized.GetPixel(x, y);
+                        
+                        // Normalize pixel values to 0-1 range
+                        // Channel order: RGB
+                        tensor[0, 0, y, x] = pixel.Red / 255f;    // R channel
+                        tensor[0, 1, y, x] = pixel.Green / 255f;  // G channel
+                        tensor[0, 2, y, x] = pixel.Blue / 255f;   // B channel
+                    }
+                }
+                
+                return tensor;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"PreprocessImageAsync Error: {ex.Message}");
+                // Return empty tensor on error
+                return new DenseTensor<float>(new[] { 1, 3, 224, 224 });
+            }
         });
     }
 

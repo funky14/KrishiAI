@@ -1,0 +1,40 @@
+Rice Blast
+Brown Spot
+Bacterial Blight
+Rice Sheath Blight
+Rice Tungro
+Tomato Leaf Curl
+Early Blight
+Late Blight
+Tomato Septoria Leaf Spot
+Tomato Yellow Leaf Curl Virus
+Tomato Mosaic Virus
+Tomato Bacterial Spot
+Tomato Target Spot
+Potato Early Blight
+Potato Late Blight
+Potato Blight
+Wheat Rust
+Wheat Leaf Blight
+Wheat Powdery Mildew
+Cotton Leaf Disease
+Cotton Bacterial Blight
+Corn Northern Leaf Blight
+Corn Common Rust
+Corn Gray Leaf Spot
+Grape Black Rot
+Grape Leaf Blight
+Grape Powdery Mildew
+Apple Scab
+Apple Black Rot
+Apple Cedar Rust
+Pepper Bacterial Spot
+Pepper Leaf Curl
+Sugarcane Red Rot
+Sugarcane Rust
+Powdery Mildew
+Downy Mildew
+Anthracnose
+Leaf Spot
+Root Rot
+Healthy Plant

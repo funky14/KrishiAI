@@ -1,3 +1,6 @@
+using Azure;
+using Azure.AI.OpenAI;
+using KrishiAI.App.Models;
 using System.Diagnostics;
 
 namespace KrishiAI.App.Services;
@@ -5,10 +8,12 @@ namespace KrishiAI.App.Services;
 public class AIChatService : IAIChatService
 {
     private readonly IConnectivityService _connectivityService;
+    private readonly IConfigurationService _configService;
 
-    public AIChatService(IConnectivityService connectivityService)
+    public AIChatService(IConnectivityService connectivityService, IConfigurationService configService)
     {
         _connectivityService = connectivityService;
+        _configService = configService;
     }
 
     public async Task<string> ProcessQueryAsync(string userQuery, string languageCode)
@@ -20,10 +25,19 @@ public class AIChatService : IAIChatService
                 return GetOfflineResponse(languageCode);
             }
 
-            // In production, integrate with Azure OpenAI
-            // For demo, return mock response
-            await Task.Delay(1000); // Simulate API call
+            var config = await _configService.GetConfigurationAsync();
 
+            // Use real Azure OpenAI if configured
+            if (config.UseRealAIChat && 
+                !string.IsNullOrEmpty(config.OpenAIKey) && 
+                !string.IsNullOrEmpty(config.OpenAIEndpoint))
+            {
+                return await GetAzureOpenAIResponseAsync(userQuery, languageCode, config);
+            }
+
+            // Fallback to mock for testing
+            Debug.WriteLine("⚠️ Using mock AI chat (Azure OpenAI not configured)");
+            await Task.Delay(1000); // Simulate API call
             return GetMockResponse(userQuery, languageCode);
         }
         catch (Exception ex)
@@ -31,6 +45,64 @@ public class AIChatService : IAIChatService
             Debug.WriteLine($"ProcessQueryAsync Error: {ex.Message}");
             return "Sorry, I couldn't process your query at the moment.";
         }
+    }
+
+    private async Task<string> GetAzureOpenAIResponseAsync(string userQuery, string languageCode, AzureConfiguration config)
+    {
+        try
+        {
+            var client = new OpenAIClient(
+                new Uri(config.OpenAIEndpoint),
+                new AzureKeyCredential(config.OpenAIKey));
+
+            var chatCompletionsOptions = new ChatCompletionsOptions()
+            {
+                DeploymentName = config.OpenAIDeploymentName,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(GetSystemPrompt(languageCode)),
+                    new ChatRequestUserMessage(userQuery)
+                },
+                Temperature = 0.7f,
+                MaxTokens = 500
+            };
+
+            Debug.WriteLine($"🤖 Sending query to Azure OpenAI...");
+            var response = await client.GetChatCompletionsAsync(chatCompletionsOptions);
+            var answer = response.Value.Choices[0].Message.Content;
+            
+            Debug.WriteLine($"✅ Received AI response ({answer.Length} chars)");
+            return answer;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"GetAzureOpenAIResponseAsync Error: {ex.Message}");
+            return GetMockResponse(userQuery, languageCode);
+        }
+    }
+
+    private string GetSystemPrompt(string languageCode)
+    {
+        var languageInstructions = languageCode.StartsWith("hi") ? "Respond in Hindi." :
+                                   languageCode.StartsWith("mr") ? "Respond in Marathi." :
+                                   languageCode.StartsWith("ta") ? "Respond in Tamil." :
+                                   languageCode.StartsWith("te") ? "Respond in Telugu." :
+                                   languageCode.StartsWith("pa") ? "Respond in Punjabi." :
+                                   languageCode.StartsWith("gu") ? "Respond in Gujarati." :
+                                   languageCode.StartsWith("bn") ? "Respond in Bengali." :
+                                   "Respond in English.";
+
+        return $@"You are KrishiAI, an expert agricultural assistant for Indian farmers. 
+Provide practical, actionable farming advice focusing on:
+- Crop disease identification and treatment
+- Pest management (organic and chemical solutions)
+- Soil health and fertilization
+- Irrigation and water management
+- Weather-based farming recommendations
+- Government schemes for farmers
+
+Keep responses concise (2-3 sentences), practical, and farmer-friendly.
+{languageInstructions}";
     }
 
     private string GetOfflineResponse(string languageCode)

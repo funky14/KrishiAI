@@ -26,11 +26,13 @@ KrishiAI is a cross-platform mobile application built with .NET MAUI that helps 
 
 ## Technology Stack
 
-- **.NET MAUI 8.0**: Cross-platform framework
+- **.NET 9.0**: Latest .NET framework
+- **.NET MAUI**: Cross-platform framework (Android focused)
 - **MVVM Pattern**: CommunityToolkit.Mvvm
 - **ML.NET**: Microsoft.ML.OnnxRuntime for AI inference
-- **SQLite**: Local data persistence
+- **SQLite**: Local data persistence (sqlite-net-pcl)
 - **Azure Services**: Speech Recognition, Text-to-Speech, OpenAI (optional)
+- **Android API 35**: Target Android 15 (minimum API 24 / Android 7.0)
 
 ## Project Structure
 
@@ -54,45 +56,62 @@ KrishiAI.App/
 ## Getting Started
 
 ### Prerequisites
-- .NET 8.0 SDK or later
-- Visual Studio 2022 or VS Code with MAUI workload
-- Android SDK (for Android development)
-- Xcode (for iOS development on Mac)
+- .NET 9.0 SDK or later
+- Visual Studio 2026 with ".NET Multi-platform App UI development" workload
+- OR Visual Studio Code with MAUI extensions
+- Android SDK (automatically installed with MAUI workload)
+- Java JDK 17 (Microsoft OpenJDK recommended)
+- Android Emulator or physical Android device
 
 ### Setup
 
-1. **Clone the repository**
-   ```bash
-   cd "c:\Chetan\Projects\Hackathon\AI Farmer Assistant\KrishiAI.App"
+1. **Install Prerequisites**
+   ```powershell
+   # Install .NET workloads
+   dotnet workload install android maui
+   
+   # Install Java JDK
+   winget install Microsoft.OpenJDK.17
    ```
 
-2. **Restore NuGet packages**
-   ```bash
+2. **Open Project**
+   - Open `KrishiAI.App.sln` in Visual Studio 2026
+   - Or navigate to project directory for command-line build
+
+3. **Restore NuGet Packages**
+   ```powershell
    dotnet restore
    ```
 
-3. **Add MobileNetV2 ONNX Model**
+4. **Add MobileNetV2 ONNX Model (Optional)**
    - Place your trained `mobilenetv2_cropdisease.onnx` model in `Resources/Raw/` folder
    - Update the labels in `CropDiseaseAIService.cs` to match your model's classes
+   - App uses mock predictions if model is not provided
 
-4. **Configure Azure Services (Optional)**
+5. **Configure Azure Services (Optional)**
    - Add Azure Speech API keys for speech recognition
    - Add Azure OpenAI credentials for chat service
    - Update configuration in respective services
+   - App uses mock responses for demo if not configured
 
 ### Build and Run
 
-**For Android:**
-```bash
-dotnet build -f net8.0-android
-dotnet run -f net8.0-android
+**Using Visual Studio 2026:**
+1. Select **net9.0-android** from target framework dropdown
+2. Select your Android Emulator device
+3. Press **F5** to build and run
+
+**Using Command Line:**
+```powershell
+# Clean and build
+dotnet clean
+dotnet build -f net9.0-android
+
+# Run on emulator/device
+dotnet build -f net9.0-android -t:Run
 ```
 
-**For iOS:**
-```bash
-dotnet build -f net8.0-ios
-dotnet run -f net8.0-ios
-```
+**Note:** iOS support has been removed. Project targets Android only.
 
 ## Configuration
 
@@ -103,17 +122,11 @@ dotnet run -f net8.0-ios
 <uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-sdk android:minSdkVersion="24" android:targetSdkVersion="35" />
 ```
 
-**iOS** (`Platforms/iOS/Info.plist`):
-```xml
-<key>NSCameraUsageDescription</key>
-<string>This app needs camera access to capture crop images for disease detection</string>
-<key>NSPhotoLibraryUsageDescription</key>
-<string>This app needs photo library access to select crop images</string>
-<key>NSMicrophoneUsageDescription</key>
-<string>This app needs microphone access for voice assistant features</string>
-```
+**Note:** Permissions are automatically requested at runtime when features are used.
 
 ## Usage
 
@@ -158,25 +171,130 @@ Modify colors and styles in `Resources/Styles/Colors.xaml` and `Resources/Styles
 
 ## Production Deployment
 
-### Android
-1. Set configuration to Release
-2. Generate signed APK/AAB
-3. Upload to Google Play Console
+### Android Release Build
 
-### iOS
-1. Configure signing certificates
-2. Archive for App Store
-3. Submit to App Store Connect
+**Using Visual Studio 2026:**
+1. Set configuration to **Release**
+2. Right-click project → **Publish** → **Google Play Store**
+3. Follow wizard to create signed AAB/APK
+
+**Using Command Line:**
+```powershell
+# Create release build
+dotnet publish -f net9.0-android -c Release
+
+# Output location:
+# bin/Release/net9.0-android/publish/
+```
+
+**Google Play Store Submission:**
+1. Create app listing in Google Play Console
+2. Upload APK/AAB file
+3. Complete store listing (description, screenshots, privacy policy)
+4. Submit for review
+
+**App Versioning:**
+Update in `.csproj` file:
+```xml
+<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+<ApplicationVersion>1</ApplicationVersion>
+```
 
 ## Troubleshooting
 
-**Model not loading**: Ensure ONNX model is in `Resources/Raw/` and set as `MauiAsset`
+### Build Errors
 
-**Camera not working**: Check permissions are granted in device settings
+**Error: "The workload 'net8.0-android' is out of support"**
+- **Solution**: Project uses .NET 9.0. Update Visual Studio 2026 and install .NET 9 SDK
+- Already configured in project: `<TargetFrameworks>net9.0-android</TargetFrameworks>`
 
-**Speech recognition failing**: Verify microphone permissions and internet connectivity
+**Error: "Android SDK directory could not be found"**
+```powershell
+# Solution 1: Install Android workload
+dotnet workload install android
 
-**Build errors**: Clean solution and restore NuGet packages
+# Solution 2: Install via Visual Studio Installer
+# Modify VS 2026 → Check ".NET Multi-platform App UI development"
+```
+
+**Error: "Java SDK directory could not be found"**
+```powershell
+# Install Microsoft OpenJDK 17
+winget install Microsoft.OpenJDK.17
+# Restart terminal after installation
+```
+
+**Error: "Failed to compute hash for file 'Resources\Splash\splash.svg'"**
+- **Solution**: Splash screen and fonts are commented out in .csproj and MauiProgram.cs
+- If you see this error, ensure these are commented out or create the files
+
+**Error: "Multiple child elements in DataTemplate"**
+- **Solution**: Wrap multiple elements in a single Grid/StackLayout container
+- Already fixed in VoiceAssistantPage.xaml
+
+**Error: "Locale does not contain a constructor"**
+- **Solution**: Removed locale parameter from TextToSpeech
+- Already fixed in TextToSpeechService.cs
+
+**Error: "resource mipmap/appicon not found"**
+- **Solution**: Icon references removed from AndroidManifest.xml
+- App uses default icon until custom icons are added
+
+**Warning: "targetSdkVersion '34' is less than TargetFrameworkVersion"**
+- **Solution**: Updated to API 35 in AndroidManifest.xml
+- `<uses-sdk android:minSdkVersion="24" android:targetSdkVersion="35" />`
+
+**Build Cache Issues:**
+```powershell
+# PowerShell
+dotnet clean
+Remove-Item -Recurse -Force bin,obj
+dotnet restore
+dotnet build -f net9.0-android
+
+# Or in Visual Studio
+# Build → Clean Solution
+# Manually delete bin/obj folders
+# Build → Rebuild Solution
+```
+
+### Runtime Errors
+
+**Model not loading**: 
+- Ensure ONNX model is in `Resources/Raw/` and set as `MauiAsset`
+- App will use mock predictions if model is not found
+
+**Camera not working**: 
+- Check permissions are granted in device settings
+- Verify AndroidManifest.xml has camera permission
+- For iOS, check Info.plist has usage descriptions
+
+**Speech recognition failing**: 
+- Verify microphone permissions
+- Check internet connectivity (required for cloud-based recognition)
+- Mock responses are used for demo if Azure services not configured
+
+**App crashes on startup**:
+- Check Output window in Visual Studio for detailed error logs
+- Ensure all NuGet packages are restored
+- Delete bin/obj folders and rebuild
+- Check Android emulator API level (minimum API 24 required)
+
+**Emulator not starting**:
+- Open Android Device Manager in Visual Studio
+- Create new device with Android 13.0+ (API 33+)
+- Ensure hardware acceleration is enabled (Intel HAXM or AMD-V)
+
+### Performance Issues
+
+**Slow ML inference**: 
+- Ensure model is loaded once at startup (implemented in CropDiseaseAIService)
+- Run predictions on background thread (already implemented)
+- Consider model quantization for faster inference
+
+**UI freezing**: 
+- All long-running operations run on background threads
+- If UI freezes, check for missing async/await in ViewModels
 
 ## Contributing
 This is a hackathon project. Feel free to fork and enhance!
