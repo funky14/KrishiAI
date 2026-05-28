@@ -1,5 +1,5 @@
 """
-Download MobileNetV2 from PyTorch and convert to ONNX
+Download ResNet50 from PyTorch and convert to ONNX
 Run: pip install torch torchvision onnx
 """
 import torch
@@ -9,13 +9,14 @@ import torch.nn as nn
 # Number of disease classes
 NUM_CLASSES = 38  # Customize based on your dataset
 
-print("🔽 Downloading MobileNetV2 pre-trained on ImageNet...")
+print("🔽 Downloading ResNet50 pre-trained on ImageNet...")
 
-# Load pre-trained MobileNetV2
-model = models.mobilenet_v2(pretrained=True)
+# Load pre-trained ResNet50
+model = models.resnet50(pretrained=True)
 
 # Modify the classifier for plant diseases
-model.classifier[1] = nn.Linear(model.last_channel, NUM_CLASSES)
+num_ftrs = model.fc.in_features
+model.fc = nn.Linear(num_ftrs, NUM_CLASSES)
 
 print("✅ Model architecture created")
 print(f"📊 Output classes: {NUM_CLASSES}")
@@ -29,7 +30,7 @@ print("🔄 Converting to ONNX format...")
 dummy_input = torch.randn(1, 3, 224, 224)
 
 # Export to ONNX
-output_path = "mobilenetv2_cropdisease.onnx"
+output_path = "resnet50_cropdisease.onnx"
 torch.onnx.export(
     model,
     dummy_input,
@@ -48,5 +49,6 @@ torch.onnx.export(
 print(f"✅ ONNX model saved to: {output_path}")
 print("\n📋 Next steps:")
 print(f"   1. Copy '{output_path}' to: C:\\Chetan\\Projects\\Hackathon\\KrishiAI\\Resources\\Raw\\")
-print("   2. Rebuild the app")
-print("\n⚠️  Note: This is a base model. For production, train on actual plant disease images!")
+print(f"   2. Rename it to: mobilenetv2_cropdisease.onnx")
+print("   3. Rebuild the app")
+print("\n⚠️  Note: This is a base ResNet50 model. For production, train on actual plant disease images!")

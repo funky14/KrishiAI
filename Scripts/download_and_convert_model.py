@@ -1,5 +1,5 @@
 """
-Download MobileNetV2 from TensorFlow and convert to ONNX
+Download ResNet50 from TensorFlow and convert to ONNX
 Run: pip install tensorflow tf2onnx numpy pillow
 """
 import tensorflow as tf
@@ -11,10 +11,10 @@ import shutil
 # Number of disease classes (customize based on your dataset)
 NUM_CLASSES = 38  # PlantVillage has 38 classes
 
-print("🔽 Downloading MobileNetV2 pre-trained on ImageNet...")
+print("🔽 Downloading ResNet50 pre-trained on ImageNet...")
 
-# Load MobileNetV2 pre-trained on ImageNet
-base_model = tf.keras.applications.MobileNetV2(
+# Load ResNet50 pre-trained on ImageNet
+base_model = tf.keras.applications.ResNet50(
     input_shape=(224, 224, 3),
     include_top=False,
     weights='imagenet'
@@ -47,7 +47,7 @@ model.export(saved_model_path)  # Keras 3: use export() for SavedModel
 print("✅ Model exported in TensorFlow SavedModel format")
 
 # Convert from SavedModel to ONNX (more stable than direct Keras conversion)
-output_path = "mobilenetv2_cropdisease.onnx"
+output_path = "resnet50_cropdisease.onnx"
 
 result = subprocess.run([
     'python', '-m', 'tf2onnx.convert',
@@ -67,5 +67,6 @@ shutil.rmtree(saved_model_path)
 print("🧹 Cleaned up temporary files")
 print("\n📋 Next steps:")
 print(f"   1. Copy '{output_path}' to: C:\\Chetan\\Projects\\Hackathon\\KrishiAI\\Resources\\Raw\\")
-print("   2. Rebuild the app")
-print("\n⚠️  Note: This is a base model. For production, train on actual plant disease images!")
+print(f"   2. Rename it to: mobilenetv2_cropdisease.onnx")
+print("   3. Rebuild the app")
+print("\n⚠️  Note: This is a base ResNet50 model. For production, train on actual plant disease images!")

@@ -36,5 +36,3 @@ Powdery Mildew
 Downy Mildew
 Anthracnose
 Leaf Spot
-Root Rot
-Healthy Plant
