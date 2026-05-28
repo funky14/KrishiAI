@@ -38,7 +38,7 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                                                .Select(i => $"Disease Class {i}")
                                                .ToArray();
                             
-                            Debug.WriteLine($"✅ ResNet50 ONNX Model loaded successfully from: {modelPath}");
+                            Debug.WriteLine($"✅ MobileNetV2 ONNX Model loaded successfully from: {modelPath}");
                             Debug.WriteLine($"📊 Auto-detected {numClasses} output classes from model");
                         }
                     }
@@ -62,9 +62,9 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                 }
                 else
                 {
-                    Debug.WriteLine("⚠️ ResNet50 ONNX Model not found - using mock predictions");
+                    Debug.WriteLine("⚠️ MobileNetV2 ONNX Model not found - using mock predictions");
                     Debug.WriteLine("📋 To enable real disease detection:");
-                    Debug.WriteLine("   1. Place 'resnet50_cropdisease.onnx' in Resources/Raw/ folder");
+                    Debug.WriteLine("   1. Place 'mobilenetv2_cropdisease.onnx' in Resources/Raw/ folder");
                     Debug.WriteLine("   2. Rebuild the app");
                     Debug.WriteLine("");
                     Debug.WriteLine("💡 The app will automatically detect the number of classes from your model!");
@@ -84,14 +84,14 @@ public class CropDiseaseAIService : ICropDiseaseAIService
             Debug.WriteLine("🔍 Attempting to load ONNX model from Resources/Raw...");
             
             // Check if model exists in Resources/Raw
-            using var stream = await FileSystem.OpenAppPackageFileAsync("resnet50_cropdisease.onnx");
+            using var stream = await FileSystem.OpenAppPackageFileAsync("mobilenetv2_cropdisease.onnx");
             
             if (stream != null)
             {
                 Debug.WriteLine("✅ Model file found in app package!");
                 
                 // Copy to AppDataDirectory for access
-                var modelPath = Path.Combine(FileSystem.AppDataDirectory, "resnet50_cropdisease.onnx");
+                var modelPath = Path.Combine(FileSystem.AppDataDirectory, "mobilenetv2_cropdisease.onnx");
                 
                 Debug.WriteLine($"📂 Copying model to: {modelPath}");
                 
@@ -204,10 +204,10 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                 using var inputStream = File.OpenRead(imagePath);
                 using var original = SKBitmap.Decode(inputStream);
                 
-                // Resize to 224x224 (ResNet50 input size)
+                // Resize to 224x224 (MobileNetV2 input size)
                 using var resized = original.Resize(new SKImageInfo(224, 224), SKFilterQuality.High);
                 
-                // ImageNet normalization values (standard for ResNet50 and other ImageNet models)
+                // ImageNet normalization values (standard for MobileNetV2 and other ImageNet models)
                 float[] mean = { 0.485f, 0.456f, 0.406f };
                 float[] std = { 0.229f, 0.224f, 0.225f };
                 

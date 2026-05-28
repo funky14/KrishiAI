@@ -1,4 +1,4 @@
-# Get Pre-trained ResNet50 Model for KrishiAI
+# Get Pre-trained MobileNetV2 Model for KrishiAI
 
 ## 🎯 Dynamic Architecture - No Label Files Needed!
 
@@ -14,16 +14,16 @@ No need for `disease_labels.txt` - just change `NUM_CLASSES` in the Python scrip
 Download from these sources:
 
 1. **ONNX Model Zoo:**
-   - https://github.com/onnx/models/tree/main/vision/classification/resnet
+   - https://github.com/onnx/models/tree/main/vision/classification/mobilenet
 
 2. **Kaggle Models:**
-   - https://www.kaggle.com/models?search=plant+disease+resnet
+   - https://www.kaggle.com/models?search=plant+disease+mobilenet
    - https://www.kaggle.com/datasets/vipoooool/new-plant-diseases-dataset
 
 3. **Hugging Face:**
-   - https://huggingface.co/models?search=resnet+plant+disease
+   - https://huggingface.co/models?search=mobilenet+plant+disease
 
-After downloading, rename to `resnet50_cropdisease.onnx` and place in `Resources/Raw/`
+After downloading, rename to `mobilenetv2_cropdisease.onnx` and place in `Resources/Raw/`
 
 ---
 
@@ -71,7 +71,7 @@ After downloading, rename to `resnet50_cropdisease.onnx` and place in `Resources
 
 1. **Copy model to Resources/Raw:**
    ```powershell
-   copy resnet50_cropdisease.onnx ..\Resources\Raw\
+   copy mobilenetv2_cropdisease.onnx ..\Resources\Raw\
    ```
 
 2. **Rebuild and deploy:**
@@ -82,7 +82,7 @@ After downloading, rename to `resnet50_cropdisease.onnx` and place in `Resources
 
 3. **Check logs - the app auto-detects the model's output size:**
    ```
-   ✅ ResNet50 ONNX Model loaded successfully
+   ✅ MobileNetV2 ONNX Model loaded successfully
    📊 Auto-detected 38 output classes from model
    ```
 
