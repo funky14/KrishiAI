@@ -111,8 +111,9 @@ train_dataset, val_dataset = torch.utils.data.random_split(full_dataset, [train_
 # Update val_dataset transform
 val_dataset.dataset.transform = val_transform
 
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=2)
-val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=2)
+# Use num_workers=0 on Windows to avoid multiprocessing issues
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
+val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 
 print(f"✅ Data loaders ready!")
 print(f"   Training samples: {train_size}")
