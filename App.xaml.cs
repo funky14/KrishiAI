@@ -8,32 +8,28 @@ public partial class App : Application
 
     public App(IConfigurationService configurationService)
     {
-        InitializeComponent();
-        _configService = configurationService;
-
-        MainPage = new AppShell();
-        
-        // Initialize configuration immediately in constructor
-        Task.Run(async () =>
+        try
         {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine("🚀 APP CONSTRUCTOR: Starting azure_config.json initialization...");
-                System.Diagnostics.Debug.WriteLine($"📂 App Data Directory: {FileSystem.AppDataDirectory}");
-                
-                var config = await _configService.GetConfigurationAsync();
-                
-                System.Diagnostics.Debug.WriteLine($"✅ Configuration initialized successfully!");
-                System.Diagnostics.Debug.WriteLine($"📁 Config file location: {Path.Combine(FileSystem.AppDataDirectory, "azure_config.json")}");
-                System.Diagnostics.Debug.WriteLine($"   - Speech configured: {!string.IsNullOrEmpty(config.SpeechServiceKey)}");
-                System.Diagnostics.Debug.WriteLine($"   - OpenAI configured: {!string.IsNullOrEmpty(config.OpenAIKey)}");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"❌ FATAL ERROR in config initialization: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"❌ Stack trace: {ex.StackTrace}");
-            }
-        });
+            System.Diagnostics.Debug.WriteLine("🚀 APP STARTING...");
+            
+            InitializeComponent();
+            System.Diagnostics.Debug.WriteLine("   InitializeComponent() done");
+            
+            _configService = configurationService;
+            System.Diagnostics.Debug.WriteLine("   ConfigService assigned");
+
+            MainPage = new AppShell();
+            System.Diagnostics.Debug.WriteLine("✅ APP CONSTRUCTOR COMPLETED - AppShell created");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌❌❌ APP CONSTRUCTOR FAILED!");
+            System.Diagnostics.Debug.WriteLine($"❌ Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌ Type: {ex.GetType().Name}");
+            System.Diagnostics.Debug.WriteLine($"❌ Stack: {ex.StackTrace}");
+            System.Diagnostics.Debug.WriteLine($"❌ Inner: {ex.InnerException?.Message}");
+            throw;
+        }
     }
 
     protected override async void OnStart()
@@ -42,13 +38,19 @@ public partial class App : Application
         
         try
         {
-            System.Diagnostics.Debug.WriteLine("🔄 ONSTART: Verifying azure_config.json...");
+            System.Diagnostics.Debug.WriteLine("🔄 ONSTART: Initializing azure_config.json...");
+            System.Diagnostics.Debug.WriteLine($"📂 App Data Directory: {FileSystem.AppDataDirectory}");
+            
             var config = await _configService.GetConfigurationAsync();
-            System.Diagnostics.Debug.WriteLine($"✅ ONSTART: Config verified");
+            
+            System.Diagnostics.Debug.WriteLine($"✅ Configuration loaded!");
+            System.Diagnostics.Debug.WriteLine($"   - Speech configured: {!string.IsNullOrEmpty(config.SpeechServiceKey)}");
+            System.Diagnostics.Debug.WriteLine($"   - OpenAI configured: {!string.IsNullOrEmpty(config.OpenAIKey)}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"❌ ONSTART ERROR: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌ Stack: {ex.StackTrace}");
         }
     }
 
