@@ -47,17 +47,34 @@ public class ConfigurationService : IConfigurationService
         try
         {
             var configPath = Path.Combine(FileSystem.AppDataDirectory, ConfigFileName);
-            System.Diagnostics.Debug.WriteLine($"💾 Saving config to: {configPath}");
+            System.Diagnostics.Debug.WriteLine($"💾 SaveConfigurationAsync STARTED");
+            System.Diagnostics.Debug.WriteLine($"   Target path: {configPath}");
+            System.Diagnostics.Debug.WriteLine($"   Directory exists: {Directory.Exists(FileSystem.AppDataDirectory)}");
+            
+            // Ensure directory exists
+            Directory.CreateDirectory(FileSystem.AppDataDirectory);
             
             var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
+            System.Diagnostics.Debug.WriteLine($"   JSON serialized: {json.Length} bytes");
+            
             await File.WriteAllTextAsync(configPath, json);
             _cachedConfig = config;
             
-            System.Diagnostics.Debug.WriteLine($"✅ Config saved successfully ({json.Length} bytes)");
+            // Verify file was created
+            bool fileExists = File.Exists(configPath);
+            long fileSize = fileExists ? new FileInfo(configPath).Length : 0;
+            
+            System.Diagnostics.Debug.WriteLine($"✅ Config saved successfully!");
+            System.Diagnostics.Debug.WriteLine($"   File exists: {fileExists}");
+            System.Diagnostics.Debug.WriteLine($"   File size: {fileSize} bytes");
+            System.Diagnostics.Debug.WriteLine($"   Content preview: {json.Substring(0, Math.Min(100, json.Length))}...");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"❌ SaveConfigurationAsync Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌ SaveConfigurationAsync FAILED!");
+            System.Diagnostics.Debug.WriteLine($"   Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"   Type: {ex.GetType().Name}");
+            System.Diagnostics.Debug.WriteLine($"   Stack: {ex.StackTrace}");
         }
     }
 }

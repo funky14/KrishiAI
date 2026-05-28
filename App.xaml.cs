@@ -12,18 +12,44 @@ public partial class App : Application
         _configService = configurationService;
 
         MainPage = new AppShell();
+        
+        // Initialize configuration immediately in constructor
+        Task.Run(async () =>
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("🚀 APP CONSTRUCTOR: Starting azure_config.json initialization...");
+                System.Diagnostics.Debug.WriteLine($"📂 App Data Directory: {FileSystem.AppDataDirectory}");
+                
+                var config = await _configService.GetConfigurationAsync();
+                
+                System.Diagnostics.Debug.WriteLine($"✅ Configuration initialized successfully!");
+                System.Diagnostics.Debug.WriteLine($"📁 Config file location: {Path.Combine(FileSystem.AppDataDirectory, "azure_config.json")}");
+                System.Diagnostics.Debug.WriteLine($"   - Speech configured: {!string.IsNullOrEmpty(config.SpeechServiceKey)}");
+                System.Diagnostics.Debug.WriteLine($"   - OpenAI configured: {!string.IsNullOrEmpty(config.OpenAIKey)}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ FATAL ERROR in config initialization: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Stack trace: {ex.StackTrace}");
+            }
+        });
     }
 
     protected override async void OnStart()
     {
         base.OnStart();
         
-        // Force initialization of azure_config.json on app startup
-        System.Diagnostics.Debug.WriteLine("📁 Initializing azure_config.json...");
-        var config = await _configService.GetConfigurationAsync();
-        System.Diagnostics.Debug.WriteLine($"✅ Configuration initialized at: {Path.Combine(FileSystem.AppDataDirectory, "azure_config.json")}");
-        System.Diagnostics.Debug.WriteLine($"   - Speech configured: {!string.IsNullOrEmpty(config.SpeechServiceKey)}");
-        System.Diagnostics.Debug.WriteLine($"   - OpenAI configured: {!string.IsNullOrEmpty(config.OpenAIKey)}");
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("🔄 ONSTART: Verifying azure_config.json...");
+            var config = await _configService.GetConfigurationAsync();
+            System.Diagnostics.Debug.WriteLine($"✅ ONSTART: Config verified");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ ONSTART ERROR: {ex.Message}");
+        }
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
