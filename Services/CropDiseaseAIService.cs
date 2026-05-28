@@ -147,7 +147,7 @@ public class CropDiseaseAIService : ICropDiseaseAIService
             
             if (stream != null)
             {
-                Debug.WriteLine($"✅ Model file found in app package! Size: {stream.Length} bytes");
+                Debug.WriteLine("✅ Model file found in app package!");
                 
                 // Copy to AppDataDirectory for access
                 var modelPath = Path.Combine(FileSystem.AppDataDirectory, "mobilenetv2_cropdisease.onnx");
@@ -156,10 +156,22 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                 
                 using var fileStream = File.Create(modelPath);
                 await stream.CopyToAsync(fileStream);
+                await fileStream.FlushAsync();
                 
-                Debug.WriteLine($"✅ Model copied successfully! File size: {new FileInfo(modelPath).Length} bytes");
+                Debug.WriteLine("✅ Model copied successfully!");
                 
-                return modelPath;
+                // Verify the file exists after copying
+                if (File.Exists(modelPath))
+                {
+                    var fileInfo = new FileInfo(modelPath);
+                    Debug.WriteLine($"✅ Verified: File exists at {modelPath}, size: {fileInfo.Length} bytes");
+                    return modelPath;
+                }
+                else
+                {
+                    Debug.WriteLine($"❌ File copy failed - file not found at {modelPath}");
+                    return string.Empty;
+                }
             }
             else
             {
@@ -171,14 +183,6 @@ public class CropDiseaseAIService : ICropDiseaseAIService
             Debug.WriteLine($"❌ LoadModelFromResourcesAsync Error: {ex.Message}");
             Debug.WriteLine($"   Exception Type: {ex.GetType().Name}");
             Debug.WriteLine($"   Stack Trace: {ex.StackTrace}");
-            
-            // Try to list what files ARE available in the package
-            try
-            {
-                Debug.WriteLine("📋 Attempting to list available files in app package...");
-                // This might not work, but worth a try
-            }
-            catch { }
         }
         
         return string.Empty;
