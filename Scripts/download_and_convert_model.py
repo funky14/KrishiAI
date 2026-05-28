@@ -5,6 +5,8 @@ Run: pip install tensorflow tf2onnx numpy pillow
 import tensorflow as tf
 import tf2onnx
 import numpy as np
+import subprocess
+import shutil
 
 # Number of disease classes (customize based on your dataset)
 NUM_CLASSES = 38  # PlantVillage has 38 classes
@@ -38,18 +40,31 @@ model.compile(
 
 print("🔄 Converting to ONNX format...")
 
-# Convert to ONNX
-spec = (tf.TensorSpec((None, 224, 224, 3), tf.float32, name="input"),)
+# Save model to SavedModel format first (workaround for tf2onnx bug)
+saved_model_path = "temp_saved_model"
+model.save(saved_model_path, save_format='tf')
+
+print("✅ Model saved in TensorFlow SavedModel format")
+
+# Convert from SavedModel to ONNX (more stable than direct Keras conversion)
 output_path = "mobilenetv2_cropdisease.onnx"
 
-model_proto, _ = tf2onnx.convert.from_keras(
-    model,
-    input_signature=spec,
-    opset=13,
-    output_path=output_path
-)
+result = subprocess.run([
+    'python', '-m', 'tf2onnx.convert',
+    '--saved-model', saved_model_path,
+    '--output', output_path,
+    '--opset', '13'
+], capture_output=True, text=True)
 
-print(f"✅ ONNX model saved to: {output_path}")
+if result.returncode == 0:
+    print(f"✅ ONNX model saved to: {output_path}")
+else:
+    print(f"❌ Conversion failed: {result.stderr}")
+    raise Exception("ONNX conversion failed")
+
+# Clean up temporary SavedModel
+shutil.rmtree(saved_model_path)
+print("🧹 Cleaned up temporary files")
 print("\n📋 Next steps:")
 print(f"   1. Copy '{output_path}' to: C:\\Chetan\\Projects\\Hackathon\\KrishiAI\\Resources\\Raw\\")
 print("   2. Rebuild the app")
