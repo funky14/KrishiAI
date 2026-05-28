@@ -42,7 +42,7 @@ print("🔄 Converting to ONNX format...")
 
 # Save model to SavedModel format first (workaround for tf2onnx bug)
 saved_model_path = "temp_saved_model"
-model.save(saved_model_path, save_format='tf')
+model.save(saved_model_path)  # Keras 3 default is SavedModel format
 
 print("✅ Model saved in TensorFlow SavedModel format")
 
