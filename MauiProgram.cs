@@ -14,15 +14,10 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit();
-            // Fonts commented out - add font files to Resources/Fonts/ to enable
-            //.ConfigureFonts(fonts =>
-            //{
-            //    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-            //    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-            //});
 
 #if DEBUG
         builder.Logging.AddDebug();
+        builder.Logging.SetMinimumLevel(LogLevel.Debug);
 #endif
 
         // Register Services
@@ -35,6 +30,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ITextToSpeechService, TextToSpeechService>();
         builder.Services.AddSingleton<IAIChatService, AIChatService>();
         builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
+        builder.Services.AddSingleton<ILocalizationService, LocalizationService>();
 
         // Register ViewModels
         builder.Services.AddTransient<HomeViewModel>();
@@ -42,6 +38,10 @@ public static class MauiProgram
         builder.Services.AddTransient<VoiceAssistantViewModel>();
         builder.Services.AddTransient<HistoryViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<NotificationsViewModel>();
+        builder.Services.AddTransient<FarmerTipsViewModel>();
+        builder.Services.AddTransient<LanguageSelectorViewModel>();
+        builder.Services.AddTransient<DetectionResultViewModel>();
 
         // Register Views
         builder.Services.AddTransient<HomePage>();
@@ -49,6 +49,10 @@ public static class MauiProgram
         builder.Services.AddTransient<VoiceAssistantPage>();
         builder.Services.AddTransient<HistoryPage>();
         builder.Services.AddTransient<SettingsPage>();
+        builder.Services.AddTransient<NotificationsPage>();
+        builder.Services.AddTransient<FarmerTipsPage>();
+        builder.Services.AddTransient<LanguageSelectorPage>();
+        builder.Services.AddTransient<DetectionResultPage>();
 
         return builder.Build();
     }

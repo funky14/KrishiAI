@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:KrishiAI.App.ViewModels"
+             x:Class="KrishiAI.App.Views.DetectionResultPage"
+             x:DataType="viewmodels:DetectionResultViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="10" BackgroundColor="White">
+            <Button Grid.Column="0" Text="←" FontSize="24" WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" TextColor="{StaticResource TextPrimary}" Command="{Binding GoBackCommand}"/>
+            <Label Grid.Column="1" Text="Detection Result" FontSize="20" FontAttributes="Bold" VerticalOptions="Center" Margin="10,0,0,0" TextColor="{StaticResource TextPrimary}"/>
+        </Grid>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20" Spacing="15">
+                <Frame CornerRadius="15" Padding="20" BackgroundColor="White" HasShadow="True">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding DiagnosisTitle}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextSecondary}"/>
+                        <Label Text="{Binding Result.DiseaseName}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}"/>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Label Grid.Column="0" Text="Confidence" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                            <Label Grid.Column="1" Text="{Binding Result.Confidence, StringFormat='{0:P1}'}" FontSize="14" FontAttributes="Bold" HorizontalOptions="End" TextColor="{StaticResource Primary}"/>
+                        </Grid>
+                        <Frame Padding="10" CornerRadius="8" BackgroundColor="#FFF3E0" HasShadow="False" IsVisible="{Binding Result.Severity, Converter={StaticResource NotNullConverter}}">
+                            <Label Text="{Binding Result.Severity}" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#F57C00"/>
+                        </Frame>
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame CornerRadius="15" Padding="20" BackgroundColor="#E8F5E9" HasShadow="True" IsVisible="{Binding Result.OrganicTreatments, Converter={StaticResource NotNullConverter}}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding OrganicTreatmentTitle}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}"/>
+                        <CollectionView ItemsSource="{Binding Result.OrganicTreatments}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Grid ColumnDefinitions="Auto,*" Margin="0,5">
+                                        <Label Grid.Column="0" Text="•" FontSize="16" Margin="0,0,10,0" TextColor="{StaticResource Primary}"/>
+                                        <Label Grid.Column="1" Text="{Binding .}" FontSize="14" TextColor="{StaticResource TextPrimary}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame CornerRadius="15" Padding="20" BackgroundColor="#E3F2FD" HasShadow="True" IsVisible="{Binding Result.PreventionTips, Converter={StaticResource NotNullConverter}}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding PreventionTipsTitle}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Accent}"/>
+                        <CollectionView ItemsSource="{Binding Result.PreventionTips}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Grid ColumnDefinitions="Auto,*" Margin="0,5">
+                                        <Label Grid.Column="0" Text="•" FontSize="16" Margin="0,0,10,0" TextColor="{StaticResource Accent}"/>
+                                        <Label Grid.Column="1" Text="{Binding .}" FontSize="14" TextColor="{StaticResource TextPrimary}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
+            </VerticalStackLayout>
+        </ScrollView>
+        <Button Grid.Row="2" Text="🔄 New Analysis" Command="{Binding NewAnalysisCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" Margin="20" HeightRequest="50" FontSize="18" CornerRadius="10"/>
+    </Grid>
+</ContentPage>

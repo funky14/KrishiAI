@@ -13,35 +13,35 @@
     <!-- Home Tab -->
     <TabBar>
         <ShellContent
-            Title="Home"
+            Title="{Binding HomeTitle}"
             Icon="home.png"
             ContentTemplate="{DataTemplate views:HomePage}"
             Route="home" />
 
         <!-- Crop Disease Tab -->
         <ShellContent
-            Title="Disease"
+            Title="{Binding DiseaseTitle}"
             Icon="leaf.png"
             ContentTemplate="{DataTemplate views:CropDiseasePage}"
             Route="disease" />
 
         <!-- Voice Assistant Tab -->
         <ShellContent
-            Title="Voice"
+            Title="{Binding VoiceTitle}"
             Icon="microphone.png"
             ContentTemplate="{DataTemplate views:VoiceAssistantPage}"
             Route="voice" />
 
         <!-- History Tab -->
         <ShellContent
-            Title="History"
+            Title="{Binding HistoryTitle}"
             Icon="history.png"
             ContentTemplate="{DataTemplate views:HistoryPage}"
             Route="history" />
 
         <!-- Settings Tab -->
         <ShellContent
-            Title="Settings"
+            Title="{Binding SettingsTitle}"
             Icon="settings.png"
             ContentTemplate="{DataTemplate views:SettingsPage}"
             Route="settings" />

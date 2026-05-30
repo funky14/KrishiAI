@@ -5,100 +5,248 @@
              x:Class="KrishiAI.App.Views.HomePage"
              x:DataType="viewmodels:HomeViewModel"
              BackgroundColor="{StaticResource BackgroundColor}">
-    
+
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
-            
-            <!-- App Header -->
-            <Frame CornerRadius="15" BackgroundColor="{StaticResource Primary}" Padding="20">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="🌾 KrishiAI" 
+
+            <!-- Header with Greeting and Notification -->
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+                <VerticalStackLayout Grid.Column="0" Spacing="5">
+                    <Label Text="{Binding Greeting, StringFormat='{0},'}" 
+                           FontSize="16" 
+                           TextColor="{StaticResource TextSecondary}"/>
+                    <Label Text="{Binding Farmer, StringFormat='{0}!'}" 
+                           FontSize="28" 
+                           FontAttributes="Bold" 
+                           TextColor="{StaticResource TextPrimary}"/>
+                </VerticalStackLayout>
+
+                <Frame Grid.Column="1" 
+                       WidthRequest="50" 
+                       HeightRequest="50"
+                       CornerRadius="25"
+                       Padding="0"
+                       BackgroundColor="White"
+                       BorderColor="{StaticResource Primary}"
+                       HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToNotificationsCommand}"/>
+                    </Frame.GestureRecognizers>
+                    <Grid>
+                        <!-- Bell Icon -->
+                        <Label Text="🔔" 
+                               FontSize="26"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Margin="0,2,0,0"/>
+
+                        <!-- Notification Badge -->
+                        <Border StrokeShape="RoundRectangle 12"
+                                BackgroundColor="{StaticResource Error}"
+                                WidthRequest="22" 
+                                HeightRequest="22"
+                                HorizontalOptions="End"
+                                VerticalOptions="Start"
+                                Margin="0,-3,-3,0"
+                                Stroke="White"
+                                StrokeThickness="2"
+                                IsVisible="{Binding HasNotifications}">
+                            <Label Text="{Binding NotificationCount}" 
+                                   FontSize="11"
+                                   TextColor="White"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   Margin="0,1,0,0"/>
+                        </Border>
+                    </Grid>
+                </Frame>
+            </Grid>
+
+            <!-- KrishiAI Banner -->
+            <Frame CornerRadius="15" BackgroundColor="{StaticResource Primary}" Padding="20" HasShadow="True">
+                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                    <Label Grid.Row="0" 
+                           Grid.Column="0"
+                           Text="{Binding KrishiAI}" 
                            FontSize="32" 
                            FontAttributes="Bold" 
-                           TextColor="White" 
-                           HorizontalOptions="Center"/>
-                    <Label Text="Your Smart Farming Assistant" 
-                           FontSize="16" 
-                           TextColor="White" 
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
+                           TextColor="White"/>
+                    <Label Grid.Row="1" 
+                           Grid.Column="0"
+                           Grid.RowSpan="2"
+                           Text="{Binding YourAIFarmingCompanion}" 
+                           FontSize="18" 
+                           TextColor="White"/>
+                    <BoxView Grid.Row="0" 
+                             Grid.RowSpan="3"
+                             Grid.Column="1"
+                             WidthRequest="100"
+                             HeightRequest="100"
+                             CornerRadius="50"
+                             BackgroundColor="#FFA726"
+                             HorizontalOptions="End"
+                             VerticalOptions="Center"
+                             Margin="10,0,0,0"/>
+                    <Label Grid.Row="0" 
+                           Grid.RowSpan="3"
+                           Grid.Column="1"
+                           Text="🌾"
+                           FontSize="60"
+                           HorizontalOptions="End"
+                           VerticalOptions="Center"
+                           Margin="10,0,20,0"/>
+                </Grid>
             </Frame>
 
-            <!-- Welcome Message -->
-            <Label Text="Welcome, Farmer!" 
-                   FontSize="24" 
-                   FontAttributes="Bold" 
-                   TextColor="{StaticResource TextPrimary}"/>
-            
-            <Label Text="How can I help you today?" 
-                   FontSize="16" 
-                   TextColor="{StaticResource TextSecondary}"/>
+            <!-- Smart Farming for Better Tomorrow -->
+            <Label Text="{Binding SmartFarming}" 
+                   FontSize="14" 
+                   TextColor="{StaticResource Primary}"
+                   HorizontalOptions="Start"
+                   Margin="5,0,0,0"/>
+            <Label Text="{Binding BetterTomorrow}" 
+                   FontSize="14" 
+                   TextColor="{StaticResource Primary}"
+                   HorizontalOptions="Start"
+                   Margin="5,-15,0,0"/>
 
-            <!-- Feature Cards -->
-            <Frame CornerRadius="15" Padding="20" BackgroundColor="{StaticResource CardBackground}">
+            <!-- How can I help you today? -->
+            <Label Text="{Binding HowCanIHelp}" 
+                   FontSize="18" 
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextPrimary}"/>
+
+            <!-- Crop Disease Detection Card -->
+            <Frame CornerRadius="15" Padding="20" BackgroundColor="White" HasShadow="True">
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="🔬 Crop Disease Detection" 
-                           FontSize="20" 
-                           FontAttributes="Bold" 
-                           TextColor="{StaticResource Primary}"/>
-                    <Label Text="Take a photo of your crop and get instant disease identification with treatment recommendations" 
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Frame Grid.Column="0"
+                               WidthRequest="40"
+                               HeightRequest="40"
+                               CornerRadius="20"
+                               Padding="0"
+                               BackgroundColor="#E8F5E9"
+                               HasShadow="False">
+                            <Label Text="🌿" 
+                                   FontSize="20"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Frame>
+                        <Label Grid.Column="1"
+                               Text="{Binding CropDiseaseDetection}" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               VerticalOptions="Center"
+                               Margin="10,0,0,0"
+                               TextColor="{StaticResource Primary}"/>
+                    </Grid>
+                    <Label Text="{Binding CropDiseaseDescriptionText}" 
                            FontSize="14" 
                            TextColor="{StaticResource TextSecondary}"/>
-                    <Button Text="Detect Disease" 
+                    <Button Text="{Binding DetectDisease}"
                             Command="{Binding NavigateToDiseaseDetectionCommand}"
                             BackgroundColor="{StaticResource Primary}"
                             TextColor="White"
-                            HeightRequest="60"
-                            FontSize="18"
+                            HeightRequest="50"
+                            FontSize="16"
                             CornerRadius="10"/>
                 </VerticalStackLayout>
             </Frame>
 
-            <Frame CornerRadius="15" Padding="20" BackgroundColor="{StaticResource CardBackground}">
+            <!-- Voice Assistant Card -->
+            <Frame CornerRadius="15" Padding="20" BackgroundColor="White" HasShadow="True">
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="🎤 Voice Assistant" 
-                           FontSize="20" 
-                           FontAttributes="Bold" 
-                           TextColor="{StaticResource Accent}"/>
-                    <Label Text="Ask farming questions in your language and get AI-powered advice" 
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Frame Grid.Column="0"
+                               WidthRequest="40"
+                               HeightRequest="40"
+                               CornerRadius="20"
+                               Padding="0"
+                               BackgroundColor="#E3F2FD"
+                               HasShadow="False">
+                            <Label Text="🎤" 
+                                   FontSize="20"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Frame>
+                        <Label Grid.Column="1"
+                               Text="{Binding VoiceAssistant}" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               VerticalOptions="Center"
+                               Margin="10,0,0,0"
+                               TextColor="{StaticResource Accent}"/>
+                    </Grid>
+                    <Label Text="{Binding VoiceAssistantDescriptionText}" 
                            FontSize="14" 
                            TextColor="{StaticResource TextSecondary}"/>
-                    <Button Text="Ask a Question" 
+                    <Button Text="{Binding AskQuestion}"
                             Command="{Binding NavigateToVoiceAssistantCommand}"
                             BackgroundColor="{StaticResource Accent}"
                             TextColor="White"
-                            HeightRequest="60"
-                            FontSize="18"
+                            HeightRequest="50"
+                            FontSize="16"
                             CornerRadius="10"/>
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Quick Stats -->
-            <Label Text="Quick Features" 
+
+            <!-- Quick Features -->
+            <Label Text="{Binding QuickFeatures}" 
                    FontSize="18" 
                    FontAttributes="Bold" 
                    TextColor="{StaticResource TextPrimary}"
                    Margin="0,10,0,0"/>
-            
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <Frame Grid.Column="0" CornerRadius="10" Padding="15" BackgroundColor="{StaticResource Success}">
+
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                <!-- 7 Languages -->
+                <Frame Grid.Column="0" 
+                       CornerRadius="10" 
+                       Padding="10" 
+                       BackgroundColor="White"
+                       HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToLanguagesCommand}"/>
+                    </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="✓" FontSize="30" TextColor="White" HorizontalOptions="Center"/>
-                        <Label Text="Offline AI" FontSize="14" TextColor="White" HorizontalOptions="Center" FontAttributes="Bold"/>
-                        <Label Text="Works without internet" FontSize="11" TextColor="White" HorizontalOptions="Center"/>
+                        <Label Text="🌐" FontSize="28" HorizontalOptions="Center"/>
+                        <Label Text="{Binding Languages}" FontSize="12" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" FontAttributes="Bold"/>
                     </VerticalStackLayout>
                 </Frame>
-                
-                <Frame Grid.Column="1" CornerRadius="10" Padding="15" BackgroundColor="{StaticResource Secondary}">
+
+                <!-- History -->
+                <Frame Grid.Column="1" 
+                       CornerRadius="10" 
+                       Padding="10" 
+                       BackgroundColor="White"
+                       HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToHistoryCommand}"/>
+                    </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="5">
-                        <Label Text="🌐" FontSize="30" HorizontalOptions="Center"/>
-                        <Label Text="7 Languages" FontSize="14" TextColor="White" HorizontalOptions="Center" FontAttributes="Bold"/>
-                        <Label Text="Speak your language" FontSize="11" TextColor="White" HorizontalOptions="Center"/>
+                        <Label Text="📜" FontSize="28" HorizontalOptions="Center"/>
+                        <Label Text="{Binding History}" FontSize="12" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Farming Tips -->
+                <Frame Grid.Column="2" 
+                       CornerRadius="10" 
+                       Padding="10" 
+                       BackgroundColor="White"
+                       HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToFarmerTipsCommand}"/>
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="💡" FontSize="28" HorizontalOptions="Center"/>
+                        <Label Text="{Binding FarmingTips}" FontSize="12" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" FontAttributes="Bold"/>
                     </VerticalStackLayout>
                 </Frame>
             </Grid>
 
         </VerticalStackLayout>
     </ScrollView>
-    
+
 </ContentPage>

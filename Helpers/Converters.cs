@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Collections;
 
 namespace KrishiAI.App.Helpers;
 
@@ -23,6 +24,8 @@ public class NotNullConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
+        if (value is IList list)
+            return list != null && list.Count > 0;
         return value != null;
     }
 

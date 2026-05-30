@@ -27,6 +27,19 @@ public partial class VoiceAssistantViewModel : BaseViewModel
     [ObservableProperty]
     private ObservableCollection<VoiceCommand> conversationHistory = new();
 
+    // Localized strings
+    [ObservableProperty]
+    private string selectLanguageText = Resources.Strings.AppStrings.SelectLanguage;
+
+    [ObservableProperty]
+    private string listeningText = Resources.Strings.AppStrings.Listening;
+
+    [ObservableProperty]
+    private string tapToSpeakText = Resources.Strings.AppStrings.TapToSpeak;
+
+    [ObservableProperty]
+    private string clearChatText = Resources.Strings.AppStrings.ClearChat;
+
     public ObservableCollection<SupportedLanguage> SupportedLanguages { get; set; }
 
     public VoiceAssistantViewModel(
@@ -42,8 +55,8 @@ public partial class VoiceAssistantViewModel : BaseViewModel
             _ttsService = ttsService;
             _chatService = chatService;
 
-            Title = "Voice Assistant";
-            
+            Title = Resources.Strings.AppStrings.VoiceAssistant;
+
             var languages = _speechService.GetSupportedLanguages();
             System.Diagnostics.Debug.WriteLine($"   Languages loaded: {languages?.Count ?? 0}");
             
@@ -62,11 +75,27 @@ public partial class VoiceAssistantViewModel : BaseViewModel
         {
             System.Diagnostics.Debug.WriteLine($"❌ VoiceAssistantViewModel initialization error: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"   Stack trace: {ex.StackTrace}");
-            
+
             // Ensure minimum initialization
-            Title = "Voice Assistant";
+            Title = Resources.Strings.AppStrings.VoiceAssistant;
             SupportedLanguages = new ObservableCollection<SupportedLanguage>();
         }
+    }
+
+    protected override void OnLanguageChanged()
+    {
+        base.OnLanguageChanged();
+        Title = Resources.Strings.AppStrings.VoiceAssistant;
+        UpdateLocalizedStrings();
+        System.Diagnostics.Debug.WriteLine("🌍 VoiceAssistantViewModel: Language changed");
+    }
+
+    private void UpdateLocalizedStrings()
+    {
+        SelectLanguageText = Resources.Strings.AppStrings.SelectLanguage;
+        ListeningText = Resources.Strings.AppStrings.Listening;
+        TapToSpeakText = Resources.Strings.AppStrings.TapToSpeak;
+        ClearChatText = Resources.Strings.AppStrings.ClearChat;
     }
 
     private SupportedLanguage DetectDeviceLanguage(List<SupportedLanguage> languages)

@@ -31,14 +31,39 @@
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+
+		<!-- Android Specific - OPTIMIZED FOR FAST DEBUG BUILDS -->
+		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+		<AndroidUseAapt2>true</AndroidUseAapt2>
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+		<AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
+		<RunAOTCompilation>false</RunAOTCompilation>
+		<AndroidDexTool>d8</AndroidDexTool>
+
+		<!-- Enable Fast Deployment for Debug builds -->
+		<EmbedAssembliesIntoApk Condition="'$(Configuration)' == 'Debug'">false</EmbedAssembliesIntoApk>
+		<EmbedAssembliesIntoApk Condition="'$(Configuration)' == 'Release'">true</EmbedAssembliesIntoApk>
+		<AndroidLinkMode Condition="'$(Configuration)' == 'Debug'">None</AndroidLinkMode>
+		<AndroidLinkMode Condition="'$(Configuration)' == 'Release'">SdkOnly</AndroidLinkMode>
+
+		<!-- Fast deployment options -->
+		<AndroidFastDeploymentType>Assemblies:Dex</AndroidFastDeploymentType>
+		<AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
+		<AndroidDexTool>d8</AndroidDexTool>
+
+		<!-- Disable unnecessary processing -->
+		<AndroidUseIntermediateDesignerFile>false</AndroidUseIntermediateDesignerFile>
+		<AndroidGenerateJniMarshalMethods>true</AndroidGenerateJniMarshalMethods>
+		<AndroidGenerateJniMarshalMethodsAdditionalProfiles>true</AndroidGenerateJniMarshalMethodsAdditionalProfiles>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- App Icon - Uncomment when you add icon files -->
-		<!-- <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#4CAF50" /> -->
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#4CAF50" />
 
-		<!-- Splash Screen - Uncomment when you add splash file -->
-		<!-- <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#4CAF50" BaseSize="128,128" /> -->
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\AppIcon\appicon.svg" Color="#4CAF50" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -51,24 +76,42 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Maui" Version="7.0.1" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.3" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="9.0.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.8" />
-		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.17.1" />
+		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.20.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Plugin.Maui.Audio" Version="2.1.0" />
-		
+		<PackageReference Include="Plugin.Maui.Audio" Version="3.0.1" />
+
 		<!-- Image Processing -->
-		<PackageReference Include="SkiaSharp" Version="2.88.7" />
-		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="2.88.7" />
-		
+		<PackageReference Include="SkiaSharp" Version="2.88.8" />
+		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="2.88.8" />
+
 		<!-- Azure AI Services -->
-		<PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.14" />
-		<PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.35.0" />
+		<PackageReference Include="Azure.AI.OpenAI" Version="2.0.0" />
+		<PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.40.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Platforms\Android\Resources\values\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Views\DetectionResultPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\FarmerTipsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\LanguageSelectorPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\NotificationsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

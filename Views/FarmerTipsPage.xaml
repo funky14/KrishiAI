@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:KrishiAI.App.ViewModels"
+             xmlns:models="clr-namespace:KrishiAI.App.Models"
+             x:Class="KrishiAI.App.Views.FarmerTipsPage"
+             x:DataType="viewmodels:FarmerTipsViewModel"
+             BackgroundColor="{StaticResource BackgroundColor}">
+    <Grid RowDefinitions="Auto,*">
+        <Frame Grid.Row="0" CornerRadius="0" Padding="20" BackgroundColor="White" HasShadow="True">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0" Text="Farmer Tips" FontSize="24" FontAttributes="Bold" VerticalOptions="Center" TextColor="{StaticResource TextPrimary}"/>
+                <Button Grid.Column="1" Text="✕" FontSize="24" WidthRequest="40" HeightRequest="40" CornerRadius="20" BackgroundColor="Transparent" TextColor="{StaticResource TextPrimary}" Command="{Binding CloseCommand}"/>
+            </Grid>
+        </Frame>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20" Spacing="15">
+                <CollectionView ItemsSource="{Binding Tips}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:FarmerTip">
+                            <Frame Padding="15" Margin="0,5" CornerRadius="10" BackgroundColor="White" HasShadow="False" BorderColor="{StaticResource Primary}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+                                    <Frame Grid.Column="0" WidthRequest="50" HeightRequest="50" CornerRadius="25" Padding="0" BackgroundColor="{StaticResource Primary}" HasShadow="False">
+                                        <Label Text="{Binding Icon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Frame>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                        <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}"/>
+                                        <Label Text="{Binding Description}" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

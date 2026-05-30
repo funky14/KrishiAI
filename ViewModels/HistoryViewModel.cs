@@ -16,10 +16,47 @@ public partial class HistoryViewModel : BaseViewModel
     [ObservableProperty]
     private bool hasHistory;
 
+    // Localized strings
+    [ObservableProperty]
+    private string diseaseDetectionHistoryText = Resources.Strings.AppStrings.DiseaseDetectionHistory;
+
+    [ObservableProperty]
+    private string noHistoryYetText = Resources.Strings.AppStrings.NoHistoryYet;
+
+    [ObservableProperty]
+    private string startAnalyzingCropsText = Resources.Strings.AppStrings.StartAnalyzingCrops;
+
+    [ObservableProperty]
+    private string refreshText = Resources.Strings.AppStrings.Refresh;
+
+    [ObservableProperty]
+    private string clearAllHistoryText = Resources.Strings.AppStrings.ClearAllHistory;
+
+    [ObservableProperty]
+    private string confidenceText = Resources.Strings.AppStrings.Confidence;
+
     public HistoryViewModel(IDatabaseService databaseService)
     {
         _databaseService = databaseService;
-        Title = "Detection History";
+        Title = Resources.Strings.AppStrings.History;
+    }
+
+    protected override void OnLanguageChanged()
+    {
+        base.OnLanguageChanged();
+        Title = Resources.Strings.AppStrings.History;
+        UpdateLocalizedStrings();
+        System.Diagnostics.Debug.WriteLine("🌍 HistoryViewModel: Language changed");
+    }
+
+    private void UpdateLocalizedStrings()
+    {
+        DiseaseDetectionHistoryText = Resources.Strings.AppStrings.DiseaseDetectionHistory;
+        NoHistoryYetText = Resources.Strings.AppStrings.NoHistoryYet;
+        StartAnalyzingCropsText = Resources.Strings.AppStrings.StartAnalyzingCrops;
+        ConfidenceText = Resources.Strings.AppStrings.Confidence;
+        RefreshText = Resources.Strings.AppStrings.Refresh;
+        ClearAllHistoryText = Resources.Strings.AppStrings.ClearAllHistory;
     }
 
     public override async void OnAppearing()

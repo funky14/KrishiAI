@@ -23,5 +23,11 @@ public class DiseaseDetectionResult
     [Ignore]
     public List<string> TreatmentRecommendations { get; set; } = new();
 
+    [Ignore]
+    public List<string> OrganicTreatments { get; set; } = new();
+
+    [Ignore]
+    public List<string> PreventionTips { get; set; } = new();
+
     public string AffectedCropPart { get; set; } = string.Empty;
 }

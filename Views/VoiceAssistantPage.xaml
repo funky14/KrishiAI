@@ -13,7 +13,7 @@
         <!-- Language Selector -->
         <Frame Grid.Row="0" CornerRadius="10" Padding="15" BackgroundColor="{StaticResource CardBackground}">
             <VerticalStackLayout Spacing="10">
-                <Label Text="Select Language" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}"/>
+                <Label Text="{Binding SelectLanguageText}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}"/>
                 <Picker ItemsSource="{Binding SupportedLanguages}"
                         SelectedItem="{Binding SelectedLanguage}"
                         ItemDisplayBinding="{Binding NativeName}"
@@ -103,7 +103,7 @@
                              Color="{StaticResource Error}"
                              HeightRequest="40"/>
 
-            <Label Text="🎤 Recording..."
+            <Label Text="{Binding ListeningText, StringFormat='🎤 {0}'}"
                    IsVisible="{Binding IsRecording}"
                    FontSize="16"
                    TextColor="{StaticResource Error}"
@@ -143,7 +143,7 @@
             </Frame>
 
             <!-- Clear History Button -->
-            <Button Text="Clear History"
+            <Button Text="{Binding ClearChatText}"
                     Command="{Binding ClearHistoryCommand}"
                     BackgroundColor="{StaticResource Secondary}"
                     TextColor="White"

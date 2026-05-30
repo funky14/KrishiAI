@@ -12,7 +12,7 @@
 
         <!-- Header -->
         <Frame Grid.Row="0" CornerRadius="10" Padding="15" BackgroundColor="{StaticResource Primary}">
-            <Label Text="Disease Detection History" 
+            <Label Text="{Binding DiseaseDetectionHistoryText}" 
                    FontSize="20" 
                    FontAttributes="Bold" 
                    TextColor="White" 
@@ -29,11 +29,11 @@
                                    VerticalOptions="Center" 
                                    Margin="0,50,0,0">
                     <Label Text="📋" FontSize="80" HorizontalOptions="Center" Opacity="0.5"/>
-                    <Label Text="No history yet" 
+                    <Label Text="{Binding NoHistoryYetText}" 
                            FontSize="20" 
                            TextColor="{StaticResource TextSecondary}" 
                            HorizontalOptions="Center"/>
-                    <Label Text="Start analyzing crops to see history here" 
+                    <Label Text="{Binding StartAnalyzingCropsText}"
                            FontSize="14" 
                            TextColor="{StaticResource TextSecondary}" 
                            HorizontalOptions="Center"/>
@@ -99,7 +99,7 @@
 
         <!-- Bottom Actions -->
         <VerticalStackLayout Grid.Row="2" Spacing="10">
-            <Button Text="Refresh"
+            <Button Text="{Binding RefreshText}"
                     Command="{Binding LoadHistoryCommand}"
                     BackgroundColor="{StaticResource Primary}"
                     TextColor="White"
@@ -107,7 +107,7 @@
                     CornerRadius="10"
                     IsVisible="{Binding HasHistory}"/>
             
-            <Button Text="Clear All History"
+            <Button Text="{Binding ClearAllHistoryText}"
                     Command="{Binding ClearAllHistoryCommand}"
                     BackgroundColor="{StaticResource Error}"
                     TextColor="White"

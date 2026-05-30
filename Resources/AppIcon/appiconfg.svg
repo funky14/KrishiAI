@@ -1,0 +1,19 @@
+<svg width="456" height="456" viewBox="0 0 456 456" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simplified foreground wheat icon -->
+  <g transform="translate(228, 228)">
+    <!-- Stem -->
+    <rect x="-8" y="-100" width="16" height="220" rx="8" fill="#FFFFFF"/>
+
+    <!-- Wheat grains (left) -->
+    <ellipse cx="-30" cy="-70" rx="18" ry="24" fill="#FFFFFF"/>
+    <ellipse cx="-32" cy="-35" rx="19" ry="26" fill="#FFFFFF"/>
+    <ellipse cx="-30" cy="0" rx="18" ry="24" fill="#FFFFFF"/>
+    <ellipse cx="-28" cy="35" rx="17" ry="22" fill="#FFFFFF"/>
+
+    <!-- Wheat grains (right) -->
+    <ellipse cx="30" cy="-70" rx="18" ry="24" fill="#FFFFFF"/>
+    <ellipse cx="32" cy="-35" rx="19" ry="26" fill="#FFFFFF"/>
+    <ellipse cx="30" cy="0" rx="18" ry="24" fill="#FFFFFF"/>
+    <ellipse cx="28" cy="35" rx="17" ry="22" fill="#FFFFFF"/>
+  </g>
+</svg>

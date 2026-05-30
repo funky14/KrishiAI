@@ -1,0 +1,25 @@
+<svg width="456" height="456" viewBox="0 0 456 456" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="456" height="456" rx="72" fill="#4CAF50"/>
+
+  <!-- Wheat stalk -->
+  <g transform="translate(228, 228)">
+    <!-- Stem -->
+    <rect x="-6" y="-80" width="12" height="200" rx="6" fill="#8D6E63"/>
+
+    <!-- Wheat grains (left side) -->
+    <ellipse cx="-25" cy="-60" rx="15" ry="20" fill="#FFD54F"/>
+    <ellipse cx="-28" cy="-30" rx="16" ry="22" fill="#FFD54F"/>
+    <ellipse cx="-26" cy="0" rx="15" ry="20" fill="#FFD54F"/>
+    <ellipse cx="-24" cy="30" rx="14" ry="18" fill="#FFD54F"/>
+
+    <!-- Wheat grains (right side) -->
+    <ellipse cx="25" cy="-60" rx="15" ry="20" fill="#FFD54F"/>
+    <ellipse cx="28" cy="-30" rx="16" ry="22" fill="#FFD54F"/>
+    <ellipse cx="26" cy="0" rx="15" ry="20" fill="#FFD54F"/>
+    <ellipse cx="24" cy="30" rx="14" ry="18" fill="#FFD54F"/>
+
+    <!-- Top decoration -->
+    <path d="M 0,-100 L -8,-90 L -4,-85 L 0,-95 L 4,-85 L 8,-90 Z" fill="#FFA726"/>
+  </g>
+</svg>

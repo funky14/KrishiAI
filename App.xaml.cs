@@ -5,18 +5,25 @@ namespace KrishiAI.App;
 public partial class App : Application
 {
     private readonly IConfigurationService _configService;
+    private readonly ILocalizationService _localizationService;
 
-    public App(IConfigurationService configurationService)
+    public App(IConfigurationService configurationService, ILocalizationService localizationService)
     {
         try
         {
             System.Diagnostics.Debug.WriteLine("🚀 APP STARTING...");
-            
+
             InitializeComponent();
             System.Diagnostics.Debug.WriteLine("   InitializeComponent() done");
-            
+
             _configService = configurationService;
-            System.Diagnostics.Debug.WriteLine("   ConfigService assigned");
+            _localizationService = localizationService;
+            System.Diagnostics.Debug.WriteLine("   Services assigned");
+
+            // Initialize app culture
+            var savedLanguage = Preferences.Get("SelectedLanguage", "en-US");
+            _localizationService.SetCulture(savedLanguage);
+            System.Diagnostics.Debug.WriteLine($"   Culture set to: {savedLanguage}");
 
             MainPage = new AppShell();
             System.Diagnostics.Debug.WriteLine("✅ APP CONSTRUCTOR COMPLETED - AppShell created");
