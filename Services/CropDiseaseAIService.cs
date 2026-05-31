@@ -275,9 +275,9 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                 float[] mean = { 0.485f, 0.456f, 0.406f };
                 float[] std = { 0.229f, 0.224f, 0.225f };
                 
-                // Create tensor in NHWC format [1, 224, 224, 3] (channels-last)
-                // Try this first. If model expects NCHW, we'll switch.
-                var tensor = new DenseTensor<float>(new[] { 1, 224, 224, 3 });
+                // Create tensor in NCHW format [1, 3, 224, 224] (channels-first)
+                // This matches PyTorch's default format
+                var tensor = new DenseTensor<float>(new[] { 1, 3, 224, 224 });
                 
                 for (int y = 0; y < 224; y++)
                 {
@@ -286,14 +286,15 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                         var pixel = resized.GetPixel(x, y);
                         
                         // ImageNet normalization: (pixel/255 - mean) / std
-                        tensor[0, y, x, 0] = (pixel.Red / 255f - mean[0]) / std[0];    // R channel
-                        tensor[0, y, x, 1] = (pixel.Green / 255f - mean[1]) / std[1];  // G channel
-                        tensor[0, y, x, 2] = (pixel.Blue / 255f - mean[2]) / std[2];   // B channel
+                        // NCHW format: [batch, channel, height, width]
+                        tensor[0, 0, y, x] = (pixel.Red / 255f - mean[0]) / std[0];    // R channel
+                        tensor[0, 1, y, x] = (pixel.Green / 255f - mean[1]) / std[1];  // G channel
+                        tensor[0, 2, y, x] = (pixel.Blue / 255f - mean[2]) / std[2];   // B channel
                     }
                 }
                 
                 Debug.WriteLine($"✅ Image preprocessed: {imagePath}");
-                Debug.WriteLine($"   Tensor shape: [1, 224, 224, 3] (NHWC format)");
+                Debug.WriteLine($"   Tensor shape: [1, 3, 224, 224] (NCHW format - PyTorch standard)");
                 Debug.WriteLine($"   Normalization: ImageNet (mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])");
                 
                 return tensor;
@@ -301,7 +302,7 @@ public class CropDiseaseAIService : ICropDiseaseAIService
             catch (Exception ex)
             {
                 Debug.WriteLine($"PreprocessImageAsync Error: {ex.Message}");
-                // Return empty tensor on error
+                // Return empty tensor in NCHW format on error
                 return new DenseTensor<float>(new[] { 1, 3, 224, 224 });
             }
         });
