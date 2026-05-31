@@ -243,20 +243,24 @@ public class CropDiseaseAIService : ICropDiseaseAIService
         });
     }
 
-    private DiseaseDetectionResult ProcessPrediction(float[] output, string imagePath)
+    private DiseaseDetectionResult ProcessPrediction(float[] logits, string imagePath)
     {
-        // Find top prediction
-        var maxIndex = Array.IndexOf(output, output.Max());
-        var confidence = output[maxIndex] * 100;
+        // Apply Softmax to convert raw logits to probabilities
+        // Same as: torch.softmax(preds, dim=1) in PyTorch
+        var probabilities = Softmax(logits);
+        
+        // Find top prediction (argmax)
+        var maxIndex = Array.IndexOf(probabilities, probabilities.Max());
+        var confidence = probabilities[maxIndex] * 100;  // Now this is a real probability!
         
         // Log top 3 predictions for debugging
-        var topPredictions = output
+        var topPredictions = probabilities
             .Select((prob, index) => new { Index = index, Probability = prob })
             .OrderByDescending(x => x.Probability)
             .Take(3)
             .ToList();
         
-        Debug.WriteLine($"🎯 Top 3 Predictions:");
+        Debug.WriteLine($"🎯 Top 3 Predictions (after Softmax):");
         foreach (var pred in topPredictions)
         {
             var labelName = pred.Index < _labels.Length ? _labels[pred.Index] : $"Unknown Class {pred.Index}";
@@ -272,6 +276,30 @@ public class CropDiseaseAIService : ICropDiseaseAIService
             DetectedDate = DateTime.Now,
             Description = $"Detected {_labels[maxIndex]} with {confidence:F1}% confidence"
         };
+    }
+    
+    /// <summary>
+    /// Applies softmax function to convert raw logits to probabilities
+    /// Equivalent to: torch.softmax(x, dim=1) in PyTorch
+    /// </summary>
+    private float[] Softmax(float[] logits)
+    {
+        // Find max for numerical stability (prevents overflow)
+        float maxLogit = logits.Max();
+        
+        // Compute exp(logit - maxLogit) for each value
+        float[] expValues = logits.Select(x => (float)Math.Exp(x - maxLogit)).ToArray();
+        
+        // Sum all exp values
+        float sumExp = expValues.Sum();
+        
+        // Normalize to get probabilities (sum = 1.0)
+        float[] probabilities = expValues.Select(x => x / sumExp).ToArray();
+        
+        Debug.WriteLine($"✅ Softmax applied: logits → probabilities");
+        Debug.WriteLine($"   Max logit: {logits.Max():F4} → Max probability: {probabilities.Max():F4}");
+        
+        return probabilities;
     }
 
     private DiseaseDetectionResult CreateMockPrediction(string imagePath)
