@@ -34,15 +34,71 @@ public partial class VoiceAssistantViewModel : BaseViewModel
         ITextToSpeechService ttsService,
         IAIChatService chatService)
     {
-        _speechService = speechService;
-        _ttsService = ttsService;
-        _chatService = chatService;
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("🎤 Initializing VoiceAssistantViewModel...");
+            
+            _speechService = speechService;
+            _ttsService = ttsService;
+            _chatService = chatService;
 
-        Title = "Voice Assistant";
-        
-        var languages = _speechService.GetSupportedLanguages();
-        SupportedLanguages = new ObservableCollection<SupportedLanguage>(languages);
-        selectedLanguage = languages.First();
+            Title = "Voice Assistant";
+            
+            var languages = _speechService.GetSupportedLanguages();
+            System.Diagnostics.Debug.WriteLine($"   Languages loaded: {languages?.Count ?? 0}");
+            
+            SupportedLanguages = new ObservableCollection<SupportedLanguage>(languages ?? new List<SupportedLanguage>());
+            
+            // Auto-detect device language
+            if (languages != null && languages.Any())
+            {
+                SelectedLanguage = DetectDeviceLanguage(languages);
+                System.Diagnostics.Debug.WriteLine($"   Selected language: {SelectedLanguage?.LanguageName ?? "None"}");
+            }
+            
+            System.Diagnostics.Debug.WriteLine("✅ VoiceAssistantViewModel initialized successfully");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ VoiceAssistantViewModel initialization error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"   Stack trace: {ex.StackTrace}");
+            
+            // Ensure minimum initialization
+            Title = "Voice Assistant";
+            SupportedLanguages = new ObservableCollection<SupportedLanguage>();
+        }
+    }
+
+    private SupportedLanguage DetectDeviceLanguage(List<SupportedLanguage> languages)
+    {
+        try
+        {
+            // Get device's current culture/language
+            var deviceLanguage = System.Globalization.CultureInfo.CurrentCulture.Name; // e.g., "en-US", "hi-IN"
+            
+            // Try exact match first
+            var matchedLanguage = languages.FirstOrDefault(l => 
+                l.LanguageCode.Equals(deviceLanguage, StringComparison.OrdinalIgnoreCase));
+            
+            if (matchedLanguage != null)
+                return matchedLanguage;
+            
+            // Try partial match (e.g., "hi" matches "hi-IN")
+            var languagePrefix = deviceLanguage.Split('-')[0]; // Get "hi" from "hi-IN"
+            matchedLanguage = languages.FirstOrDefault(l => 
+                l.LanguageCode.StartsWith(languagePrefix, StringComparison.OrdinalIgnoreCase));
+            
+            if (matchedLanguage != null)
+                return matchedLanguage;
+            
+            // Default to English if no match
+            return languages.FirstOrDefault(l => l.LanguageCode.StartsWith("en")) ?? languages.First();
+        }
+        catch
+        {
+            // Fallback to first language (English)
+            return languages.First();
+        }
     }
 
     [RelayCommand]

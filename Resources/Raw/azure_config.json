@@ -1,0 +1,10 @@
+{
+  "SpeechServiceKey": "YOUR_AZURE_SPEECH_KEY_HERE",
+  "SpeechServiceRegion": "centralindia",
+  "OpenAIEndpoint": "https://openaihackathon2026.openai.azure.com/",
+  "OpenAIKey": "YOUR_AZURE_OPENAI_KEY_HERE",
+  "OpenAIDeploymentName": "gpt-5.3-chat",
+  "UseRealSpeechRecognition": true,
+  "UseRealAIChat": true,
+  "UseRealImageProcessing": true
+}

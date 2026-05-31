@@ -12,6 +12,16 @@ public partial class HistoryPage : ContentPage
         _viewModel = viewModel;
         BindingContext = viewModel;
     }
+    
+    // Parameterless constructor for Shell DataTemplate
+    public HistoryPage()
+    {
+        var viewModel = Application.Current?.Handler?.MauiContext?.Services?.GetService<HistoryViewModel>();
+        if (viewModel == null) throw new InvalidOperationException("Could not resolve HistoryViewModel");
+        _viewModel = viewModel;
+        InitializeComponent();
+        BindingContext = viewModel;
+    }
 
     protected override void OnAppearing()
     {

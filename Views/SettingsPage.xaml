@@ -4,34 +4,37 @@
              xmlns:viewmodels="clr-namespace:KrishiAI.App.ViewModels"
              x:Class="KrishiAI.App.Views.SettingsPage"
              x:DataType="viewmodels:SettingsViewModel"
-             Title="{Binding Title}"
-             BackgroundColor="{StaticResource BackgroundColor}">
+             Title="Settings"
+             BackgroundColor="#E8F5E9">
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
 
-            <!-- App Info -->
-            <Frame CornerRadius="15" Padding="20" BackgroundColor="{StaticResource Primary}">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="KrishiAI" FontSize="28" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
-                    <Label Text="{Binding AppVersion, StringFormat='Version {0}'}" FontSize="14" TextColor="White" HorizontalOptions="Center"/>
-                    <Label Text="Your Smart Farming Assistant" FontSize="14" TextColor="White" HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-            </Frame>
+            <!-- Header -->
+            <Label Text="Settings" 
+                   FontSize="24" 
+                   FontAttributes="Bold"
+                   TextColor="#2E7D32"
+                   Margin="0,10,0,10"/>
 
             <!-- Preferences Section -->
-            <Label Text="Preferences" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}"/>
+            <Label Text="⚙️ Preferences" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
 
-            <Frame CornerRadius="10" Padding="15" BackgroundColor="{StaticResource CardBackground}">
-                <VerticalStackLayout Spacing="15">
+            <Frame CornerRadius="15" 
+                   Padding="20" 
+                   BackgroundColor="White" 
+                   BorderColor="#E0E0E0"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="20">
                     
                     <!-- Language Selection -->
-                    <VerticalStackLayout Spacing="5">
-                        <Label Text="Default Language" FontSize="16" TextColor="{StaticResource TextPrimary}"/>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Default Language" FontSize="15" TextColor="#333333" FontAttributes="Bold"/>
                         <Picker x:Name="LanguagePicker"
                                 SelectedItem="{Binding SelectedLanguage}"
-                                BackgroundColor="White"
-                                TextColor="{StaticResource TextPrimary}">
+                                BackgroundColor="#F5F5F5"
+                                TextColor="#333333"
+                                FontSize="15">
                             <Picker.ItemsSource>
                                 <x:Array Type="{x:Type x:String}">
                                     <x:String>en-US</x:String>
@@ -47,79 +50,92 @@
                         </Picker>
                     </VerticalStackLayout>
 
-                    <BoxView HeightRequest="1" BackgroundColor="{StaticResource TextSecondary}" Opacity="0.3"/>
+                    <BoxView HeightRequest="1" BackgroundColor="#E0E0E0"/>
 
                     <!-- Save History Toggle -->
                     <Grid ColumnDefinitions="*,Auto">
-                        <VerticalStackLayout Grid.Column="0" Spacing="2">
-                            <Label Text="Save History" FontSize="16" TextColor="{StaticResource TextPrimary}"/>
-                            <Label Text="Store detection results locally" FontSize="12" TextColor="{StaticResource TextSecondary}"/>
+                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                            <Label Text="Save History" FontSize="15" TextColor="#333333" FontAttributes="Bold"/>
+                            <Label Text="Store detection results locally" FontSize="13" TextColor="#666666"/>
                         </VerticalStackLayout>
-                        <Switch Grid.Column="1" IsToggled="{Binding SaveHistory}" VerticalOptions="Center"/>
+                        <Switch Grid.Column="1" 
+                                IsToggled="{Binding SaveHistory}" 
+                                OnColor="#4CAF50"
+                                VerticalOptions="Center"/>
                     </Grid>
 
-                    <BoxView HeightRequest="1" BackgroundColor="{StaticResource TextSecondary}" Opacity="0.3"/>
+                    <BoxView HeightRequest="1" BackgroundColor="#E0E0E0"/>
 
                     <!-- Auto Play Responses Toggle -->
                     <Grid ColumnDefinitions="*,Auto">
-                        <VerticalStackLayout Grid.Column="0" Spacing="2">
-                            <Label Text="Auto Play Responses" FontSize="16" TextColor="{StaticResource TextPrimary}"/>
-                            <Label Text="Automatically play voice responses" FontSize="12" TextColor="{StaticResource TextSecondary}"/>
+                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                            <Label Text="Auto Play Responses" FontSize="15" TextColor="#333333" FontAttributes="Bold"/>
+                            <Label Text="Automatically play voice responses" FontSize="13" TextColor="#666666"/>
                         </VerticalStackLayout>
-                        <Switch Grid.Column="1" IsToggled="{Binding AutoPlayResponses}" VerticalOptions="Center"/>
+                        <Switch Grid.Column="1" 
+                                IsToggled="{Binding AutoPlayResponses}" 
+                                OnColor="#4CAF50"
+                                VerticalOptions="Center"/>
                     </Grid>
 
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Save Settings Button -->
-            <Button Text="Save Settings"
-                    Command="{Binding SaveSettingsCommand}"
-                    BackgroundColor="{StaticResource Primary}"
-                    TextColor="White"
-                    HeightRequest="60"
-                    FontSize="18"
-                    CornerRadius="10"/>
-
             <!-- Data Management Section -->
-            <Label Text="Data Management" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" Margin="0,20,0,0"/>
+            <Label Text="🗂️ Data Management" FontSize="18" FontAttributes="Bold" TextColor="#333333" Margin="0,10,0,0"/>
 
-            <Frame CornerRadius="10" Padding="15" BackgroundColor="{StaticResource CardBackground}">
-                <VerticalStackLayout Spacing="15">
-                    
-                    <Button Text="🗑️ Clear Cache"
-                            Command="{Binding ClearCacheCommand}"
-                            BackgroundColor="{StaticResource Secondary}"
-                            TextColor="White"
-                            HeightRequest="50"
-                            CornerRadius="10"/>
+            <VerticalStackLayout Spacing="10">
+                <Button Text="🗑️ Clear Cache"
+                        Command="{Binding ClearCacheCommand}"
+                        BackgroundColor="#FF9800"
+                        TextColor="White"
+                        HeightRequest="50"
+                        FontSize="16"
+                        CornerRadius="10"/>
 
-                    <Button Text="🗑️ Clear History"
-                            Command="{Binding ClearHistoryCommand}"
-                            BackgroundColor="{StaticResource Error}"
-                            TextColor="White"
-                            HeightRequest="50"
-                            CornerRadius="10"/>
-
-                </VerticalStackLayout>
-            </Frame>
+                <Button Text="🗑️ Clear Detection History"
+                        Command="{Binding ClearHistoryCommand}"
+                        BackgroundColor="#F44336"
+                        TextColor="White"
+                        HeightRequest="50"
+                        FontSize="16"
+                        CornerRadius="10"/>
+            </VerticalStackLayout>
 
             <!-- About Section -->
-            <Label Text="About" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" Margin="0,20,0,0"/>
+            <Label Text="ℹ️ About KrishiAI" FontSize="18" FontAttributes="Bold" TextColor="#333333" Margin="0,10,0,0"/>
 
-            <Frame CornerRadius="10" Padding="20" BackgroundColor="{StaticResource CardBackground}">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="KrishiAI is your AI-powered farming assistant that helps detect crop diseases and provides agricultural advice in multiple Indian languages." 
+            <Frame CornerRadius="15" 
+                   Padding="20" 
+                   BackgroundColor="White" 
+                   BorderColor="#E0E0E0"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="🌾 KrishiAI" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="#2E7D32"/>
+                    <Label Text="{Binding AppVersion, StringFormat='Version {0}'}" 
                            FontSize="14" 
-                           TextColor="{StaticResource TextSecondary}"/>
+                           TextColor="#666666"/>
+                    <Label Text="Your AI-powered farming assistant that helps detect crop diseases and provides agricultural advice in multiple Indian languages." 
+                           FontSize="14" 
+                           TextColor="#666666"
+                           LineBreakMode="WordWrap"/>
                     
-                    <Label Text="Features:" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimary}" Margin="0,10,0,5"/>
-                    <Label Text="• On-device AI disease detection" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
-                    <Label Text="• Multilingual voice assistant" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
-                    <Label Text="• Offline-first architecture" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
-                    <Label Text="• Treatment recommendations" FontSize="14" TextColor="{StaticResource TextSecondary}"/>
+                    <Label Text="Features:" FontSize="15" FontAttributes="Bold" TextColor="#333333" Margin="0,10,0,5"/>
+                    <Label Text="• AI-powered disease detection" FontSize="14" TextColor="#666666"/>
+                    <Label Text="• 7+ Indian languages support" FontSize="14" TextColor="#666666"/>
+                    <Label Text="• Voice-based assistance" FontSize="14" TextColor="#666666"/>
+                    <Label Text="• Treatment recommendations" FontSize="14" TextColor="#666666"/>
+                    <Label Text="• Offline-first architecture" FontSize="14" TextColor="#666666"/>
                     
-                    <Label Text="© 2026 KrishiAI Team" FontSize="12" TextColor="{StaticResource TextSecondary}" HorizontalOptions="Center" Margin="0,20,0,0"/>
+                    <BoxView HeightRequest="1" BackgroundColor="#E0E0E0" Margin="0,10,0,10"/>
+                    
+                    <Label Text="© 2026 KrishiAI Team" 
+                           FontSize="13" 
+                           TextColor="#999999" 
+                           HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Frame>
 

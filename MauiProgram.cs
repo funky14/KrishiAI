@@ -26,6 +26,7 @@ public static class MauiProgram
 #endif
 
         // Register Services
+        builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
         builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
         builder.Services.AddSingleton<ICameraService, CameraService>();
         builder.Services.AddSingleton<ICropDiseaseAIService, CropDiseaseAIService>();
@@ -36,18 +37,18 @@ public static class MauiProgram
         builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
 
         // Register ViewModels
-        builder.Services.AddTransient<HomeViewModel>();
-        builder.Services.AddTransient<CropDiseaseViewModel>();
-        builder.Services.AddTransient<VoiceAssistantViewModel>();
-        builder.Services.AddTransient<HistoryViewModel>();
-        builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddSingleton<HomeViewModel>();
+        builder.Services.AddSingleton<CropDiseaseViewModel>();
+        builder.Services.AddSingleton<VoiceAssistantViewModel>();
+        builder.Services.AddSingleton<HistoryViewModel>();
+        builder.Services.AddSingleton<SettingsViewModel>();
 
-        // Register Views
-        builder.Services.AddTransient<HomePage>();
-        builder.Services.AddTransient<CropDiseasePage>();
-        builder.Services.AddTransient<VoiceAssistantPage>();
-        builder.Services.AddTransient<HistoryPage>();
-        builder.Services.AddTransient<SettingsPage>();
+        // Register Views with DI
+        builder.Services.AddSingleton<HomePage>();
+        builder.Services.AddSingleton<CropDiseasePage>();
+        builder.Services.AddSingleton<VoiceAssistantPage>();
+        builder.Services.AddSingleton<HistoryPage>();
+        builder.Services.AddSingleton<SettingsPage>();
 
         return builder.Build();
     }
