@@ -9,7 +9,7 @@ namespace KrishiAI.App.Services;
 public class CropDiseaseAIService : ICropDiseaseAIService
 {
     private InferenceSession? _session;
-    private string[] _labels = Array.Empty<string>();  // Will be populated dynamically from model output
+    private string[] _labels = Array.Empty<string>();  // Will be loaded from disease_labels.txt
 
     public async Task InitializeAsync()
     {
@@ -17,6 +17,9 @@ public class CropDiseaseAIService : ICropDiseaseAIService
         {
             await Task.Run(async () =>
             {
+                // Load disease labels first
+                await LoadDiseaseLabelsAsync();
+                
                 // Try loading model from Resources/Raw (bundled with app)
                 var modelPath = await LoadModelFromResourcesAsync();
                 
@@ -24,22 +27,20 @@ public class CropDiseaseAIService : ICropDiseaseAIService
                 {
                     _session = new InferenceSession(modelPath);
                     
-                    // Automatically detect number of classes from model output
+                    // Verify model output matches label count
                     var outputMetadata = _session.OutputMetadata.FirstOrDefault();
                     if (outputMetadata.Value != null)
                     {
                         var outputDimensions = outputMetadata.Value.Dimensions;
                         int numClasses = outputDimensions.Length > 1 ? outputDimensions[^1] : 0;
                         
-                        if (numClasses > 0)
+                        Debug.WriteLine($"✅ MobileNetV2 ONNX Model loaded successfully from: {modelPath}");
+                        Debug.WriteLine($"📊 Model outputs: {numClasses} classes");
+                        Debug.WriteLine($"📋 Labels loaded: {_labels.Length} disease classes");
+                        
+                        if (numClasses != _labels.Length)
                         {
-                            // Generate dynamic labels: "Class 1", "Class 2", etc.
-                            _labels = Enumerable.Range(1, numClasses)
-                                               .Select(i => $"Disease Class {i}")
-                                               .ToArray();
-                            
-                            Debug.WriteLine($"✅ MobileNetV2 ONNX Model loaded successfully from: {modelPath}");
-                            Debug.WriteLine($"📊 Auto-detected {numClasses} output classes from model");
+                            Debug.WriteLine($"⚠️ WARNING: Model classes ({numClasses}) != Label count ({_labels.Length})");
                         }
                     }
                     
@@ -127,6 +128,69 @@ public class CropDiseaseAIService : ICropDiseaseAIService
         }
         
         return string.Empty;
+    }
+
+    private async Task LoadDiseaseLabelsAsync()
+    {
+        try
+        {
+            Debug.WriteLine("📋 Loading disease labels from disease_labels.txt...");
+            
+            // Try to load from Resources/Raw
+            using var stream = await FileSystem.OpenAppPackageFileAsync("disease_labels.txt");
+            
+            if (stream != null)
+            {
+                using var reader = new StreamReader(stream);
+                var labels = new List<string>();
+                
+                string? line;
+                while ((line = await reader.ReadLineAsync()) != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        // Clean up the label: replace underscores with spaces for display
+                        var cleanLabel = line.Replace("___", " - ").Replace("_", " ");
+                        labels.Add(cleanLabel);
+                    }
+                }
+                
+                _labels = labels.ToArray();
+                Debug.WriteLine($"✅ Loaded {_labels.Length} disease labels");
+                Debug.WriteLine($"   First label: {_labels[0]}");
+                Debug.WriteLine($"   Last label: {_labels[^1]}");
+            }
+            else
+            {
+                Debug.WriteLine("⚠️ disease_labels.txt not found - using default labels");
+                // Fallback to PlantVillage 38 classes
+                _labels = GetDefaultPlantVillageLabels();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"❌ Error loading labels: {ex.Message}");
+            _labels = GetDefaultPlantVillageLabels();
+        }
+    }
+
+    private string[] GetDefaultPlantVillageLabels()
+    {
+        return new[]
+        {
+            "Apple - Apple scab", "Apple - Black rot", "Apple - Cedar apple rust", "Apple - healthy",
+            "Blueberry - healthy", "Cherry - Powdery mildew", "Cherry - healthy",
+            "Corn - Cercospora leaf spot", "Corn - Common rust", "Corn - Northern Leaf Blight", "Corn - healthy",
+            "Grape - Black rot", "Grape - Esca (Black Measles)", "Grape - Leaf blight", "Grape - healthy",
+            "Orange - Huanglongbing (Citrus greening)", "Peach - Bacterial spot", "Peach - healthy",
+            "Pepper bell - Bacterial spot", "Pepper bell - healthy",
+            "Potato - Early blight", "Potato - Late blight", "Potato - healthy",
+            "Raspberry - healthy", "Soybean - healthy", "Squash - Powdery mildew",
+            "Strawberry - Leaf scorch", "Strawberry - healthy",
+            "Tomato - Bacterial spot", "Tomato - Early blight", "Tomato - Late blight", "Tomato - Leaf Mold",
+            "Tomato - Septoria leaf spot", "Tomato - Spider mites", "Tomato - Target Spot",
+            "Tomato - Yellow Leaf Curl Virus", "Tomato - Tomato mosaic virus", "Tomato - healthy"
+        };
     }
 
     public async Task<DiseaseDetectionResult?> PredictDiseaseAsync(string imagePath)
