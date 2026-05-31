@@ -14,8 +14,13 @@ public partial class CropDiseasePage : ContentPage
     }
     
     // Parameterless constructor for Shell DataTemplate
-    public CropDiseasePage() : this(IPlatformApplication.Current!.Services.GetService<CropDiseaseViewModel>()!)
+    public CropDiseasePage()
     {
+        var viewModel = Application.Current?.Handler?.MauiContext?.Services?.GetService<CropDiseaseViewModel>();
+        if (viewModel == null) throw new InvalidOperationException("Could not resolve CropDiseaseViewModel");
+        _viewModel = viewModel;
+        InitializeComponent();
+        BindingContext = viewModel;
     }
 
     protected override void OnAppearing()

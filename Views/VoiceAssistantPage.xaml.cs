@@ -31,7 +31,14 @@ public partial class VoiceAssistantPage : ContentPage
     }
     
     // Parameterless constructor for Shell DataTemplate
-    public VoiceAssistantPage() : this(IPlatformApplication.Current!.Services.GetService<VoiceAssistantViewModel>()!)
+    public VoiceAssistantPage()
     {
+        var viewModel = Application.Current?.Handler?.MauiContext?.Services?.GetService<VoiceAssistantViewModel>();
+        if (viewModel == null) throw new InvalidOperationException("Could not resolve VoiceAssistantViewModel");
+        
+        System.Diagnostics.Debug.WriteLine("🎤 Creating VoiceAssistantPage (parameterless)...");
+        InitializeComponent();
+        BindingContext = viewModel;
+        System.Diagnostics.Debug.WriteLine("✅ VoiceAssistantPage created successfully (parameterless)");
     }
 }
