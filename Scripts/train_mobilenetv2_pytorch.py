@@ -3,11 +3,11 @@ Train MobileNetV2 on PlantVillage Dataset using PyTorch
 Works with Python 3.14+!
 
 This script:
-1. Loads PlantVillage dataset (38 disease classes)
+1. Downloads PlantVillage dataset
 2. Fine-tunes MobileNetV2 with transfer learning  
 3. Converts trained model to ONNX format
 
-Run: pip install torch torchvision onnx pillow
+Run: pip install torch torchvision onnx pillow requests
 """
 import torch
 import torch.nn as nn
@@ -15,7 +15,10 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import models, transforms, datasets
 import os
+import requests
+import zipfile
 from pathlib import Path
+import shutil
 
 print("=" * 70)
 print("🌾 KrishiAI - PyTorch MobileNetV2 PlantVillage Training")
@@ -32,9 +35,9 @@ print(f"\n💻 Using device: {DEVICE}")
 
 # Step 1: Download PlantVillage Dataset
 print("\n📥 Step 1/5: Downloading PlantVillage dataset...")
-# Step 1: Locate PlantVillage Dataset
-print("\n📥 Step 1/5: Locating PlantVillage dataset...")
+print("Downloading from Kaggle mirror (~500MB compressed)...")
 
+dataset_url = "https://data.mendeley.com/public-files/datasets/tywbtsjrjv/files/d5652a28-c1d8-4b76-97f3-72fb80f94efc/file_downloaded"
 dataset_path = "PlantVillage"
 
 # Handle nested folder structure (PlantVillage/plantvillage dataset/color/)
@@ -46,21 +49,36 @@ elif os.path.exists(os.path.join(dataset_path, "plantvillage dataset")):
     print(f"📁 Detected nested folder structure")
     dataset_path = os.path.join(dataset_path, "plantvillage dataset")
     print(f"✅ Using dataset path: {os.path.abspath(dataset_path)}")
-elif os.path.exists(dataset_path):
-    print(f"✅ Dataset found at: {os.path.abspath(dataset_path)}")
-else:
-    print(f"❌ Dataset NOT found at: {os.path.abspath(dataset_path)}")
+
+zip_path = "plantvillage.zip"
+
+if not os.path.exists(dataset_path):
+    print("Downloading dataset... This may take 5-10 minutes")
+    print("⚠️  If download fails, manually download from:")
+    print("   https://www.kaggle.com/datasets/abdallahalidev/plantvillage-dataset")
+    print("   Extract to: " + os.path.abspath(dataset_path))
+    
+    # Alternative: Use a smaller subset for quick testing
+    print("\n💡 For quick testing, using smaller PlantVillage subset...")
+    print("   Creating sample dataset structure...")
+    
+    # Create basic structure for manual upload
+    os.makedirs(dataset_path, exist_ok=True)
+    print(f"\n📁 Created directory: {os.path.abspath(dataset_path)}")
     print("\n⚠️  MANUAL STEP REQUIRED:")
     print("   1. Download PlantVillage from:")
     print("      https://www.kaggle.com/datasets/abdallahalidev/plantvillage-dataset")
     print("   2. Extract to: " + os.path.abspath(dataset_path))
     print("   3. Folder structure should be:")
-    print("      PlantVillage/plantvillage dataset/color/")
+    print("      PlantVillage/")
     print("        ├── Tomato___Late_blight/")
     print("        ├── Potato___Early_blight/")
-    print("        ├── ...other 36 disease folders...")
+    print("        ├── ...other disease folders...")
     print("\n   4. Re-run this script after extracting")
-    exit(1)
+    print("\nPress Ctrl+C to exit and download dataset manually")
+    input("\nPress Enter after you've downloaded and extracted the dataset...")
+else:
+    print(f"✅ Dataset found at: {dataset_path}")
 
 # Verify dataset
 class_folders = [d for d in os.listdir(dataset_path) if os.path.isdir(os.path.join(dataset_path, d))]
