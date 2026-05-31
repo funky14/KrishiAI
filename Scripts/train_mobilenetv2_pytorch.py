@@ -39,6 +39,13 @@ print("Downloading from Kaggle mirror (~500MB compressed)...")
 
 dataset_url = "https://data.mendeley.com/public-files/datasets/tywbtsjrjv/files/d5652a28-c1d8-4b76-97f3-72fb80f94efc/file_downloaded"
 dataset_path = "PlantVillage"
+
+# Handle nested folder structure (PlantVillage/plantvillage dataset/)
+if os.path.exists(os.path.join(dataset_path, "plantvillage dataset")):
+    print(f"📁 Detected nested folder structure")
+    dataset_path = os.path.join(dataset_path, "plantvillage dataset")
+    print(f"✅ Using dataset path: {os.path.abspath(dataset_path)}")
+
 zip_path = "plantvillage.zip"
 
 if not os.path.exists(dataset_path):
