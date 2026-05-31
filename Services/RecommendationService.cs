@@ -34,9 +34,33 @@ public class RecommendationService : IRecommendationService
             await InitializeAsync();
         }
 
+        // Try exact match first
         if (_recommendations?.TryGetValue(diseaseName, out var recommendation) == true)
         {
             return recommendation;
+        }
+        
+        // Try matching after removing crop prefix (e.g., "Tomato - Early blight" → "Early Blight")
+        if (diseaseName.Contains(" - "))
+        {
+            var parts = diseaseName.Split(" - ", 2);
+            if (parts.Length == 2)
+            {
+                var diseaseOnly = parts[1].Trim();
+                
+                // Try case-insensitive partial match
+                var match = _recommendations?.FirstOrDefault(r => 
+                    r.Key.Equals(diseaseOnly, StringComparison.OrdinalIgnoreCase) ||
+                    r.Key.Contains(diseaseOnly, StringComparison.OrdinalIgnoreCase) ||
+                    diseaseOnly.Contains(r.Key, StringComparison.OrdinalIgnoreCase)
+                );
+                
+                if (match?.Value != null)
+                {
+                    Debug.WriteLine($"✅ Found recommendation for '{diseaseName}' using disease part: '{diseaseOnly}'");
+                    return match.Value.Value;
+                }
+            }
         }
         
         // Return generic recommendation for unknown diseases
