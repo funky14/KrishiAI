@@ -1,3 +1,5 @@
+using KrishiAI.App.Views;
+
 namespace KrishiAI.App;
 
 public partial class AppShell : Shell
@@ -26,6 +28,7 @@ public partial class AppShell : Shell
         {
             System.Diagnostics.Debug.WriteLine($"❌ AppShell initialization error: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"❌ Stack trace: {ex.StackTrace}");
+            System.Diagnostics.Debug.WriteLine($"❌ Inner exception: {ex.InnerException?.Message}");
             throw;
         }
     }

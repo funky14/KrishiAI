@@ -43,12 +43,19 @@ public static class MauiProgram
         builder.Services.AddTransient<HistoryViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
 
-        // Register Views
+        // Register Views (as Shell routes)
         builder.Services.AddTransient<HomePage>();
         builder.Services.AddTransient<CropDiseasePage>();
         builder.Services.AddTransient<VoiceAssistantPage>();
         builder.Services.AddTransient<HistoryPage>();
         builder.Services.AddTransient<SettingsPage>();
+        
+        // Register Shell routes
+        Microsoft.Maui.Controls.Routing.RegisterRoute("home", typeof(HomePage));
+        Microsoft.Maui.Controls.Routing.RegisterRoute("disease", typeof(CropDiseasePage));
+        Microsoft.Maui.Controls.Routing.RegisterRoute("voice", typeof(VoiceAssistantPage));
+        Microsoft.Maui.Controls.Routing.RegisterRoute("history", typeof(HistoryPage));
+        Microsoft.Maui.Controls.Routing.RegisterRoute("settings", typeof(SettingsPage));
 
         return builder.Build();
     }
