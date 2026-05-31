@@ -12,6 +12,11 @@ public partial class CropDiseasePage : ContentPage
         _viewModel = viewModel;
         BindingContext = viewModel;
     }
+    
+    // Parameterless constructor for Shell DataTemplate
+    public CropDiseasePage() : this(IPlatformApplication.Current!.Services.GetService<CropDiseaseViewModel>()!)
+    {
+    }
 
     protected override void OnAppearing()
     {

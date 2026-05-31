@@ -12,6 +12,11 @@ public partial class HistoryPage : ContentPage
         _viewModel = viewModel;
         BindingContext = viewModel;
     }
+    
+    // Parameterless constructor for Shell DataTemplate
+    public HistoryPage() : this(IPlatformApplication.Current!.Services.GetService<HistoryViewModel>()!)
+    {
+    }
 
     protected override void OnAppearing()
     {

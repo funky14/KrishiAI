@@ -9,4 +9,9 @@ public partial class SettingsPage : ContentPage
         InitializeComponent();
         BindingContext = viewModel;
     }
+    
+    // Parameterless constructor for Shell DataTemplate
+    public SettingsPage() : this(IPlatformApplication.Current!.Services.GetService<SettingsViewModel>()!)
+    {
+    }
 }

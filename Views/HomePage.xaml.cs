@@ -9,4 +9,9 @@ public partial class HomePage : ContentPage
         InitializeComponent();
         BindingContext = viewModel;
     }
+    
+    // Parameterless constructor for Shell DataTemplate
+    public HomePage() : this(IPlatformApplication.Current!.Services.GetService<HomeViewModel>()!)
+    {
+    }
 }

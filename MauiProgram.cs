@@ -37,25 +37,18 @@ public static class MauiProgram
         builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
 
         // Register ViewModels
-        builder.Services.AddTransient<HomeViewModel>();
-        builder.Services.AddTransient<CropDiseaseViewModel>();
-        builder.Services.AddTransient<VoiceAssistantViewModel>();
-        builder.Services.AddTransient<HistoryViewModel>();
-        builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddSingleton<HomeViewModel>();
+        builder.Services.AddSingleton<CropDiseaseViewModel>();
+        builder.Services.AddSingleton<VoiceAssistantViewModel>();
+        builder.Services.AddSingleton<HistoryViewModel>();
+        builder.Services.AddSingleton<SettingsViewModel>();
 
-        // Register Views (as Shell routes)
-        builder.Services.AddTransient<HomePage>();
-        builder.Services.AddTransient<CropDiseasePage>();
-        builder.Services.AddTransient<VoiceAssistantPage>();
-        builder.Services.AddTransient<HistoryPage>();
-        builder.Services.AddTransient<SettingsPage>();
-        
-        // Register Shell routes
-        Microsoft.Maui.Controls.Routing.RegisterRoute("home", typeof(HomePage));
-        Microsoft.Maui.Controls.Routing.RegisterRoute("disease", typeof(CropDiseasePage));
-        Microsoft.Maui.Controls.Routing.RegisterRoute("voice", typeof(VoiceAssistantPage));
-        Microsoft.Maui.Controls.Routing.RegisterRoute("history", typeof(HistoryPage));
-        Microsoft.Maui.Controls.Routing.RegisterRoute("settings", typeof(SettingsPage));
+        // Register Views with DI
+        builder.Services.AddSingleton<HomePage>();
+        builder.Services.AddSingleton<CropDiseasePage>();
+        builder.Services.AddSingleton<VoiceAssistantPage>();
+        builder.Services.AddSingleton<HistoryPage>();
+        builder.Services.AddSingleton<SettingsPage>();
 
         return builder.Build();
     }

@@ -29,4 +29,9 @@ public partial class VoiceAssistantPage : ContentPage
             throw;
         }
     }
+    
+    // Parameterless constructor for Shell DataTemplate
+    public VoiceAssistantPage() : this(IPlatformApplication.Current!.Services.GetService<VoiceAssistantViewModel>()!)
+    {
+    }
 }
