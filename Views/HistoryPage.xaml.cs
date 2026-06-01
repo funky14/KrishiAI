@@ -4,6 +4,7 @@ namespace KrishiAI.App.Views;
 
 public partial class HistoryPage : ContentPage
 {
+#pragma warning disable CA1416
     private readonly HistoryViewModel _viewModel;
 
     public HistoryPage(HistoryViewModel viewModel)
@@ -28,4 +29,5 @@ public partial class HistoryPage : ContentPage
         base.OnAppearing();
         _viewModel.OnAppearing();
     }
+#pragma warning restore CA1416
 }

@@ -4,6 +4,7 @@ namespace KrishiAI.App.Views;
 
 public partial class HomePage : ContentPage
 {
+#pragma warning disable CA1416
     public HomePage(HomeViewModel viewModel)
     {
         try
@@ -55,4 +56,5 @@ public partial class HomePage : ContentPage
             throw;
         }
     }
+#pragma warning restore CA1416
 }

@@ -64,11 +64,7 @@ public class AIChatService : IAIChatService
                 new UserChatMessage(userQuery)
             };
 
-            var options = new ChatCompletionOptions
-            {
-                Temperature = 0.7f,
-                MaxOutputTokenCount = 500
-            };
+            var options = new ChatCompletionOptions();
 
             Debug.WriteLine($"🤖 Sending query to Azure OpenAI...");
             var response = await chatClient.CompleteChatAsync(messages, options);

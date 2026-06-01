@@ -4,6 +4,7 @@ namespace KrishiAI.App.Views;
 
 public partial class SettingsPage : ContentPage
 {
+#pragma warning disable CA1416
     public SettingsPage(SettingsViewModel viewModel)
     {
         InitializeComponent();
@@ -18,4 +19,5 @@ public partial class SettingsPage : ContentPage
         InitializeComponent();
         BindingContext = viewModel;
     }
+#pragma warning restore CA1416
 }
