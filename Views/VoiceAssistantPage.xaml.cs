@@ -4,6 +4,7 @@ namespace KrishiAI.App.Views;
 
 public partial class VoiceAssistantPage : ContentPage
 {
+#pragma warning disable CA1416
     public VoiceAssistantPage(VoiceAssistantViewModel viewModel)
     {
         try
@@ -41,4 +42,5 @@ public partial class VoiceAssistantPage : ContentPage
         BindingContext = viewModel;
         System.Diagnostics.Debug.WriteLine("✅ VoiceAssistantPage created successfully (parameterless)");
     }
+#pragma warning restore CA1416
 }

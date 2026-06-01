@@ -29,6 +29,7 @@ public partial class VoiceAssistantViewModel : BaseViewModel
 
     public ObservableCollection<SupportedLanguage> SupportedLanguages { get; set; }
 
+#pragma warning disable CS8618
     public VoiceAssistantViewModel(
         ISpeechRecognitionService speechService,
         ITextToSpeechService ttsService,
@@ -67,6 +68,7 @@ public partial class VoiceAssistantViewModel : BaseViewModel
             Title = "Voice Assistant";
             SupportedLanguages = new ObservableCollection<SupportedLanguage>();
         }
+#pragma warning restore CS8618
     }
 
     private SupportedLanguage DetectDeviceLanguage(List<SupportedLanguage> languages)

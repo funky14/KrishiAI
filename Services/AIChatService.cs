@@ -1,5 +1,6 @@
 using Azure;
 using Azure.AI.OpenAI;
+using OpenAI.Chat;
 using KrishiAI.App.Models;
 using System.Diagnostics;
 
@@ -51,25 +52,23 @@ public class AIChatService : IAIChatService
     {
         try
         {
-            var client = new OpenAIClient(
+            var client = new AzureOpenAIClient(
                 new Uri(config.OpenAIEndpoint),
                 new AzureKeyCredential(config.OpenAIKey));
 
-            var chatCompletionsOptions = new ChatCompletionsOptions()
+            var chatClient = client.GetChatClient(config.OpenAIDeploymentName);
+
+            var messages = new List<ChatMessage>
             {
-                DeploymentName = config.OpenAIDeploymentName,
-                Messages =
-                {
-                    new ChatRequestSystemMessage(GetSystemPrompt(languageCode)),
-                    new ChatRequestUserMessage(userQuery)
-                },
-                Temperature = 0.7f,
-                MaxTokens = 500
+                new SystemChatMessage(GetSystemPrompt(languageCode)),
+                new UserChatMessage(userQuery)
             };
 
+            var options = new ChatCompletionOptions();
+
             Debug.WriteLine($"🤖 Sending query to Azure OpenAI...");
-            var response = await client.GetChatCompletionsAsync(chatCompletionsOptions);
-            var answer = response.Value.Choices[0].Message.Content;
+            var response = await chatClient.CompleteChatAsync(messages, options);
+            var answer = response.Value.Content[0].Text;
             
             Debug.WriteLine($"✅ Received AI response ({answer.Length} chars)");
             return answer;
