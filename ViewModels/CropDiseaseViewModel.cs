@@ -12,6 +12,8 @@ public partial class CropDiseaseViewModel : BaseViewModel
     private readonly ICropDiseaseAIService _aiService;
     private readonly IRecommendationService _recommendationService;
     private readonly IDatabaseService _databaseService;
+    private readonly DeviceIdentifierService _deviceIdentifierService;
+    private readonly SyncQueueManager _syncQueueManager;
 
     [ObservableProperty]
     private string? selectedImagePath;
@@ -35,12 +37,16 @@ public partial class CropDiseaseViewModel : BaseViewModel
         ICameraService cameraService,
         ICropDiseaseAIService aiService,
         IRecommendationService recommendationService,
-        IDatabaseService databaseService)
+        IDatabaseService databaseService,
+        DeviceIdentifierService deviceIdentifierService,
+        SyncQueueManager syncQueueManager)
     {
         _cameraService = cameraService;
         _aiService = aiService;
         _recommendationService = recommendationService;
         _databaseService = databaseService;
+        _deviceIdentifierService = deviceIdentifierService;
+        _syncQueueManager = syncQueueManager;
         
         Title = "Crop Disease Detection";
     }
@@ -122,10 +128,18 @@ public partial class CropDiseaseViewModel : BaseViewModel
                         .ToList();
                 }
 
+                var deviceInfo = await _deviceIdentifierService.GetDeviceInfoAsync();
+                result.DeviceId = deviceInfo.DeviceId;
+                result.DeviceName = deviceInfo.DeviceName;
+                result.LastModifiedDateUtc = DateTime.UtcNow;
+
                 HasResult = true;
 
-                // Save to database
+                // Save to database (Phase 2 - local-first)
                 await _databaseService.SaveDetectionAsync(result);
+                
+                // Attempt immediate sync if online (Phase 5)
+                _ = _syncQueueManager.ProcessQueueAsync();
             }
         }
         catch (Exception ex)

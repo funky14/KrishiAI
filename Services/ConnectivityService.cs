@@ -24,7 +24,8 @@ public class ConnectivityService : IConnectivityService
     {
         try
         {
-            return Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+            var access = Connectivity.Current.NetworkAccess;
+            return access != NetworkAccess.None;
         }
         catch
         {
@@ -35,6 +36,7 @@ public class ConnectivityService : IConnectivityService
 
     private void OnConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
     {
-        ConnectivityChanged?.Invoke(this, e.NetworkAccess == NetworkAccess.Internet);
+        var isConnected = e.NetworkAccess != NetworkAccess.None;
+        ConnectivityChanged?.Invoke(this, isConnected);
     }
 }

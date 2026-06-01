@@ -59,4 +59,120 @@ public class DatabaseService : IDatabaseService
         await InitializeAsync();
         return await _database!.DeleteAllAsync<DiseaseDetectionResult>();
     }
+
+    // ===== SYNC IMPLEMENTATIONS (Phase 2) =====
+
+    public async Task<List<DiseaseDetectionResult>> GetPendingSyncRecordsAsync()
+    {
+        await InitializeAsync();
+        return await _database!.Table<DiseaseDetectionResult>()
+            .Where(x => !x.IsSynced && !x.IsDeleted)
+            .OrderBy(x => x.SyncRetryCount)
+            .ToListAsync();
+    }
+
+    public async Task<List<DiseaseDetectionResult>> GetDeletedRecordsPendingSyncAsync()
+    {
+        await InitializeAsync();
+        return await _database!.Table<DiseaseDetectionResult>()
+            .Where(x => x.IsDeleted && !string.IsNullOrEmpty(x.RemoteId))
+            .ToListAsync();
+    }
+
+    public async Task UpdateSyncStatusAsync(DiseaseDetectionResult result, bool isSynced, string? remoteId, string? error = null)
+    {
+        await InitializeAsync();
+        result.IsSynced = isSynced;
+        result.LastSyncTime = isSynced ? DateTime.UtcNow : null;
+        result.SyncError = error;
+        
+        if (isSynced)
+        {
+            result.SyncRetryCount = 0;
+            if (!string.IsNullOrEmpty(remoteId))
+                result.RemoteId = remoteId;
+        }
+        else
+        {
+            result.SyncRetryCount++;
+        }
+
+        await _database!.UpdateAsync(result);
+    }
+
+    public async Task<int> MergeRemoteChangesAsync(List<DiseaseDetectionResult> remoteRecords)
+    {
+        await InitializeAsync();
+        int merged = 0;
+
+        foreach (var remoteRecord in remoteRecords)
+        {
+            if (string.IsNullOrEmpty(remoteRecord.RemoteId))
+                continue;
+
+            // Find existing local record by remote ID
+            var localRecord = await GetByRemoteIdAsync(remoteRecord.RemoteId);
+
+            if (localRecord == null)
+            {
+                // New record from server - insert locally
+                remoteRecord.Id = 0; // Reset local ID so SQLite auto-generates
+                remoteRecord.IsSynced = true;
+                await _database!.InsertAsync(remoteRecord);
+                merged++;
+            }
+            else
+            {
+                // Last-write-wins conflict resolution by UTC timestamp
+                if (remoteRecord.LastModifiedDateUtc > localRecord.LastModifiedDateUtc)
+                {
+                    // Server version is newer - update local record
+                    remoteRecord.Id = localRecord.Id; // Keep local ID
+                    await _database!.UpdateAsync(remoteRecord);
+                    merged++;
+                }
+            }
+        }
+
+        return merged;
+    }
+
+    public async Task<DateTime?> GetLastSyncAnchorAsync()
+    {
+        var anchor = await SecureStorage.GetAsync("LastSyncAnchor");
+        if (!string.IsNullOrEmpty(anchor) && DateTime.TryParse(anchor, out var result))
+            return result;
+        return null;
+    }
+
+    public async Task SetLastSyncAnchorAsync(DateTime timestamp)
+    {
+        await SecureStorage.SetAsync("LastSyncAnchor", timestamp.ToUniversalTime().ToString("O"));
+    }
+
+    public async Task UpdateRemoteIdAsync(int localId, string remoteId)
+    {
+        await InitializeAsync();
+        var record = await _database!.GetAsync<DiseaseDetectionResult>(localId);
+        if (record != null)
+        {
+            record.RemoteId = remoteId;
+            await _database!.UpdateAsync(record);
+        }
+    }
+
+    public async Task<DiseaseDetectionResult?> GetByRemoteIdAsync(string remoteId)
+    {
+        await InitializeAsync();
+        return await _database!.Table<DiseaseDetectionResult>()
+            .FirstOrDefaultAsync(x => x.RemoteId == remoteId);
+    }
+
+    public async Task SoftDeleteAsync(DiseaseDetectionResult result)
+    {
+        await InitializeAsync();
+        result.IsDeleted = true;
+        result.LastModifiedDateUtc = DateTime.UtcNow;
+        await _database!.UpdateAsync(result);
+    }
 }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net9.0-android</TargetFrameworks>
+		<TargetFrameworks>net8.0-android</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
 
@@ -52,6 +52,13 @@
 
 	<ItemGroup>
 	  <MauiAsset Remove="Resources\Raw\mobilenetv2_plantvillage_trained.onnx.data" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Services\AzureSqlDatabaseService.cs" />
+	  <Compile Remove="SyncApi\**\*.cs" />
+	  <Compile Remove="**\obj\**\*.cs" />
+	  <Compile Remove="**\bin\**\*.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

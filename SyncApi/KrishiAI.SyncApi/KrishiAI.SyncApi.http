@@ -1,0 +1,6 @@
+@KrishiAI.SyncApi_HostAddress = http://localhost:5051
+
+GET {{KrishiAI.SyncApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
