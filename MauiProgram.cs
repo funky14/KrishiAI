@@ -26,6 +26,7 @@ public static class MauiProgram
 #endif
 
         // Register Services
+        builder.Services.AddSingleton<ILocalizationService, LocalizationService>();
         builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
         builder.Services.AddSingleton<IDatabaseService, DatabaseService>(); // Offline-first SQLite; SyncQueueManager handles cloud sync when online
         builder.Services.AddSingleton<ICameraService, CameraService>();

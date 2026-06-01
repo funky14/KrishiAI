@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KrishiAI.App.Models;
 using KrishiAI.App.Services;
+using KrishiAI.App.Resources.Strings;
 using System.Collections.ObjectModel;
 
 namespace KrishiAI.App.ViewModels;
@@ -27,48 +28,102 @@ public partial class VoiceAssistantViewModel : BaseViewModel
     [ObservableProperty]
     private ObservableCollection<VoiceCommand> conversationHistory = new();
 
+    [ObservableProperty]
+    private string voiceAssistantText = string.Empty;
+
+    [ObservableProperty]
+    private string selectLanguageText = string.Empty;
+
+    [ObservableProperty]
+    private string tapToSpeakText = string.Empty;
+
+    [ObservableProperty]
+    private string noteSpeakText = string.Empty;
+
+    [ObservableProperty]
+    private string askVoiceAssistantText = string.Empty;
+
+    [ObservableProperty]
+    private string recordingText = string.Empty;
+
+    [ObservableProperty]
+    private string processingText = string.Empty;
+
+    [ObservableProperty]
+    private string transcriptionText = string.Empty;
+
+    [ObservableProperty]
+    private string aiResponseText = string.Empty;
+
+    [ObservableProperty]
+    private string conversationHistoryText = string.Empty;
+
     public ObservableCollection<SupportedLanguage> SupportedLanguages { get; set; }
 
 #pragma warning disable CS8618
     public VoiceAssistantViewModel(
         ISpeechRecognitionService speechService,
         ITextToSpeechService ttsService,
-        IAIChatService chatService)
+        IAIChatService chatService,
+        ILocalizationService localizationService)
     {
         try
         {
             System.Diagnostics.Debug.WriteLine("🎤 Initializing VoiceAssistantViewModel...");
-            
+
             _speechService = speechService;
             _ttsService = ttsService;
             _chatService = chatService;
 
+            InitializeLocalization(localizationService);
+
             Title = "Voice Assistant";
-            
+
             var languages = _speechService.GetSupportedLanguages();
             System.Diagnostics.Debug.WriteLine($"   Languages loaded: {languages?.Count ?? 0}");
-            
+
             SupportedLanguages = new ObservableCollection<SupportedLanguage>(languages ?? new List<SupportedLanguage>());
-            
+
             // Auto-detect device language
             if (languages != null && languages.Any())
             {
                 SelectedLanguage = DetectDeviceLanguage(languages);
                 System.Diagnostics.Debug.WriteLine($"   Selected language: {SelectedLanguage?.LanguageName ?? "None"}");
             }
-            
+
+            UpdateLocalizedStrings();
+
             System.Diagnostics.Debug.WriteLine("✅ VoiceAssistantViewModel initialized successfully");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"❌ VoiceAssistantViewModel initialization error: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"   Stack trace: {ex.StackTrace}");
-            
+
             // Ensure minimum initialization
             Title = "Voice Assistant";
             SupportedLanguages = new ObservableCollection<SupportedLanguage>();
         }
 #pragma warning restore CS8618
+    }
+
+    private void UpdateLocalizedStrings()
+    {
+        VoiceAssistantText = AppStrings.VoiceAssistant;
+        SelectLanguageText = AppStrings.SelectLanguage;
+        TapToSpeakText = AppStrings.TapToSpeak;
+        NoteSpeakText = AppStrings.NoteSpeak;
+        AskVoiceAssistantText = AppStrings.AskVoiceAssistant;
+        RecordingText = AppStrings.Recording;
+        ProcessingText = AppStrings.Processing;
+        TranscriptionText = AppStrings.Transcription;
+        AiResponseText = AppStrings.AIResponse;
+        ConversationHistoryText = AppStrings.ConversationHistory;
+    }
+
+    public override void OnLanguageChanged()
+    {
+        UpdateLocalizedStrings();
     }
 
     private SupportedLanguage DetectDeviceLanguage(List<SupportedLanguage> languages)
