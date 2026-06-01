@@ -71,7 +71,7 @@
 		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="2.88.7" />
 		
 		<!-- Azure AI Services -->
-		<PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.14" />
+		<PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
 		<PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.35.0" />
 	</ItemGroup>
 
