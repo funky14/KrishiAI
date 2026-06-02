@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KrishiAI.App.Models;
 using KrishiAI.App.Services;
+using KrishiAI.App.Resources.Strings;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -22,15 +23,65 @@ public partial class HistoryViewModel : BaseViewModel
     [ObservableProperty]
     private bool isSyncing;
 
+    [ObservableProperty]
+    private string detectionHistoryText = string.Empty;
+
+    [ObservableProperty]
+    private string syncingDetectionHistoryText = string.Empty;
+
+    [ObservableProperty]
+    private string yourDetectionRecordsText = string.Empty;
+
+    [ObservableProperty]
+    private string trackAllYourCropDiseaseDetectionsText = string.Empty;
+
+    [ObservableProperty]
+    private string noHistoryYetText = string.Empty;
+
+    [ObservableProperty]
+    private string startAnalyzingCropsToSeeHistoryHereText = string.Empty;
+
+    [ObservableProperty]
+    private string viewDetailsText = string.Empty;
+
+    [ObservableProperty]
+    private string deleteItemText = string.Empty;
+
+    [ObservableProperty]
+    private string confidenceText = string.Empty;
+
     public HistoryViewModel(
         IDatabaseService databaseService,
         IConnectivityService connectivityService,
-        SyncQueueManager syncQueueManager)
+        SyncQueueManager syncQueueManager,
+        ILocalizationService localizationService)
     {
         _databaseService = databaseService;
         _connectivityService = connectivityService;
         _syncQueueManager = syncQueueManager;
+
+        InitializeLocalization(localizationService);
+
         Title = "Detection History";
+        UpdateLocalizedStrings();
+    }
+
+    private void UpdateLocalizedStrings()
+    {
+        DetectionHistoryText = AppStrings.DetectionHistory;
+        SyncingDetectionHistoryText = AppStrings.SyncingDetectionHistory;
+        YourDetectionRecordsText = AppStrings.YourDetectionRecords;
+        TrackAllYourCropDiseaseDetectionsText = AppStrings.TrackAllYourCropDiseaseDetections;
+        NoHistoryYetText = AppStrings.NoHistoryYet;
+        StartAnalyzingCropsToSeeHistoryHereText = AppStrings.StartAnalyzingCropsToSeeHistoryHere;
+        ViewDetailsText = AppStrings.ViewDetails;
+        DeleteItemText = AppStrings.DeleteItem;
+        ConfidenceText = AppStrings.Confidence;
+    }
+
+    public override void OnLanguageChanged()
+    {
+        UpdateLocalizedStrings();
     }
 
     public override async void OnAppearing()

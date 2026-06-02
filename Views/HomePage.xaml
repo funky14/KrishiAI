@@ -6,17 +6,17 @@
              x:DataType="viewmodels:HomeViewModel"
              BackgroundColor="#E8F5E9"
              Title="Home">
-    
+
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
-            
+
             <!-- Header with Greeting and Bell -->
             <Grid ColumnDefinitions="*,Auto" Margin="0,10,0,0">
                 <VerticalStackLayout Grid.Column="0">
-                    <Label Text="Good Morning," 
+                    <Label Text="{Binding GreetingText}" 
                            FontSize="14" 
                            TextColor="#666666"/>
-                    <Label Text="Farmer!" 
+                    <Label Text="{Binding FarmerText}" 
                            FontSize="32" 
                            FontAttributes="Bold"
                            TextColor="#2E7D32"/>
@@ -42,11 +42,11 @@
                    HasShadow="True"
                    HeightRequest="120">
                 <VerticalStackLayout VerticalOptions="Center" Spacing="5">
-                    <Label Text="🌾 Plant Health Monitor" 
+                    <Label Text="{Binding PlantHealthMonitorText}" 
                            FontSize="20" 
                            FontAttributes="Bold"
                            TextColor="White"/>
-                    <Label Text="AI-powered disease detection for healthier crops" 
+                    <Label Text="{Binding PlantHealthMonitorDescText}" 
                            FontSize="14"
                            TextColor="White"
                            Opacity="0.9"/>
@@ -54,7 +54,7 @@
             </Frame>
 
             <!-- Help Text -->
-            <Label Text="How can I help you today?" 
+            <Label Text="{Binding HowCanIHelpYouText}" 
                    FontSize="18" 
                    FontAttributes="Bold"
                    TextColor="#333333"
@@ -67,15 +67,15 @@
                    Padding="20"
                    HasShadow="True">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="🌿 Crop Disease Detection" 
+                    <Label Text="{Binding CropDiseaseDetectionTitleText}" 
                            FontSize="20" 
                            FontAttributes="Bold"
                            TextColor="#2E7D32"/>
-                    <Label Text="Take a photo of your crop and get instant disease identification with treatment recommendations." 
+                    <Label Text="{Binding CropDiseaseDetectionDescText}" 
                            FontSize="14"
                            TextColor="#666666"
                            LineBreakMode="WordWrap"/>
-                    <Button Text="Detect Disease" 
+                    <Button Text="{Binding DetectDiseaseText}" 
                             Command="{Binding NavigateToDiseaseDetectionCommand}"
                             BackgroundColor="#4CAF50"
                             TextColor="White"
@@ -93,15 +93,15 @@
                    Padding="20"
                    HasShadow="True">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="🎤 Voice Assistant" 
+                    <Label Text="{Binding VoiceAssistantTitleText}" 
                            FontSize="20" 
                            FontAttributes="Bold"
                            TextColor="#1976D2"/>
-                    <Label Text="Ask farming questions in your language and get AI-powered advice instantly." 
+                    <Label Text="{Binding VoiceAssistantDescText}" 
                            FontSize="14"
                            TextColor="#666666"
                            LineBreakMode="WordWrap"/>
-                    <Button Text="Ask a Question" 
+                    <Button Text="{Binding AskAQuestionText}" 
                             Command="{Binding NavigateToVoiceAssistantCommand}"
                             BackgroundColor="#2196F3"
                             TextColor="White"
@@ -113,12 +113,12 @@
             </Frame>
 
             <!-- Quick Features -->
-            <Label Text="Quick Features" 
+            <Label Text="{Binding QuickFeaturesText}" 
                    FontSize="16" 
                    FontAttributes="Bold"
                    TextColor="#333333"
                    Margin="0,10,0,5"/>
-            
+
             <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
                 <Frame Grid.Column="0" 
                        BackgroundColor="White"
@@ -128,13 +128,13 @@
                        HasShadow="True">
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="🌐" FontSize="30" HorizontalOptions="Center"/>
-                        <Label Text="7 Languages" 
+                        <Label Text="{Binding LanguagesText}" 
                                FontSize="12" 
                                TextColor="#666666"
                                HorizontalTextAlignment="Center"/>
                     </VerticalStackLayout>
                 </Frame>
-                
+
                 <Frame Grid.Column="1" 
                        BackgroundColor="White"
                        BorderColor="Transparent"
@@ -143,13 +143,13 @@
                        HasShadow="True">
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="📊" FontSize="30" HorizontalOptions="Center"/>
-                        <Label Text="History" 
+                        <Label Text="{Binding HistoryText}" 
                                FontSize="12" 
                                TextColor="#666666"
                                HorizontalTextAlignment="Center"/>
                     </VerticalStackLayout>
                 </Frame>
-                
+
                 <Frame Grid.Column="2" 
                        BackgroundColor="White"
                        BorderColor="Transparent"
@@ -158,7 +158,7 @@
                        HasShadow="True">
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="💡" FontSize="30" HorizontalOptions="Center"/>
-                        <Label Text="Farming Tips" 
+                        <Label Text="{Binding FarmingTipsText}" 
                                FontSize="12" 
                                TextColor="#666666"
                                HorizontalTextAlignment="Center"/>
@@ -168,5 +168,5 @@
 
         </VerticalStackLayout>
     </ScrollView>
-    
+
 </ContentPage>
