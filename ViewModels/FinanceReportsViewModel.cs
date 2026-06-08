@@ -13,7 +13,7 @@ public partial class FinanceReportsViewModel : BaseViewModel
     private readonly IFinanceService _financeService;
 
     [ObservableProperty]
-    private Chart expenseChart;
+    private Chart? expenseChart;
 
     [ObservableProperty]
     private ObservableCollection<IncomeBreakdownItem> incomeBreakdown = new();

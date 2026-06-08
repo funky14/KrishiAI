@@ -16,7 +16,7 @@ public partial class ProfitSummaryViewModel : BaseViewModel
     private FinancialSummary currentMonthSummary = new();
 
     [ObservableProperty]
-    private Chart profitTrendChart;
+    private Chart? profitTrendChart;
 
     public ProfitSummaryViewModel(IFinanceService financeService)
     {
