@@ -267,8 +267,8 @@ Console.WriteLine($"Total: {allTransactions.Count}, Filtered: {filtered.Count}")
 - Models: `Models/FinanceTransaction.cs`
 - Service: `Services/FinanceService.cs`
 - Interface: `Services/IFinanceService.cs`
-- ViewModel: `ViewModels/FinanceViewModel.cs`
-- Page: `Views/FinancePage.xaml`
+- ViewModels: `ViewModels/FinanceViewModel.cs`, `AiInsightsViewModel.cs`, `FinanceHistoryViewModel.cs`, `FinanceReportsViewModel.cs`, `ProfitSummaryViewModel.cs`, `AddMiscellaneousViewModel.cs`
+- Pages: `Views/FinancePage.xaml`, `AiInsightsPage.xaml`, `FinanceHistoryPage.xaml`, `FinanceReportsPage.xaml`, `ProfitSummaryPage.xaml`, `AddMiscellaneousPage.xaml`
 - Database: `Scripts/finance_database_setup.sql`
 - Controller: `Controllers/FinanceController.cs`
 

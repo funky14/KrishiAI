@@ -80,6 +80,26 @@ This document provides a complete index of all Finance Tracker implementation fi
 
 **Layout**: XAML with grid and stack layouts
 
+#### [Views/AddMiscellaneousPage.xaml](Views/AddMiscellaneousPage.xaml)
+**Purpose**: Miscellaneous entry screen
+**Contents**: Quick-tap categories for non-standard transactions.
+
+#### [Views/FinanceReportsPage.xaml](Views/FinanceReportsPage.xaml)
+**Purpose**: Reports & Analytics screen
+**Contents**: Donut chart for expenses, progress bars for income breakdown.
+
+#### [Views/ProfitSummaryPage.xaml](Views/ProfitSummaryPage.xaml)
+**Purpose**: Profit Summary screen
+**Contents**: 6-month profit trend line chart and month overview.
+
+#### [Views/AiInsightsPage.xaml](Views/AiInsightsPage.xaml)
+**Purpose**: AI Insights screen
+**Contents**: AI-generated cards for Cost Optimization, Profit Improvement, Loan Readiness.
+
+#### [Views/FinanceHistoryPage.xaml](Views/FinanceHistoryPage.xaml)
+**Purpose**: Transaction History screen
+**Contents**: Filterable list of all financial transactions.
+
 #### [Views/FinancePage.xaml.cs](Views/FinancePage.xaml.cs)
 **Purpose**: Code-behind for Finance page
 **Size**: ~20 lines
@@ -105,6 +125,13 @@ This document provides a complete index of all Finance Tracker implementation fi
 - User notifications
 
 **Pattern**: MVVM with Community Toolkit
+
+#### Additional ViewModels
+- **[AddMiscellaneousViewModel.cs](ViewModels/AddMiscellaneousViewModel.cs)**: Handles miscellaneous transactions.
+- **[FinanceReportsViewModel.cs](ViewModels/FinanceReportsViewModel.cs)**: Prepares Microcharts data.
+- **[ProfitSummaryViewModel.cs](ViewModels/ProfitSummaryViewModel.cs)**: Prepares trend analysis data.
+- **[AiInsightsViewModel.cs](ViewModels/AiInsightsViewModel.cs)**: Connects to `IAIChatService` for smart suggestions.
+- **[FinanceHistoryViewModel.cs](ViewModels/FinanceHistoryViewModel.cs)**: Handles filtering and listing transactions.
 
 ---
 
@@ -280,12 +307,22 @@ This document provides a complete index of all Finance Tracker implementation fi
 - [IFinanceService.cs](Services/IFinanceService.cs) - Interface
 - [FinanceService.cs](Services/FinanceService.cs) - Implementation
 
-#### Views (2 files)
+#### Views (7 files)
 - [FinancePage.xaml](Views/FinancePage.xaml) - UI markup
 - [FinancePage.xaml.cs](Views/FinancePage.xaml.cs) - Code-behind
+- [AddMiscellaneousPage.xaml](Views/AddMiscellaneousPage.xaml) - UI markup
+- [FinanceReportsPage.xaml](Views/FinanceReportsPage.xaml) - UI markup
+- [ProfitSummaryPage.xaml](Views/ProfitSummaryPage.xaml) - UI markup
+- [AiInsightsPage.xaml](Views/AiInsightsPage.xaml) - UI markup
+- [FinanceHistoryPage.xaml](Views/FinanceHistoryPage.xaml) - UI markup
 
-#### ViewModels (1 file)
+#### ViewModels (6 files)
 - [FinanceViewModel.cs](ViewModels/FinanceViewModel.cs) - MVVM logic
+- [AddMiscellaneousViewModel.cs](ViewModels/AddMiscellaneousViewModel.cs)
+- [FinanceReportsViewModel.cs](ViewModels/FinanceReportsViewModel.cs)
+- [ProfitSummaryViewModel.cs](ViewModels/ProfitSummaryViewModel.cs)
+- [AiInsightsViewModel.cs](ViewModels/AiInsightsViewModel.cs)
+- [FinanceHistoryViewModel.cs](ViewModels/FinanceHistoryViewModel.cs)
 
 #### Controllers (1 file)
 - [FinanceController.cs](Controllers/FinanceController.cs) - API endpoints

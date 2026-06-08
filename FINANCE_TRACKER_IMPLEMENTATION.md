@@ -139,6 +139,13 @@ The `FinanceService` class implements `IFinanceService` and provides:
    - Donut chart showing expense/income/profit breakdown
    - Quick links to Reports and History
 
+### Additional UI Pages
+- **FinanceHistoryPage**: Displays a scrollable, filterable list of all past transactions.
+- **FinanceReportsPage**: Shows visual breakdowns (Donut chart for expenses, Progress bars for income).
+- **ProfitSummaryPage**: Displays a 6-month profit trend line chart and current month overview.
+- **AiInsightsPage**: Uses AI to generate actionable insights for cost optimization, profit improvement, and loan readiness.
+- **AddMiscellaneousPage**: Provides a quick-tap grid for entering non-standard transactions.
+
 ### FinanceViewModel
 
 Handles:
@@ -147,6 +154,14 @@ Handles:
 - Adding/updating/deleting transactions
 - Period-based filtering
 - Error handling and user notifications
+- Navigation to all sub-pages (History, Reports, Profit Summary, AI Insights)
+
+### Additional ViewModels
+- **AddMiscellaneousViewModel**: Logic for entering miscellaneous items.
+- **FinanceReportsViewModel**: Formats data for Microcharts visualization.
+- **ProfitSummaryViewModel**: Calculates 6-month historical data for line charts.
+- **AiInsightsViewModel**: Integrates with `IAIChatService` to generate dynamic JSON insights.
+- **FinanceHistoryViewModel**: Logic for loading, filtering, and clearing transaction history.
 
 ## Usage Examples
 
@@ -247,14 +262,17 @@ public class FinancialSummary
 - Soft delete support
 - Timestamps for audit trail
 
+✅ **Advanced Features:**
+- Profit trend analysis (6-month line charts)
+- Expense and Income breakdown charts (Microcharts)
+- AI-powered financial insights (Cost optimization, Profit improvement, Loan readiness)
+- Comprehensive transaction history filtering
+
 ## Future Enhancements
 
 ### Phase 2 - Advanced Analytics
-- [ ] Profit trend analysis (monthly/quarterly/yearly)
-- [ ] Expense breakdown charts
 - [ ] Crop profitability analysis
 - [ ] Market price comparison tool
-- [ ] AI-powered recommendations for cost optimization
 
 ### Phase 3 - Loan & Credit
 - [ ] Loan eligibility calculator
@@ -278,7 +296,6 @@ public class FinancialSummary
 ### Phase 6 - Voice & AI
 - [ ] Voice-based transaction entry
 - [ ] Natural language processing for expense categories
-- [ ] AI chatbot for financial advice
 - [ ] Expense prediction based on historical data
 
 ## Installation & Setup

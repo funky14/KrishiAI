@@ -272,11 +272,7 @@ public partial class FinanceViewModel : BaseViewModel
     [RelayCommand]
     public async Task PromptAddMiscAsync()
     {
-        string result = await Shell.Current.DisplayPromptAsync("Add Misc", "Enter amount (₹):", keyboard: Keyboard.Numeric);
-        if (!string.IsNullOrWhiteSpace(result) && decimal.TryParse(result, out decimal amount))
-        {
-            await AddMiscTransactionAsync(new MiscellaneousTransaction { Amount = amount, TransactionDate = DateTime.Now, CreatedDate = DateTime.Now, UserId = "demo_user", TransactionType = "Misc", MiscCategory = "Other", TransactionDirection = "Outgoing", Category = "Misc" });
-        }
+        await Shell.Current.GoToAsync(nameof(Views.AddMiscellaneousPage));
     }
 
     [RelayCommand]
@@ -288,13 +284,13 @@ public partial class FinanceViewModel : BaseViewModel
     [RelayCommand]
     public async Task NavigateToReportsAsync()
     {
-        await Shell.Current.DisplayAlert("Reports", "Detailed reports feature coming soon!", "OK");
+        await Shell.Current.GoToAsync(nameof(Views.FinanceReportsPage));
     }
 
     [RelayCommand]
     public async Task NavigateToHistoryAsync()
     {
-        await Shell.Current.GoToAsync("//history");
+        await Shell.Current.GoToAsync(nameof(Views.FinanceHistoryPage));
     }
 
     /// <summary>

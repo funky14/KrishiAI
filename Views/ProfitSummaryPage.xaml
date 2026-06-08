@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KrishiAI.App.ViewModels"
+             xmlns:microcharts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
+             x:Class="KrishiAI.App.Views.ProfitSummaryPage"
+             Title="Profit Summary"
+             BackgroundColor="#f8f9fa">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="20">
+
+            <!-- This Month Overview -->
+            <Label Text="This Month Overview" FontSize="18" FontAttributes="Bold" TextColor="#2c2c2c" />
+            
+            <Frame Padding="15" CornerRadius="16" HasShadow="False" BorderColor="#e0e0e0" BackgroundColor="White">
+                <VerticalStackLayout Spacing="15">
+                    
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="15" ColumnSpacing="15">
+                        
+                        <!-- Net Profit (Span 2) -->
+                        <VerticalStackLayout Grid.Row="0" Grid.ColumnSpan="2" HorizontalOptions="Center" Spacing="5">
+                            <Label Text="Net Profit" FontSize="12" TextColor="#666" HorizontalOptions="Center" />
+                            <Label Text="{Binding CurrentMonthSummary.NetProfit, StringFormat='₹{0:N0}'}" FontSize="32" FontAttributes="Bold" TextColor="#2b72d2" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+
+                        <!-- Total Income / Total Expense -->
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="2">
+                            <Label Text="Total Income" FontSize="12" TextColor="#666" />
+                            <Label Text="{Binding CurrentMonthSummary.TotalIncome, StringFormat='₹{0:N0}'}" FontSize="18" FontAttributes="Bold" TextColor="#3bb54a" />
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="2" HorizontalOptions="End">
+                            <Label Text="Total Expense" FontSize="12" TextColor="#666" HorizontalOptions="End" />
+                            <Label Text="{Binding CurrentMonthSummary.TotalExpense, StringFormat='₹{0:N0}'}" FontSize="18" FontAttributes="Bold" TextColor="#ff5a5a" HorizontalOptions="End" />
+                        </VerticalStackLayout>
+
+                        <!-- Outstanding Loan / Repaid -->
+                        <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="2">
+                            <Label Text="Outstanding Loan" FontSize="12" TextColor="#666" />
+                            <Label Text="{Binding CurrentMonthSummary.OutstandingLoan, StringFormat='₹{0:N0}'}" FontSize="16" FontAttributes="Bold" TextColor="#ff9800" />
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="2" HorizontalOptions="End">
+                            <Label Text="Loan Repaid" FontSize="12" TextColor="#666" HorizontalOptions="End" />
+                            <Label Text="{Binding CurrentMonthSummary.TotalLoanRepaid, StringFormat='₹{0:N0}'}" FontSize="16" FontAttributes="Bold" TextColor="#2c2c2c" HorizontalOptions="End" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#0f8d39" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Profit Trend -->
+            <Label Text="Profit Trend (Last 6 Months)" FontSize="18" FontAttributes="Bold" TextColor="#2c2c2c" Margin="0,10,0,0" />
+            
+            <Frame Padding="15" CornerRadius="16" HasShadow="False" BorderColor="#e0e0e0" BackgroundColor="White">
+                <microcharts:ChartView Chart="{Binding ProfitTrendChart}" HeightRequest="220" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Button Text="View AI Insights" Command="{Binding NavigateToAiInsightsCommand}"
+                    BackgroundColor="#0f8d39" TextColor="White" FontAttributes="Bold"
+                    CornerRadius="12" HeightRequest="50" Margin="0,20,0,20" />
+                    
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

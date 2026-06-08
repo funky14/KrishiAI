@@ -3,6 +3,7 @@ using KrishiAI.App.ViewModels;
 using KrishiAI.App.Views;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
+using Microcharts.Maui;
 
 namespace KrishiAI.App;
 
@@ -13,7 +14,8 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .UseMauiCommunityToolkit();
+            .UseMauiCommunityToolkit()
+            .UseMicrocharts();
             // Fonts commented out - add font files to Resources/Fonts/ to enable
             //.ConfigureFonts(fonts =>
             //{
@@ -59,7 +61,12 @@ public static class MauiProgram
         builder.Services.AddTransient<AddIncomeViewModel>();
         builder.Services.AddTransient<AddLoanViewModel>();
         builder.Services.AddTransient<AddSubsidyViewModel>();
+        builder.Services.AddTransient<AddMiscellaneousViewModel>();
         builder.Services.AddTransient<FinanceVoiceEntryViewModel>();
+        builder.Services.AddTransient<FinanceHistoryViewModel>();
+        builder.Services.AddTransient<FinanceReportsViewModel>();
+        builder.Services.AddTransient<ProfitSummaryViewModel>();
+        builder.Services.AddTransient<AiInsightsViewModel>();
 
         // Register Views with DI
         builder.Services.AddSingleton<HomePage>();
@@ -74,7 +81,12 @@ public static class MauiProgram
         builder.Services.AddTransient<AddIncomePage>();
         builder.Services.AddTransient<AddLoanPage>();
         builder.Services.AddTransient<AddSubsidyPage>();
+        builder.Services.AddTransient<AddMiscellaneousPage>();
         builder.Services.AddTransient<FinanceVoiceEntryPage>();
+        builder.Services.AddTransient<FinanceHistoryPage>();
+        builder.Services.AddTransient<FinanceReportsPage>();
+        builder.Services.AddTransient<ProfitSummaryPage>();
+        builder.Services.AddTransient<AiInsightsPage>();
 
         return builder.Build();
     }

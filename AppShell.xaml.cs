@@ -26,7 +26,12 @@ public partial class AppShell : Shell
             Routing.RegisterRoute(nameof(AddIncomePage), typeof(AddIncomePage));
             Routing.RegisterRoute(nameof(AddLoanPage), typeof(AddLoanPage));
             Routing.RegisterRoute(nameof(AddSubsidyPage), typeof(AddSubsidyPage));
+            Routing.RegisterRoute(nameof(AddMiscellaneousPage), typeof(AddMiscellaneousPage));
             Routing.RegisterRoute(nameof(FinanceVoiceEntryPage), typeof(FinanceVoiceEntryPage));
+            Routing.RegisterRoute(nameof(FinanceHistoryPage), typeof(FinanceHistoryPage));
+            Routing.RegisterRoute(nameof(FinanceReportsPage), typeof(FinanceReportsPage));
+            Routing.RegisterRoute(nameof(ProfitSummaryPage), typeof(ProfitSummaryPage));
+            Routing.RegisterRoute(nameof(AiInsightsPage), typeof(AiInsightsPage));
             
             System.Diagnostics.Debug.WriteLine("✅ AppShell initialized successfully");
         }
