@@ -97,7 +97,7 @@ Do not include any markdown formatting, just the raw JSON.
             // Save to database
             if (type == "Expense")
             {
-                var expense = new ExpenseTransaction
+                var expense = new FinanceTransaction
                 {
                     UserId = "user123",
                     TransactionType = "Expense",
@@ -113,7 +113,7 @@ Do not include any markdown formatting, just the raw JSON.
             }
             else
             {
-                var income = new IncomeTransaction
+                var income = new FinanceTransaction
                 {
                     UserId = "user123",
                     TransactionType = "Income",

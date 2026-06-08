@@ -105,7 +105,7 @@ public partial class AddSubsidyViewModel : BaseViewModel
         try
         {
             var categoryName = SelectedCategory?.Name ?? "General";
-            var subsidy = new SubsidyTransaction
+            var subsidy = new FinanceTransaction
             {
                 UserId = "user123",
                 TransactionType = "Subsidy",

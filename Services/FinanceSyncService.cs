@@ -52,12 +52,8 @@ public class FinanceSyncService
             Debug.WriteLine("FinanceSyncService: starting sync of pending offline records...");
 
             int synced = 0;
-            synced += await SyncIncomeAsync();
-            synced += await SyncExpensesAsync();
-            synced += await SyncLoansAsync();
+            synced += await SyncFinanceTransactionsAsync();
             synced += await SyncLoanRepaymentsAsync();
-            synced += await SyncSubsidiesAsync();
-            synced += await SyncMiscAsync();
 
             Debug.WriteLine($"FinanceSyncService: sync complete — {synced} record(s) pushed and removed from SQLite.");
         }
@@ -75,9 +71,9 @@ public class FinanceSyncService
     // Per-table sync helpers
     // ----------------------------------------------------------------
 
-    private async Task<int> SyncIncomeAsync()
+    private async Task<int> SyncFinanceTransactionsAsync()
     {
-        var pending = await _db!.Table<IncomeTransaction>()
+        var pending = await _db!.Table<FinanceTransaction>()
             .Where(x => !x.IsSynced && !x.IsDeleted)
             .ToListAsync();
 
@@ -86,62 +82,23 @@ public class FinanceSyncService
         {
             try
             {
-                await _azureService.AddIncomeAsync(record);
+                switch (record.TransactionType)
+                {
+                    case "Income": await _azureService.AddIncomeAsync(record); break;
+                    case "Expense": await _azureService.AddExpenseAsync(record); break;
+                    case "Loan": await _azureService.AddLoanAsync(record); break;
+                    case "Subsidy": await _azureService.AddSubsidyAsync(record); break;
+                    case "Miscellaneous":
+                    case "Misc": await _azureService.AddMiscTransactionAsync(record); break;
+                }
+                
                 await _db.DeleteAsync(record);  // remove from SQLite after successful push
                 count++;
-                Debug.WriteLine($"FinanceSyncService: Income SQLite#{record.Id} synced and deleted.");
+                Debug.WriteLine($"FinanceSyncService: Transaction SQLite#{record.Id} synced and deleted.");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"FinanceSyncService: Income SQLite#{record.Id} failed — {ex.Message}");
-            }
-        }
-        return count;
-    }
-
-    private async Task<int> SyncExpensesAsync()
-    {
-        var pending = await _db!.Table<ExpenseTransaction>()
-            .Where(x => !x.IsSynced && !x.IsDeleted)
-            .ToListAsync();
-
-        int count = 0;
-        foreach (var record in pending)
-        {
-            try
-            {
-                await _azureService.AddExpenseAsync(record);
-                await _db.DeleteAsync(record);
-                count++;
-                Debug.WriteLine($"FinanceSyncService: Expense SQLite#{record.Id} synced and deleted.");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"FinanceSyncService: Expense SQLite#{record.Id} failed — {ex.Message}");
-            }
-        }
-        return count;
-    }
-
-    private async Task<int> SyncLoansAsync()
-    {
-        var pending = await _db!.Table<LoanTransaction>()
-            .Where(x => !x.IsSynced && !x.IsDeleted)
-            .ToListAsync();
-
-        int count = 0;
-        foreach (var record in pending)
-        {
-            try
-            {
-                await _azureService.AddLoanAsync(record);
-                await _db.DeleteAsync(record);
-                count++;
-                Debug.WriteLine($"FinanceSyncService: Loan SQLite#{record.Id} synced and deleted.");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"FinanceSyncService: Loan SQLite#{record.Id} failed — {ex.Message}");
+                Debug.WriteLine($"FinanceSyncService: Transaction SQLite#{record.Id} failed — {ex.Message}");
             }
         }
         return count;
@@ -171,54 +128,6 @@ public class FinanceSyncService
         return count;
     }
 
-    private async Task<int> SyncSubsidiesAsync()
-    {
-        var pending = await _db!.Table<SubsidyTransaction>()
-            .Where(x => !x.IsSynced && !x.IsDeleted)
-            .ToListAsync();
-
-        int count = 0;
-        foreach (var record in pending)
-        {
-            try
-            {
-                await _azureService.AddSubsidyAsync(record);
-                await _db.DeleteAsync(record);
-                count++;
-                Debug.WriteLine($"FinanceSyncService: Subsidy SQLite#{record.Id} synced and deleted.");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"FinanceSyncService: Subsidy SQLite#{record.Id} failed — {ex.Message}");
-            }
-        }
-        return count;
-    }
-
-    private async Task<int> SyncMiscAsync()
-    {
-        var pending = await _db!.Table<MiscellaneousTransaction>()
-            .Where(x => !x.IsSynced && !x.IsDeleted)
-            .ToListAsync();
-
-        int count = 0;
-        foreach (var record in pending)
-        {
-            try
-            {
-                await _azureService.AddMiscTransactionAsync(record);
-                await _db.DeleteAsync(record);
-                count++;
-                Debug.WriteLine($"FinanceSyncService: Misc SQLite#{record.Id} synced and deleted.");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"FinanceSyncService: Misc SQLite#{record.Id} failed — {ex.Message}");
-            }
-        }
-        return count;
-    }
-
     // ----------------------------------------------------------------
     // Shared SQLite connection (same db file as FinanceService)
     // ----------------------------------------------------------------
@@ -230,11 +139,6 @@ public class FinanceSyncService
 
         // Ensure tables exist (idempotent — safe to call even if already created)
         await _db.CreateTableAsync<FinanceTransaction>();
-        await _db.CreateTableAsync<IncomeTransaction>();
-        await _db.CreateTableAsync<ExpenseTransaction>();
-        await _db.CreateTableAsync<LoanTransaction>();
         await _db.CreateTableAsync<LoanRepayment>();
-        await _db.CreateTableAsync<SubsidyTransaction>();
-        await _db.CreateTableAsync<MiscellaneousTransaction>();
     }
 }

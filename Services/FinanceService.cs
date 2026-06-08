@@ -24,7 +24,8 @@ public class FinanceService : IFinanceService
     {
         _azure        = azure;
         _connectivity = connectivity;
-        _userId       = Preferences.Default.Get("user_id", Guid.NewGuid().ToString());
+        // Hardcoded for hackathon demo to ensure mock data is always visible
+        _userId       = "hackathon_demo_user";
     }
 
     // ----------------------------------------------------------------
@@ -42,223 +43,152 @@ public class FinanceService : IFinanceService
         _db ??= new SQLiteAsyncConnection(dbPath);
 
         await _db.CreateTableAsync<FinanceTransaction>();
-        await _db.CreateTableAsync<IncomeTransaction>();
-        await _db.CreateTableAsync<ExpenseTransaction>();
-        await _db.CreateTableAsync<LoanTransaction>();
         await _db.CreateTableAsync<LoanRepayment>();
-        await _db.CreateTableAsync<SubsidyTransaction>();
-        await _db.CreateTableAsync<MiscellaneousTransaction>();
     }
 
     private bool IsOnline => _connectivity.IsConnected() && _azure.IsConfigured;
 
-    // ================================================================
-    // INCOME
-    // ================================================================
-
-    public async Task<int> AddIncomeAsync(IncomeTransaction income)
+    private async Task<int> InsertTransactionAsync(FinanceTransaction t, string type)
     {
-        income.UserId          = _userId;
-        income.TransactionType = "Income";
-        income.CreatedDate     = DateTime.Now;
+        t.UserId          = _userId;
+        t.TransactionType = type;
+        t.CreatedDate     = DateTime.Now;
 
         if (IsOnline)
         {
-            Debug.WriteLine("FinanceService: AddIncome → Azure SQL");
-            return await _azure.AddIncomeAsync(income);
+            Debug.WriteLine($"FinanceService: Add{type} → Azure SQL");
+            return type switch
+            {
+                "Income" => await _azure.AddIncomeAsync(t),
+                "Expense" => await _azure.AddExpenseAsync(t),
+                "Loan" => await _azure.AddLoanAsync(t),
+                "Subsidy" => await _azure.AddSubsidyAsync(t),
+                "Miscellaneous" => await _azure.AddMiscTransactionAsync(t),
+                _ => throw new NotImplementedException()
+            };
         }
 
-        Debug.WriteLine("FinanceService: AddIncome → SQLite (offline)");
+        Debug.WriteLine($"FinanceService: Add{type} → SQLite (offline)");
         await InitSqliteAsync();
-        income.IsSynced = false;
-        return await _db!.InsertAsync(income);
+        t.IsSynced = false;
+        return await _db!.InsertAsync(t);
     }
 
-    public async Task<bool> UpdateIncomeAsync(IncomeTransaction income)
+    private async Task<bool> UpdateTransactionAsync(FinanceTransaction t)
     {
-        income.UpdatedDate = DateTime.Now;
+        t.UpdatedDate = DateTime.Now;
 
         if (IsOnline)
-            return await _azure.UpdateIncomeAsync(income);
+        {
+            return t.TransactionType switch
+            {
+                "Income" => await _azure.UpdateIncomeAsync(t),
+                "Expense" => await _azure.UpdateExpenseAsync(t),
+                "Loan" => await _azure.UpdateLoanAsync(t),
+                "Subsidy" => await _azure.UpdateSubsidyAsync(t),
+                "Miscellaneous" => await _azure.UpdateMiscTransactionAsync(t),
+                _ => throw new NotImplementedException()
+            };
+        }
 
         await InitSqliteAsync();
-        income.IsSynced = false;
-        return await _db!.UpdateAsync(income) > 0;
+        t.IsSynced = false;
+        return await _db!.UpdateAsync(t) > 0;
     }
 
-    public async Task<bool> DeleteIncomeAsync(int incomeId)
-    {
-        if (IsOnline)
-            return await _azure.DeleteIncomeAsync(incomeId);
-
-        await InitSqliteAsync();
-        return await _db!.DeleteAsync<IncomeTransaction>(incomeId) > 0;
-    }
-
-    public async Task<IncomeTransaction?> GetIncomeByIdAsync(int incomeId)
+    private async Task<bool> DeleteTransactionAsync(int id, string type)
     {
         if (IsOnline)
         {
-            var all = await _azure.GetAllIncomeAsync(_userId);
-            return all.FirstOrDefault(x => x.Id == incomeId);
+            return type switch
+            {
+                "Income" => await _azure.DeleteIncomeAsync(id),
+                "Expense" => await _azure.DeleteExpenseAsync(id),
+                "Loan" => await _azure.DeleteLoanAsync(id),
+                "Subsidy" => await _azure.DeleteSubsidyAsync(id),
+                "Miscellaneous" => await _azure.DeleteMiscTransactionAsync(id),
+                _ => throw new NotImplementedException()
+            };
         }
 
         await InitSqliteAsync();
-        return await _db!.Table<IncomeTransaction>()
-            .Where(x => x.Id == incomeId && x.UserId == _userId)
+        return await _db!.DeleteAsync<FinanceTransaction>(id) > 0;
+    }
+
+    private async Task<FinanceTransaction?> GetTransactionByIdAsync(int id, string type)
+    {
+        if (IsOnline)
+        {
+            var all = type switch
+            {
+                "Income" => await _azure.GetAllIncomeAsync(_userId),
+                "Expense" => await _azure.GetAllExpensesAsync(_userId),
+                "Loan" => await _azure.GetAllLoansAsync(_userId),
+                "Subsidy" => await _azure.GetAllSubsidiesAsync(_userId),
+                "Miscellaneous" => await _azure.GetAllMiscTransactionsAsync(_userId),
+                _ => new List<FinanceTransaction>()
+            };
+            return all.FirstOrDefault(x => x.Id == id);
+        }
+
+        await InitSqliteAsync();
+        return await _db!.Table<FinanceTransaction>()
+            .Where(x => x.Id == id && x.UserId == _userId && x.TransactionType == type)
             .FirstOrDefaultAsync();
     }
 
-    public async Task<List<IncomeTransaction>> GetAllIncomeAsync(DateTime? startDate = null, DateTime? endDate = null)
+    private async Task<List<FinanceTransaction>> GetTransactionsByTypeAsync(string type, DateTime? startDate = null, DateTime? endDate = null)
     {
         if (IsOnline)
-            return await _azure.GetAllIncomeAsync(_userId, startDate, endDate);
+        {
+            return type switch
+            {
+                "Income" => await _azure.GetAllIncomeAsync(_userId, startDate, endDate),
+                "Expense" => await _azure.GetAllExpensesAsync(_userId, startDate, endDate),
+                "Loan" => await _azure.GetAllLoansAsync(_userId), // Loans don't always use date filter in get all
+                "Subsidy" => await _azure.GetAllSubsidiesAsync(_userId, startDate, endDate),
+                "Miscellaneous" => await _azure.GetAllMiscTransactionsAsync(_userId, startDate, endDate),
+                _ => new List<FinanceTransaction>()
+            };
+        }
 
         await InitSqliteAsync();
-        var q = _db!.Table<IncomeTransaction>().Where(x => x.UserId == _userId && !x.IsDeleted);
+        var q = _db!.Table<FinanceTransaction>().Where(x => x.UserId == _userId && x.TransactionType == type && !x.IsDeleted);
         if (startDate.HasValue) q = q.Where(x => x.TransactionDate >= startDate.Value);
         if (endDate.HasValue)   q = q.Where(x => x.TransactionDate <= endDate.Value);
         return await q.OrderByDescending(x => x.TransactionDate).ToListAsync();
     }
+
+    // ================================================================
+    // INCOME
+    // ================================================================
+    public Task<int> AddIncomeAsync(FinanceTransaction income) => InsertTransactionAsync(income, "Income");
+    public Task<bool> UpdateIncomeAsync(FinanceTransaction income) => UpdateTransactionAsync(income);
+    public Task<bool> DeleteIncomeAsync(int id) => DeleteTransactionAsync(id, "Income");
+    public Task<FinanceTransaction?> GetIncomeByIdAsync(int id) => GetTransactionByIdAsync(id, "Income");
+    public Task<List<FinanceTransaction>> GetAllIncomeAsync(DateTime? startDate = null, DateTime? endDate = null) => GetTransactionsByTypeAsync("Income", startDate, endDate);
 
     // ================================================================
     // EXPENSE
     // ================================================================
-
-    public async Task<int> AddExpenseAsync(ExpenseTransaction expense)
-    {
-        expense.UserId          = _userId;
-        expense.TransactionType = "Expense";
-        expense.CreatedDate     = DateTime.Now;
-
-        if (IsOnline)
-        {
-            Debug.WriteLine("FinanceService: AddExpense → Azure SQL");
-            return await _azure.AddExpenseAsync(expense);
-        }
-
-        Debug.WriteLine("FinanceService: AddExpense → SQLite (offline)");
-        await InitSqliteAsync();
-        expense.IsSynced = false;
-        return await _db!.InsertAsync(expense);
-    }
-
-    public async Task<bool> UpdateExpenseAsync(ExpenseTransaction expense)
-    {
-        expense.UpdatedDate = DateTime.Now;
-
-        if (IsOnline)
-            return await _azure.UpdateExpenseAsync(expense);
-
-        await InitSqliteAsync();
-        expense.IsSynced = false;
-        return await _db!.UpdateAsync(expense) > 0;
-    }
-
-    public async Task<bool> DeleteExpenseAsync(int expenseId)
-    {
-        if (IsOnline)
-            return await _azure.DeleteExpenseAsync(expenseId);
-
-        await InitSqliteAsync();
-        return await _db!.DeleteAsync<ExpenseTransaction>(expenseId) > 0;
-    }
-
-    public async Task<ExpenseTransaction?> GetExpenseByIdAsync(int expenseId)
-    {
-        if (IsOnline)
-        {
-            var all = await _azure.GetAllExpensesAsync(_userId);
-            return all.FirstOrDefault(x => x.Id == expenseId);
-        }
-
-        await InitSqliteAsync();
-        return await _db!.Table<ExpenseTransaction>()
-            .Where(x => x.Id == expenseId && x.UserId == _userId)
-            .FirstOrDefaultAsync();
-    }
-
-    public async Task<List<ExpenseTransaction>> GetAllExpensesAsync(DateTime? startDate = null, DateTime? endDate = null)
-    {
-        if (IsOnline)
-            return await _azure.GetAllExpensesAsync(_userId, startDate, endDate);
-
-        await InitSqliteAsync();
-        var q = _db!.Table<ExpenseTransaction>().Where(x => x.UserId == _userId && !x.IsDeleted);
-        if (startDate.HasValue) q = q.Where(x => x.TransactionDate >= startDate.Value);
-        if (endDate.HasValue)   q = q.Where(x => x.TransactionDate <= endDate.Value);
-        return await q.OrderByDescending(x => x.TransactionDate).ToListAsync();
-    }
+    public Task<int> AddExpenseAsync(FinanceTransaction expense) => InsertTransactionAsync(expense, "Expense");
+    public Task<bool> UpdateExpenseAsync(FinanceTransaction expense) => UpdateTransactionAsync(expense);
+    public Task<bool> DeleteExpenseAsync(int id) => DeleteTransactionAsync(id, "Expense");
+    public Task<FinanceTransaction?> GetExpenseByIdAsync(int id) => GetTransactionByIdAsync(id, "Expense");
+    public Task<List<FinanceTransaction>> GetAllExpensesAsync(DateTime? startDate = null, DateTime? endDate = null) => GetTransactionsByTypeAsync("Expense", startDate, endDate);
 
     // ================================================================
     // LOAN
     // ================================================================
-
-    public async Task<int> AddLoanAsync(LoanTransaction loan)
+    public Task<int> AddLoanAsync(FinanceTransaction loan)
     {
-        loan.UserId          = _userId;
-        loan.TransactionType = "Loan";
-        loan.CreatedDate     = DateTime.Now;
         loan.RemainingAmount = loan.Amount;
-
-        if (IsOnline)
-        {
-            Debug.WriteLine("FinanceService: AddLoan → Azure SQL");
-            return await _azure.AddLoanAsync(loan);
-        }
-
-        Debug.WriteLine("FinanceService: AddLoan → SQLite (offline)");
-        await InitSqliteAsync();
-        loan.IsSynced = false;
-        return await _db!.InsertAsync(loan);
+        return InsertTransactionAsync(loan, "Loan");
     }
-
-    public async Task<bool> UpdateLoanAsync(LoanTransaction loan)
-    {
-        loan.UpdatedDate = DateTime.Now;
-
-        if (IsOnline)
-            return await _azure.UpdateLoanAsync(loan);
-
-        await InitSqliteAsync();
-        loan.IsSynced = false;
-        return await _db!.UpdateAsync(loan) > 0;
-    }
-
-    public async Task<bool> DeleteLoanAsync(int loanId)
-    {
-        if (IsOnline)
-            return await _azure.DeleteLoanAsync(loanId);
-
-        await InitSqliteAsync();
-        return await _db!.DeleteAsync<LoanTransaction>(loanId) > 0;
-    }
-
-    public async Task<LoanTransaction?> GetLoanByIdAsync(int loanId)
-    {
-        if (IsOnline)
-        {
-            var all = await _azure.GetAllLoansAsync(_userId);
-            return all.FirstOrDefault(x => x.Id == loanId);
-        }
-
-        await InitSqliteAsync();
-        return await _db!.Table<LoanTransaction>()
-            .Where(x => x.Id == loanId && x.UserId == _userId)
-            .FirstOrDefaultAsync();
-    }
-
-    public async Task<List<LoanTransaction>> GetAllLoansAsync()
-    {
-        if (IsOnline)
-            return await _azure.GetAllLoansAsync(_userId);
-
-        await InitSqliteAsync();
-        return await _db!.Table<LoanTransaction>()
-            .Where(x => x.UserId == _userId && !x.IsDeleted)
-            .OrderByDescending(x => x.TransactionDate)
-            .ToListAsync();
-    }
+    public Task<bool> UpdateLoanAsync(FinanceTransaction loan) => UpdateTransactionAsync(loan);
+    public Task<bool> DeleteLoanAsync(int id) => DeleteTransactionAsync(id, "Loan");
+    public Task<FinanceTransaction?> GetLoanByIdAsync(int id) => GetTransactionByIdAsync(id, "Loan");
+    public Task<List<FinanceTransaction>> GetAllLoansAsync() => GetTransactionsByTypeAsync("Loan");
 
     public async Task<int> AddLoanRepaymentAsync(LoanRepayment repayment)
     {
@@ -269,6 +199,15 @@ public class FinanceService : IFinanceService
 
         await InitSqliteAsync();
         repayment.IsSynced = false;
+        
+        // Also update remaining amount locally
+        var loan = await _db!.Table<FinanceTransaction>().FirstOrDefaultAsync(x => x.Id == repayment.LoanTransactionId);
+        if (loan != null)
+        {
+            loan.RemainingAmount -= repayment.AmountRepaid;
+            await _db.UpdateAsync(loan);
+        }
+
         return await _db!.InsertAsync(repayment);
     }
 
@@ -287,140 +226,20 @@ public class FinanceService : IFinanceService
     // ================================================================
     // SUBSIDY
     // ================================================================
-
-    public async Task<int> AddSubsidyAsync(SubsidyTransaction subsidy)
-    {
-        subsidy.UserId          = _userId;
-        subsidy.TransactionType = "Subsidy";
-        subsidy.CreatedDate     = DateTime.Now;
-
-        if (IsOnline)
-        {
-            Debug.WriteLine("FinanceService: AddSubsidy → Azure SQL");
-            return await _azure.AddSubsidyAsync(subsidy);
-        }
-
-        Debug.WriteLine("FinanceService: AddSubsidy → SQLite (offline)");
-        await InitSqliteAsync();
-        subsidy.IsSynced = false;
-        return await _db!.InsertAsync(subsidy);
-    }
-
-    public async Task<bool> UpdateSubsidyAsync(SubsidyTransaction subsidy)
-    {
-        subsidy.UpdatedDate = DateTime.Now;
-
-        if (IsOnline)
-            return await _azure.UpdateSubsidyAsync(subsidy);
-
-        await InitSqliteAsync();
-        subsidy.IsSynced = false;
-        return await _db!.UpdateAsync(subsidy) > 0;
-    }
-
-    public async Task<bool> DeleteSubsidyAsync(int subsidyId)
-    {
-        if (IsOnline)
-            return await _azure.DeleteSubsidyAsync(subsidyId);
-
-        await InitSqliteAsync();
-        return await _db!.DeleteAsync<SubsidyTransaction>(subsidyId) > 0;
-    }
-
-    public async Task<SubsidyTransaction?> GetSubsidyByIdAsync(int subsidyId)
-    {
-        if (IsOnline)
-        {
-            var all = await _azure.GetAllSubsidiesAsync(_userId);
-            return all.FirstOrDefault(x => x.Id == subsidyId);
-        }
-
-        await InitSqliteAsync();
-        return await _db!.Table<SubsidyTransaction>()
-            .Where(x => x.Id == subsidyId && x.UserId == _userId)
-            .FirstOrDefaultAsync();
-    }
-
-    public async Task<List<SubsidyTransaction>> GetAllSubsidiesAsync(DateTime? startDate = null, DateTime? endDate = null)
-    {
-        if (IsOnline)
-            return await _azure.GetAllSubsidiesAsync(_userId, startDate, endDate);
-
-        await InitSqliteAsync();
-        var q = _db!.Table<SubsidyTransaction>().Where(x => x.UserId == _userId && !x.IsDeleted);
-        if (startDate.HasValue) q = q.Where(x => x.TransactionDate >= startDate.Value);
-        if (endDate.HasValue)   q = q.Where(x => x.TransactionDate <= endDate.Value);
-        return await q.OrderByDescending(x => x.TransactionDate).ToListAsync();
-    }
+    public Task<int> AddSubsidyAsync(FinanceTransaction subsidy) => InsertTransactionAsync(subsidy, "Subsidy");
+    public Task<bool> UpdateSubsidyAsync(FinanceTransaction subsidy) => UpdateTransactionAsync(subsidy);
+    public Task<bool> DeleteSubsidyAsync(int id) => DeleteTransactionAsync(id, "Subsidy");
+    public Task<FinanceTransaction?> GetSubsidyByIdAsync(int id) => GetTransactionByIdAsync(id, "Subsidy");
+    public Task<List<FinanceTransaction>> GetAllSubsidiesAsync(DateTime? startDate = null, DateTime? endDate = null) => GetTransactionsByTypeAsync("Subsidy", startDate, endDate);
 
     // ================================================================
     // MISCELLANEOUS
     // ================================================================
-
-    public async Task<int> AddMiscTransactionAsync(MiscellaneousTransaction misc)
-    {
-        misc.UserId          = _userId;
-        misc.TransactionType = "Miscellaneous";
-        misc.CreatedDate     = DateTime.Now;
-
-        if (IsOnline)
-        {
-            Debug.WriteLine("FinanceService: AddMisc → Azure SQL");
-            return await _azure.AddMiscTransactionAsync(misc);
-        }
-
-        Debug.WriteLine("FinanceService: AddMisc → SQLite (offline)");
-        await InitSqliteAsync();
-        misc.IsSynced = false;
-        return await _db!.InsertAsync(misc);
-    }
-
-    public async Task<bool> UpdateMiscTransactionAsync(MiscellaneousTransaction misc)
-    {
-        misc.UpdatedDate = DateTime.Now;
-
-        if (IsOnline)
-            return await _azure.UpdateMiscTransactionAsync(misc);
-
-        await InitSqliteAsync();
-        misc.IsSynced = false;
-        return await _db!.UpdateAsync(misc) > 0;
-    }
-
-    public async Task<bool> DeleteMiscTransactionAsync(int miscId)
-    {
-        if (IsOnline)
-            return await _azure.DeleteMiscTransactionAsync(miscId);
-
-        await InitSqliteAsync();
-        return await _db!.DeleteAsync<MiscellaneousTransaction>(miscId) > 0;
-    }
-
-    public async Task<MiscellaneousTransaction?> GetMiscTransactionByIdAsync(int miscId)
-    {
-        if (IsOnline)
-        {
-            var all = await _azure.GetAllMiscTransactionsAsync(_userId);
-            return all.FirstOrDefault(x => x.Id == miscId);
-        }
-
-        await InitSqliteAsync();
-        return await _db!.Table<MiscellaneousTransaction>()
-            .Where(x => x.Id == miscId && x.UserId == _userId)
-            .FirstOrDefaultAsync();
-    }
-
-    public async Task<List<MiscellaneousTransaction>> GetAllMiscTransactionsAsync(DateTime? startDate = null, DateTime? endDate = null)
-    {
-        if (IsOnline)
-            return await _azure.GetAllMiscTransactionsAsync(_userId, startDate, endDate);
-
-        await InitSqliteAsync();
-        var q = _db!.Table<MiscellaneousTransaction>().Where(x => x.UserId == _userId && !x.IsDeleted);
-        if (startDate.HasValue) q = q.Where(x => x.TransactionDate >= startDate.Value);
-        if (endDate.HasValue)   q = q.Where(x => x.TransactionDate <= endDate.Value);
-        return await q.OrderByDescending(x => x.TransactionDate).ToListAsync();
-    }
+    public Task<int> AddMiscTransactionAsync(FinanceTransaction misc) => InsertTransactionAsync(misc, "Miscellaneous");
+    public Task<bool> UpdateMiscTransactionAsync(FinanceTransaction misc) => UpdateTransactionAsync(misc);
+    public Task<bool> DeleteMiscTransactionAsync(int id) => DeleteTransactionAsync(id, "Miscellaneous");
+    public Task<FinanceTransaction?> GetMiscTransactionByIdAsync(int id) => GetTransactionByIdAsync(id, "Miscellaneous");
+    public Task<List<FinanceTransaction>> GetAllMiscTransactionsAsync(DateTime? startDate = null, DateTime? endDate = null) => GetTransactionsByTypeAsync("Miscellaneous", startDate, endDate);
 
     // ================================================================
     // SUMMARY & ANALYTICS
@@ -484,7 +303,7 @@ public class FinanceService : IFinanceService
     {
         var expenses = await GetAllExpensesAsync(startDate, endDate);
         return expenses
-            .GroupBy(x => x.ExpenseCategory)
+            .GroupBy(x => string.IsNullOrEmpty(x.ExpenseCategory) ? x.Category : x.ExpenseCategory)
             .ToDictionary(g => g.Key, g => g.Sum(x => x.Amount));
     }
 }

@@ -18,10 +18,10 @@ public partial class FinanceViewModel : BaseViewModel
     private List<FinanceTransaction> transactions = new();
 
     [ObservableProperty]
-    private List<IncomeTransaction> incomeTransactions = new();
+    private List<FinanceTransaction> incomeTransactions = new();
 
     [ObservableProperty]
-    private List<ExpenseTransaction> expenseTransactions = new();
+    private List<FinanceTransaction> expenseTransactions = new();
 
     [ObservableProperty]
     private decimal totalIncome = 0;
@@ -79,8 +79,8 @@ public partial class FinanceViewModel : BaseViewModel
         {
             IsLoading = true;
             Transactions = await _financeService.GetAllTransactionsAsync();
-            IncomeTransactions = (await _financeService.GetAllIncomeAsync()).Cast<IncomeTransaction>().ToList();
-            ExpenseTransactions = (await _financeService.GetAllExpensesAsync()).Cast<ExpenseTransaction>().ToList();
+            IncomeTransactions = await _financeService.GetAllIncomeAsync();
+            ExpenseTransactions = await _financeService.GetAllExpensesAsync();
         }
         catch (Exception ex)
         {
@@ -100,7 +100,7 @@ public partial class FinanceViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task AddIncomeAsync(IncomeTransaction income)
+    public async Task AddIncomeAsync(FinanceTransaction income)
     {
         try
         {
@@ -120,7 +120,7 @@ public partial class FinanceViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task AddExpenseAsync(ExpenseTransaction expense)
+    public async Task AddExpenseAsync(FinanceTransaction expense)
     {
         try
         {
@@ -140,7 +140,7 @@ public partial class FinanceViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task AddLoanAsync(LoanTransaction loan)
+    public async Task AddLoanAsync(FinanceTransaction loan)
     {
         try
         {
@@ -159,7 +159,7 @@ public partial class FinanceViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task AddSubsidyAsync(SubsidyTransaction subsidy)
+    public async Task AddSubsidyAsync(FinanceTransaction subsidy)
     {
         try
         {
@@ -179,7 +179,7 @@ public partial class FinanceViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task AddMiscTransactionAsync(MiscellaneousTransaction misc)
+    public async Task AddMiscTransactionAsync(FinanceTransaction misc)
     {
         try
         {
@@ -199,7 +199,7 @@ public partial class FinanceViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task DeleteIncomeAsync(IncomeTransaction income)
+    public async Task DeleteIncomeAsync(FinanceTransaction income)
     {
         try
         {
@@ -222,7 +222,7 @@ public partial class FinanceViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task DeleteExpenseAsync(ExpenseTransaction expense)
+    public async Task DeleteExpenseAsync(FinanceTransaction expense)
     {
         try
         {

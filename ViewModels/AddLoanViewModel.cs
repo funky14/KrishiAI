@@ -114,7 +114,7 @@ public partial class AddLoanViewModel : BaseViewModel
         try
         {
             var categoryName = SelectedCategory?.Name ?? "General";
-            var loan = new LoanTransaction
+            var loan = new FinanceTransaction
             {
                 UserId = "user123",
                 TransactionType = "Loan",

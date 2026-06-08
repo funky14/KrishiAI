@@ -75,7 +75,7 @@ public partial class AddMiscellaneousViewModel : BaseViewModel
             var categoryName = SelectedCategory?.Name ?? "Custom Entry";
             var direction = (categoryName.Contains("Income") || categoryName.Contains("Rental")) ? "Incoming" : "Outgoing";
 
-            var misc = new MiscellaneousTransaction
+            var misc = new FinanceTransaction
             {
                 UserId = "demo_user",
                 TransactionType = "Misc",

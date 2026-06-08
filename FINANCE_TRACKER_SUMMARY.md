@@ -229,6 +229,14 @@ KrishiAI/
 - `GET /summary` - Financial summary
 - `GET /transactions` - All transactions
 
+## 🤖 AI Integration (Azure OpenAI)
+
+A major highlight of the Finance Tracker is the **Dynamic AI Insights Module**, powered by the official `Azure.AI.OpenAI` SDK (`AIChatService.cs`). 
+- **Context-Aware Prompting:** Extracts the user's real financial metrics (Income, Expense, Net Profit, Outstanding Loan) and injects them into a system prompt.
+- **Structured Output Generation:** Instructs the GPT model to return a structured JSON string containing exactly three insights (`CostOptimization`, `ProfitImprovement`, `LoanReadiness`).
+- **Resilient UI Binding:** Automatically parses the JSON response and directly maps the text to the beautiful UI cards on the `AiInsightsPage.xaml`.
+- **Hackathon Safe-Mode:** Built-in `try-catch` fallback mechanisms silently load sensible, default farming advice if the device loses internet connection or the Azure endpoint times out.
+
 ## 📊 Key Features
 
 ### ✅ Implemented Features

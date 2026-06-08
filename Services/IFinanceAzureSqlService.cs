@@ -12,36 +12,36 @@ public interface IFinanceAzureSqlService
     bool IsConfigured { get; }
 
     // Income
-    Task<int> AddIncomeAsync(IncomeTransaction income);
-    Task<bool> UpdateIncomeAsync(IncomeTransaction income);
+    Task<int> AddIncomeAsync(FinanceTransaction income);
+    Task<bool> UpdateIncomeAsync(FinanceTransaction income);
     Task<bool> DeleteIncomeAsync(int incomeId);
-    Task<List<IncomeTransaction>> GetAllIncomeAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
+    Task<List<FinanceTransaction>> GetAllIncomeAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
 
     // Expense
-    Task<int> AddExpenseAsync(ExpenseTransaction expense);
-    Task<bool> UpdateExpenseAsync(ExpenseTransaction expense);
+    Task<int> AddExpenseAsync(FinanceTransaction expense);
+    Task<bool> UpdateExpenseAsync(FinanceTransaction expense);
     Task<bool> DeleteExpenseAsync(int expenseId);
-    Task<List<ExpenseTransaction>> GetAllExpensesAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
+    Task<List<FinanceTransaction>> GetAllExpensesAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
 
     // Loan
-    Task<int> AddLoanAsync(LoanTransaction loan);
-    Task<bool> UpdateLoanAsync(LoanTransaction loan);
+    Task<int> AddLoanAsync(FinanceTransaction loan);
+    Task<bool> UpdateLoanAsync(FinanceTransaction loan);
     Task<bool> DeleteLoanAsync(int loanId);
-    Task<List<LoanTransaction>> GetAllLoansAsync(string userId);
+    Task<List<FinanceTransaction>> GetAllLoansAsync(string userId);
     Task<int> AddLoanRepaymentAsync(LoanRepayment repayment);
     Task<List<LoanRepayment>> GetLoanRepaymentsAsync(int loanId);
 
     // Subsidy
-    Task<int> AddSubsidyAsync(SubsidyTransaction subsidy);
-    Task<bool> UpdateSubsidyAsync(SubsidyTransaction subsidy);
+    Task<int> AddSubsidyAsync(FinanceTransaction subsidy);
+    Task<bool> UpdateSubsidyAsync(FinanceTransaction subsidy);
     Task<bool> DeleteSubsidyAsync(int subsidyId);
-    Task<List<SubsidyTransaction>> GetAllSubsidiesAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
+    Task<List<FinanceTransaction>> GetAllSubsidiesAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
 
     // Miscellaneous
-    Task<int> AddMiscTransactionAsync(MiscellaneousTransaction misc);
-    Task<bool> UpdateMiscTransactionAsync(MiscellaneousTransaction misc);
+    Task<int> AddMiscTransactionAsync(FinanceTransaction misc);
+    Task<bool> UpdateMiscTransactionAsync(FinanceTransaction misc);
     Task<bool> DeleteMiscTransactionAsync(int miscId);
-    Task<List<MiscellaneousTransaction>> GetAllMiscTransactionsAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
+    Task<List<FinanceTransaction>> GetAllMiscTransactionsAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
 
     // Summary
     Task<FinancialSummary> GetFinancialSummaryAsync(string userId, DateTime startDate, DateTime endDate);

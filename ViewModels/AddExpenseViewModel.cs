@@ -75,7 +75,7 @@ public partial class AddExpenseViewModel : BaseViewModel
         try
         {
             var categoryName = SelectedCategory?.Name ?? "General";
-            var expense = new ExpenseTransaction
+            var expense = new FinanceTransaction
             {
                 UserId = "user123", // TODO: Get from auth service
                 TransactionType = "Expense",

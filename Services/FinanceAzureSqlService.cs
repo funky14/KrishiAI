@@ -51,208 +51,186 @@ public class FinanceAzureSqlService : IFinanceAzureSqlService
     private SqlConnection CreateConnection() => new SqlConnection(_connectionString);
 
     // ================================================================
-    // INCOME
+    // COMMON HELPER
     // ================================================================
 
-    public async Task<int> AddIncomeAsync(IncomeTransaction t)
+    private static void AddTransactionParams(SqlCommand cmd, FinanceTransaction t)
+    {
+        cmd.Parameters.AddWithValue("@UserId",          t.UserId);
+        cmd.Parameters.AddWithValue("@TransactionType", t.TransactionType);
+        cmd.Parameters.AddWithValue("@Category",        string.IsNullOrEmpty(t.Category) ? (object)DBNull.Value : t.Category);
+        cmd.Parameters.AddWithValue("@Description",     string.IsNullOrEmpty(t.Description) ? (object)DBNull.Value : t.Description);
+        cmd.Parameters.AddWithValue("@Amount",          t.Amount);
+        cmd.Parameters.AddWithValue("@TransactionDate", t.TransactionDate);
+        cmd.Parameters.AddWithValue("@CreatedDate",     t.CreatedDate);
+        cmd.Parameters.AddWithValue("@Notes",           string.IsNullOrEmpty(t.Notes) ? (object)DBNull.Value : t.Notes);
+        
+        cmd.Parameters.AddWithValue("@CropName",        string.IsNullOrEmpty(t.CropName) ? (object)DBNull.Value : t.CropName);
+        cmd.Parameters.AddWithValue("@Quantity",        t.Quantity);
+        cmd.Parameters.AddWithValue("@QuantityUnit",    string.IsNullOrEmpty(t.QuantityUnit) ? (object)DBNull.Value : t.QuantityUnit);
+        cmd.Parameters.AddWithValue("@PricePerUnit",    t.PricePerUnit);
+        cmd.Parameters.AddWithValue("@BuyerName",       string.IsNullOrEmpty(t.BuyerName) ? (object)DBNull.Value : t.BuyerName);
+
+        cmd.Parameters.AddWithValue("@ExpenseCategory", string.IsNullOrEmpty(t.ExpenseCategory) ? (object)DBNull.Value : t.ExpenseCategory);
+        cmd.Parameters.AddWithValue("@ExpenseName",     string.IsNullOrEmpty(t.ExpenseName) ? (object)DBNull.Value : t.ExpenseName);
+
+        cmd.Parameters.AddWithValue("@LoanType",        string.IsNullOrEmpty(t.LoanType) ? (object)DBNull.Value : t.LoanType);
+        cmd.Parameters.AddWithValue("@LenderName",      string.IsNullOrEmpty(t.LenderName) ? (object)DBNull.Value : t.LenderName);
+        cmd.Parameters.AddWithValue("@InterestRate",    t.InterestRate);
+        cmd.Parameters.AddWithValue("@DueDate",         (object?)t.DueDate ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@IsRepaid",        t.IsRepaid);
+        cmd.Parameters.AddWithValue("@RemainingAmount", t.RemainingAmount);
+
+        cmd.Parameters.AddWithValue("@SchemeName",      string.IsNullOrEmpty(t.SchemeName) ? (object)DBNull.Value : t.SchemeName);
+        cmd.Parameters.AddWithValue("@SubsidyType",     string.IsNullOrEmpty(t.SubsidyType) ? (object)DBNull.Value : t.SubsidyType);
+        cmd.Parameters.AddWithValue("@ReceivedDate",    (object?)t.ReceivedDate ?? DBNull.Value);
+
+        cmd.Parameters.AddWithValue("@TransactionDirection", string.IsNullOrEmpty(t.TransactionDirection) ? (object)DBNull.Value : t.TransactionDirection);
+        cmd.Parameters.AddWithValue("@MiscCategory",         string.IsNullOrEmpty(t.MiscCategory) ? (object)DBNull.Value : t.MiscCategory);
+    }
+
+    private static FinanceTransaction MapTransaction(IDataRecord r) => new()
+    {
+        Id              = (int)r["Id"],
+        UserId          = (string)r["UserId"],
+        TransactionType = (string)r["TransactionType"],
+        Category        = r["Category"]    == DBNull.Value ? string.Empty : (string)r["Category"],
+        Description     = r["Description"] == DBNull.Value ? string.Empty : (string)r["Description"],
+        Amount          = (decimal)r["Amount"],
+        TransactionDate = (DateTime)r["TransactionDate"],
+        CreatedDate     = (DateTime)r["CreatedDate"],
+        UpdatedDate     = r["UpdatedDate"] == DBNull.Value ? null : (DateTime?)r["UpdatedDate"],
+        Notes           = r["Notes"]       == DBNull.Value ? string.Empty : (string)r["Notes"],
+        IsDeleted       = (bool)r["IsDeleted"],
+        IsSynced        = true,
+
+        CropName        = r["CropName"] == DBNull.Value ? string.Empty : (string)r["CropName"],
+        Quantity        = r["Quantity"] == DBNull.Value ? 0 : (decimal)r["Quantity"],
+        QuantityUnit    = r["QuantityUnit"] == DBNull.Value ? string.Empty : (string)r["QuantityUnit"],
+        PricePerUnit    = r["PricePerUnit"] == DBNull.Value ? 0 : (decimal)r["PricePerUnit"],
+        BuyerName       = r["BuyerName"] == DBNull.Value ? string.Empty : (string)r["BuyerName"],
+
+        ExpenseCategory = r["ExpenseCategory"] == DBNull.Value ? string.Empty : (string)r["ExpenseCategory"],
+        ExpenseName     = r["ExpenseName"] == DBNull.Value ? string.Empty : (string)r["ExpenseName"],
+
+        LoanType        = r["LoanType"] == DBNull.Value ? string.Empty : (string)r["LoanType"],
+        LenderName      = r["LenderName"] == DBNull.Value ? string.Empty : (string)r["LenderName"],
+        InterestRate    = r["InterestRate"] == DBNull.Value ? 0 : (decimal)r["InterestRate"],
+        DueDate         = r["DueDate"] == DBNull.Value ? null : (DateTime?)r["DueDate"],
+        IsRepaid        = r["IsRepaid"] == DBNull.Value ? false : (bool)r["IsRepaid"],
+        RemainingAmount = r["RemainingAmount"] == DBNull.Value ? 0 : (decimal)r["RemainingAmount"],
+
+        SchemeName      = r["SchemeName"] == DBNull.Value ? string.Empty : (string)r["SchemeName"],
+        SubsidyType     = r["SubsidyType"] == DBNull.Value ? string.Empty : (string)r["SubsidyType"],
+        ReceivedDate    = r["ReceivedDate"] == DBNull.Value ? null : (DateTime?)r["ReceivedDate"],
+
+        TransactionDirection = r["TransactionDirection"] == DBNull.Value ? string.Empty : (string)r["TransactionDirection"],
+        MiscCategory         = r["MiscCategory"] == DBNull.Value ? string.Empty : (string)r["MiscCategory"]
+    };
+
+    private async Task<int> InsertTransactionAsync(FinanceTransaction t)
     {
         using var conn = CreateConnection();
         await conn.OpenAsync();
         var cmd = conn.CreateCommand();
         cmd.CommandText = @"
-            INSERT INTO IncomeTransactions
+            INSERT INTO FinanceTransactions
                 (UserId, TransactionType, Category, Description, Amount, TransactionDate,
-                 CreatedDate, Notes, IsDeleted, CropName, Quantity, QuantityUnit, PricePerUnit, BuyerName)
+                 CreatedDate, Notes, IsDeleted, CropName, Quantity, QuantityUnit, PricePerUnit, BuyerName,
+                 ExpenseCategory, ExpenseName, LoanType, LenderName, InterestRate, DueDate, IsRepaid, RemainingAmount,
+                 SchemeName, SubsidyType, ReceivedDate, TransactionDirection, MiscCategory)
             VALUES
                 (@UserId, @TransactionType, @Category, @Description, @Amount, @TransactionDate,
-                 @CreatedDate, @Notes, 0, @CropName, @Quantity, @QuantityUnit, @PricePerUnit, @BuyerName);
+                 @CreatedDate, @Notes, 0, @CropName, @Quantity, @QuantityUnit, @PricePerUnit, @BuyerName,
+                 @ExpenseCategory, @ExpenseName, @LoanType, @LenderName, @InterestRate, @DueDate, @IsRepaid, @RemainingAmount,
+                 @SchemeName, @SubsidyType, @ReceivedDate, @TransactionDirection, @MiscCategory);
             SELECT CAST(SCOPE_IDENTITY() AS INT);";
-        AddIncomeParams(cmd, t);
+        AddTransactionParams(cmd, t);
         var id = (int)(await cmd.ExecuteScalarAsync())!;
-        Debug.WriteLine($"FinanceAzureSqlService: Income {id} inserted.");
+        Debug.WriteLine($"FinanceAzureSqlService: {t.TransactionType} {id} inserted.");
         return id;
     }
 
-    public async Task<bool> UpdateIncomeAsync(IncomeTransaction t)
+    private async Task<bool> UpdateTransactionAsync(FinanceTransaction t)
     {
         using var conn = CreateConnection();
         await conn.OpenAsync();
         var cmd = conn.CreateCommand();
         cmd.CommandText = @"
-            UPDATE IncomeTransactions SET
+            UPDATE FinanceTransactions SET
                 Category=@Category, Description=@Description, Amount=@Amount,
                 TransactionDate=@TransactionDate, UpdatedDate=GETDATE(), Notes=@Notes,
-                CropName=@CropName, Quantity=@Quantity, QuantityUnit=@QuantityUnit,
-                PricePerUnit=@PricePerUnit, BuyerName=@BuyerName
+                CropName=@CropName, Quantity=@Quantity, QuantityUnit=@QuantityUnit, PricePerUnit=@PricePerUnit, BuyerName=@BuyerName,
+                ExpenseCategory=@ExpenseCategory, ExpenseName=@ExpenseName,
+                LoanType=@LoanType, LenderName=@LenderName, InterestRate=@InterestRate, DueDate=@DueDate, IsRepaid=@IsRepaid, RemainingAmount=@RemainingAmount,
+                SchemeName=@SchemeName, SubsidyType=@SubsidyType, ReceivedDate=@ReceivedDate,
+                TransactionDirection=@TransactionDirection, MiscCategory=@MiscCategory
             WHERE Id=@Id";
-        AddIncomeParams(cmd, t);
+        AddTransactionParams(cmd, t);
         cmd.Parameters.AddWithValue("@Id", t.Id);
         return await cmd.ExecuteNonQueryAsync() > 0;
     }
 
-    public async Task<bool> DeleteIncomeAsync(int id)
+    private async Task<bool> DeleteTransactionAsync(int id)
     {
         using var conn = CreateConnection();
         await conn.OpenAsync();
         var cmd = conn.CreateCommand();
-        cmd.CommandText = "UPDATE IncomeTransactions SET IsDeleted=1, UpdatedDate=GETDATE() WHERE Id=@Id";
+        cmd.CommandText = "UPDATE FinanceTransactions SET IsDeleted=1, UpdatedDate=GETDATE() WHERE Id=@Id";
         cmd.Parameters.AddWithValue("@Id", id);
         return await cmd.ExecuteNonQueryAsync() > 0;
     }
 
-    public async Task<List<IncomeTransaction>> GetAllIncomeAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
+    private async Task<List<FinanceTransaction>> GetTransactionsByTypeAsync(string type, string userId, DateTime? startDate = null, DateTime? endDate = null)
     {
-        var list = new List<IncomeTransaction>();
+        var list = new List<FinanceTransaction>();
         using var conn = CreateConnection();
         await conn.OpenAsync();
         var cmd = conn.CreateCommand();
         cmd.CommandText = @"
-            SELECT * FROM IncomeTransactions
-            WHERE UserId=@UserId AND IsDeleted=0
+            SELECT * FROM FinanceTransactions
+            WHERE UserId=@UserId AND TransactionType=@Type AND IsDeleted=0
               AND (@StartDate IS NULL OR TransactionDate >= @StartDate)
               AND (@EndDate   IS NULL OR TransactionDate <= @EndDate)
             ORDER BY TransactionDate DESC";
         cmd.Parameters.AddWithValue("@UserId", userId);
+        cmd.Parameters.AddWithValue("@Type", type);
         cmd.Parameters.AddWithValue("@StartDate", (object?)startDate ?? DBNull.Value);
         cmd.Parameters.AddWithValue("@EndDate",   (object?)endDate   ?? DBNull.Value);
         using var r = await cmd.ExecuteReaderAsync();
-        while (await r.ReadAsync()) list.Add(MapIncome(r));
+        while (await r.ReadAsync()) list.Add(MapTransaction(r));
         return list;
     }
+
+    // ================================================================
+    // INCOME
+    // ================================================================
+
+    public Task<int> AddIncomeAsync(FinanceTransaction t) => InsertTransactionAsync(t);
+    public Task<bool> UpdateIncomeAsync(FinanceTransaction t) => UpdateTransactionAsync(t);
+    public Task<bool> DeleteIncomeAsync(int id) => DeleteTransactionAsync(id);
+    public Task<List<FinanceTransaction>> GetAllIncomeAsync(string userId, DateTime? startDate = null, DateTime? endDate = null) 
+        => GetTransactionsByTypeAsync("Income", userId, startDate, endDate);
 
     // ================================================================
     // EXPENSE
     // ================================================================
 
-    public async Task<int> AddExpenseAsync(ExpenseTransaction t)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            INSERT INTO ExpenseTransactions
-                (UserId, TransactionType, Category, Description, Amount, TransactionDate,
-                 CreatedDate, Notes, IsDeleted, ExpenseCategory, ExpenseName)
-            VALUES
-                (@UserId, @TransactionType, @Category, @Description, @Amount, @TransactionDate,
-                 @CreatedDate, @Notes, 0, @ExpenseCategory, @ExpenseName);
-            SELECT CAST(SCOPE_IDENTITY() AS INT);";
-        AddExpenseParams(cmd, t);
-        var id = (int)(await cmd.ExecuteScalarAsync())!;
-        Debug.WriteLine($"FinanceAzureSqlService: Expense {id} inserted.");
-        return id;
-    }
-
-    public async Task<bool> UpdateExpenseAsync(ExpenseTransaction t)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            UPDATE ExpenseTransactions SET
-                Category=@Category, Description=@Description, Amount=@Amount,
-                TransactionDate=@TransactionDate, UpdatedDate=GETDATE(), Notes=@Notes,
-                ExpenseCategory=@ExpenseCategory, ExpenseName=@ExpenseName
-            WHERE Id=@Id";
-        AddExpenseParams(cmd, t);
-        cmd.Parameters.AddWithValue("@Id", t.Id);
-        return await cmd.ExecuteNonQueryAsync() > 0;
-    }
-
-    public async Task<bool> DeleteExpenseAsync(int id)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "UPDATE ExpenseTransactions SET IsDeleted=1, UpdatedDate=GETDATE() WHERE Id=@Id";
-        cmd.Parameters.AddWithValue("@Id", id);
-        return await cmd.ExecuteNonQueryAsync() > 0;
-    }
-
-    public async Task<List<ExpenseTransaction>> GetAllExpensesAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
-    {
-        var list = new List<ExpenseTransaction>();
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            SELECT * FROM ExpenseTransactions
-            WHERE UserId=@UserId AND IsDeleted=0
-              AND (@StartDate IS NULL OR TransactionDate >= @StartDate)
-              AND (@EndDate   IS NULL OR TransactionDate <= @EndDate)
-            ORDER BY TransactionDate DESC";
-        cmd.Parameters.AddWithValue("@UserId", userId);
-        cmd.Parameters.AddWithValue("@StartDate", (object?)startDate ?? DBNull.Value);
-        cmd.Parameters.AddWithValue("@EndDate",   (object?)endDate   ?? DBNull.Value);
-        using var r = await cmd.ExecuteReaderAsync();
-        while (await r.ReadAsync()) list.Add(MapExpense(r));
-        return list;
-    }
+    public Task<int> AddExpenseAsync(FinanceTransaction t) => InsertTransactionAsync(t);
+    public Task<bool> UpdateExpenseAsync(FinanceTransaction t) => UpdateTransactionAsync(t);
+    public Task<bool> DeleteExpenseAsync(int id) => DeleteTransactionAsync(id);
+    public Task<List<FinanceTransaction>> GetAllExpensesAsync(string userId, DateTime? startDate = null, DateTime? endDate = null) 
+        => GetTransactionsByTypeAsync("Expense", userId, startDate, endDate);
 
     // ================================================================
     // LOAN
     // ================================================================
 
-    public async Task<int> AddLoanAsync(LoanTransaction t)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            INSERT INTO LoanTransactions
-                (UserId, TransactionType, Category, Description, Amount, TransactionDate,
-                 CreatedDate, Notes, IsDeleted, LoanType, LenderName, InterestRate,
-                 DueDate, IsRepaid, RemainingAmount)
-            VALUES
-                (@UserId, @TransactionType, @Category, @Description, @Amount, @TransactionDate,
-                 @CreatedDate, @Notes, 0, @LoanType, @LenderName, @InterestRate,
-                 @DueDate, 0, @RemainingAmount);
-            SELECT CAST(SCOPE_IDENTITY() AS INT);";
-        AddLoanParams(cmd, t);
-        var id = (int)(await cmd.ExecuteScalarAsync())!;
-        Debug.WriteLine($"FinanceAzureSqlService: Loan {id} inserted.");
-        return id;
-    }
-
-    public async Task<bool> UpdateLoanAsync(LoanTransaction t)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            UPDATE LoanTransactions SET
-                Amount=@Amount, TransactionDate=@TransactionDate, UpdatedDate=GETDATE(),
-                Notes=@Notes, LoanType=@LoanType, LenderName=@LenderName,
-                InterestRate=@InterestRate, DueDate=@DueDate,
-                IsRepaid=@IsRepaid, RemainingAmount=@RemainingAmount
-            WHERE Id=@Id";
-        AddLoanParams(cmd, t);
-        cmd.Parameters.AddWithValue("@Id", t.Id);
-        return await cmd.ExecuteNonQueryAsync() > 0;
-    }
-
-    public async Task<bool> DeleteLoanAsync(int id)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "UPDATE LoanTransactions SET IsDeleted=1, UpdatedDate=GETDATE() WHERE Id=@Id";
-        cmd.Parameters.AddWithValue("@Id", id);
-        return await cmd.ExecuteNonQueryAsync() > 0;
-    }
-
-    public async Task<List<LoanTransaction>> GetAllLoansAsync(string userId)
-    {
-        var list = new List<LoanTransaction>();
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT * FROM LoanTransactions WHERE UserId=@UserId AND IsDeleted=0 ORDER BY TransactionDate DESC";
-        cmd.Parameters.AddWithValue("@UserId", userId);
-        using var r = await cmd.ExecuteReaderAsync();
-        while (await r.ReadAsync()) list.Add(MapLoan(r));
-        return list;
-    }
+    public Task<int> AddLoanAsync(FinanceTransaction t) => InsertTransactionAsync(t);
+    public Task<bool> UpdateLoanAsync(FinanceTransaction t) => UpdateTransactionAsync(t);
+    public Task<bool> DeleteLoanAsync(int id) => DeleteTransactionAsync(id);
+    public Task<List<FinanceTransaction>> GetAllLoansAsync(string userId) 
+        => GetTransactionsByTypeAsync("Loan", userId);
 
     public async Task<int> AddLoanRepaymentAsync(LoanRepayment t)
     {
@@ -274,7 +252,7 @@ public class FinanceAzureSqlService : IFinanceAzureSqlService
         // Update remaining amount on the loan
         var updateCmd = conn.CreateCommand();
         updateCmd.CommandText = @"
-            UPDATE LoanTransactions
+            UPDATE FinanceTransactions
             SET RemainingAmount = RemainingAmount - @AmountRepaid,
                 UpdatedDate = GETDATE()
             WHERE Id = @LoanId";
@@ -294,7 +272,18 @@ public class FinanceAzureSqlService : IFinanceAzureSqlService
         cmd.CommandText = "SELECT * FROM LoanRepayments WHERE LoanTransactionId=@LoanId ORDER BY RepaymentDate DESC";
         cmd.Parameters.AddWithValue("@LoanId", loanId);
         using var r = await cmd.ExecuteReaderAsync();
-        while (await r.ReadAsync()) list.Add(MapRepayment(r));
+        while (await r.ReadAsync())
+        {
+            list.Add(new LoanRepayment
+            {
+                Id                = (int)r["Id"],
+                LoanTransactionId = (int)r["LoanTransactionId"],
+                AmountRepaid      = (decimal)r["AmountRepaid"],
+                RepaymentDate     = (DateTime)r["RepaymentDate"],
+                Notes             = r["Notes"] == DBNull.Value ? string.Empty : (string)r["Notes"],
+                IsSynced          = true
+            });
+        }
         return list;
     }
 
@@ -302,137 +291,21 @@ public class FinanceAzureSqlService : IFinanceAzureSqlService
     // SUBSIDY
     // ================================================================
 
-    public async Task<int> AddSubsidyAsync(SubsidyTransaction t)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            INSERT INTO SubsidyTransactions
-                (UserId, TransactionType, Category, Description, Amount, TransactionDate,
-                 CreatedDate, Notes, IsDeleted, SchemeName, SubsidyType, ReceivedDate)
-            VALUES
-                (@UserId, @TransactionType, @Category, @Description, @Amount, @TransactionDate,
-                 @CreatedDate, @Notes, 0, @SchemeName, @SubsidyType, @ReceivedDate);
-            SELECT CAST(SCOPE_IDENTITY() AS INT);";
-        AddSubsidyParams(cmd, t);
-        var id = (int)(await cmd.ExecuteScalarAsync())!;
-        Debug.WriteLine($"FinanceAzureSqlService: Subsidy {id} inserted.");
-        return id;
-    }
-
-    public async Task<bool> UpdateSubsidyAsync(SubsidyTransaction t)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            UPDATE SubsidyTransactions SET
-                Amount=@Amount, TransactionDate=@TransactionDate, UpdatedDate=GETDATE(),
-                Notes=@Notes, SchemeName=@SchemeName, SubsidyType=@SubsidyType, ReceivedDate=@ReceivedDate
-            WHERE Id=@Id";
-        AddSubsidyParams(cmd, t);
-        cmd.Parameters.AddWithValue("@Id", t.Id);
-        return await cmd.ExecuteNonQueryAsync() > 0;
-    }
-
-    public async Task<bool> DeleteSubsidyAsync(int id)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "UPDATE SubsidyTransactions SET IsDeleted=1, UpdatedDate=GETDATE() WHERE Id=@Id";
-        cmd.Parameters.AddWithValue("@Id", id);
-        return await cmd.ExecuteNonQueryAsync() > 0;
-    }
-
-    public async Task<List<SubsidyTransaction>> GetAllSubsidiesAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
-    {
-        var list = new List<SubsidyTransaction>();
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            SELECT * FROM SubsidyTransactions
-            WHERE UserId=@UserId AND IsDeleted=0
-              AND (@StartDate IS NULL OR TransactionDate >= @StartDate)
-              AND (@EndDate   IS NULL OR TransactionDate <= @EndDate)
-            ORDER BY TransactionDate DESC";
-        cmd.Parameters.AddWithValue("@UserId", userId);
-        cmd.Parameters.AddWithValue("@StartDate", (object?)startDate ?? DBNull.Value);
-        cmd.Parameters.AddWithValue("@EndDate",   (object?)endDate   ?? DBNull.Value);
-        using var r = await cmd.ExecuteReaderAsync();
-        while (await r.ReadAsync()) list.Add(MapSubsidy(r));
-        return list;
-    }
+    public Task<int> AddSubsidyAsync(FinanceTransaction t) => InsertTransactionAsync(t);
+    public Task<bool> UpdateSubsidyAsync(FinanceTransaction t) => UpdateTransactionAsync(t);
+    public Task<bool> DeleteSubsidyAsync(int id) => DeleteTransactionAsync(id);
+    public Task<List<FinanceTransaction>> GetAllSubsidiesAsync(string userId, DateTime? startDate = null, DateTime? endDate = null) 
+        => GetTransactionsByTypeAsync("Subsidy", userId, startDate, endDate);
 
     // ================================================================
     // MISCELLANEOUS
     // ================================================================
 
-    public async Task<int> AddMiscTransactionAsync(MiscellaneousTransaction t)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            INSERT INTO MiscellaneousTransactions
-                (UserId, TransactionType, Category, Description, Amount, TransactionDate,
-                 CreatedDate, Notes, IsDeleted, TransactionDirection, MiscCategory)
-            VALUES
-                (@UserId, @TransactionType, @Category, @Description, @Amount, @TransactionDate,
-                 @CreatedDate, @Notes, 0, @TransactionDirection, @MiscCategory);
-            SELECT CAST(SCOPE_IDENTITY() AS INT);";
-        AddMiscParams(cmd, t);
-        var id = (int)(await cmd.ExecuteScalarAsync())!;
-        Debug.WriteLine($"FinanceAzureSqlService: Misc {id} inserted.");
-        return id;
-    }
-
-    public async Task<bool> UpdateMiscTransactionAsync(MiscellaneousTransaction t)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            UPDATE MiscellaneousTransactions SET
-                Amount=@Amount, TransactionDate=@TransactionDate, UpdatedDate=GETDATE(),
-                Notes=@Notes, TransactionDirection=@TransactionDirection, MiscCategory=@MiscCategory
-            WHERE Id=@Id";
-        AddMiscParams(cmd, t);
-        cmd.Parameters.AddWithValue("@Id", t.Id);
-        return await cmd.ExecuteNonQueryAsync() > 0;
-    }
-
-    public async Task<bool> DeleteMiscTransactionAsync(int id)
-    {
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "UPDATE MiscellaneousTransactions SET IsDeleted=1, UpdatedDate=GETDATE() WHERE Id=@Id";
-        cmd.Parameters.AddWithValue("@Id", id);
-        return await cmd.ExecuteNonQueryAsync() > 0;
-    }
-
-    public async Task<List<MiscellaneousTransaction>> GetAllMiscTransactionsAsync(string userId, DateTime? startDate = null, DateTime? endDate = null)
-    {
-        var list = new List<MiscellaneousTransaction>();
-        using var conn = CreateConnection();
-        await conn.OpenAsync();
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            SELECT * FROM MiscellaneousTransactions
-            WHERE UserId=@UserId AND IsDeleted=0
-              AND (@StartDate IS NULL OR TransactionDate >= @StartDate)
-              AND (@EndDate   IS NULL OR TransactionDate <= @EndDate)
-            ORDER BY TransactionDate DESC";
-        cmd.Parameters.AddWithValue("@UserId", userId);
-        cmd.Parameters.AddWithValue("@StartDate", (object?)startDate ?? DBNull.Value);
-        cmd.Parameters.AddWithValue("@EndDate",   (object?)endDate   ?? DBNull.Value);
-        using var r = await cmd.ExecuteReaderAsync();
-        while (await r.ReadAsync()) list.Add(MapMisc(r));
-        return list;
-    }
+    public Task<int> AddMiscTransactionAsync(FinanceTransaction t) => InsertTransactionAsync(t);
+    public Task<bool> UpdateMiscTransactionAsync(FinanceTransaction t) => UpdateTransactionAsync(t);
+    public Task<bool> DeleteMiscTransactionAsync(int id) => DeleteTransactionAsync(id);
+    public Task<List<FinanceTransaction>> GetAllMiscTransactionsAsync(string userId, DateTime? startDate = null, DateTime? endDate = null) 
+        => GetTransactionsByTypeAsync("Miscellaneous", userId, startDate, endDate);
 
     // ================================================================
     // SUMMARY
@@ -478,216 +351,8 @@ public class FinanceAzureSqlService : IFinanceAzureSqlService
         using var r = await cmd.ExecuteReaderAsync();
         while (await r.ReadAsync())
         {
-            list.Add(new FinanceTransaction
-            {
-                Id              = (int)r["Id"],
-                UserId          = (string)r["UserId"],
-                TransactionType = (string)r["TransactionType"],
-                Category        = r["Category"]    == DBNull.Value ? string.Empty : (string)r["Category"],
-                Description     = r["Description"] == DBNull.Value ? string.Empty : (string)r["Description"],
-                Amount          = (decimal)r["Amount"],
-                TransactionDate = (DateTime)r["TransactionDate"],
-                CreatedDate     = (DateTime)r["CreatedDate"],
-                UpdatedDate     = r["UpdatedDate"] == DBNull.Value ? null : (DateTime?)r["UpdatedDate"],
-                Notes           = r["Notes"]       == DBNull.Value ? string.Empty : (string)r["Notes"],
-                IsDeleted       = (bool)r["IsDeleted"]
-            });
+            list.Add(MapTransaction(r));
         }
         return list;
     }
-
-    // ================================================================
-    // PARAMETER HELPERS
-    // ================================================================
-
-
-    private static void AddIncomeParams(SqlCommand cmd, IncomeTransaction t)
-    {
-        cmd.Parameters.AddWithValue("@UserId",          t.UserId);
-        cmd.Parameters.AddWithValue("@TransactionType", t.TransactionType);
-        cmd.Parameters.AddWithValue("@Category",        string.IsNullOrEmpty(t.Category) ? (object)DBNull.Value : t.Category);
-        cmd.Parameters.AddWithValue("@Description",     string.IsNullOrEmpty(t.Description) ? (object)DBNull.Value : t.Description);
-        cmd.Parameters.AddWithValue("@Amount",          t.Amount);
-        cmd.Parameters.AddWithValue("@TransactionDate", t.TransactionDate);
-        cmd.Parameters.AddWithValue("@CreatedDate",     t.CreatedDate);
-        cmd.Parameters.AddWithValue("@Notes",           string.IsNullOrEmpty(t.Notes) ? (object)DBNull.Value : t.Notes);
-        cmd.Parameters.AddWithValue("@CropName",        t.CropName);
-        cmd.Parameters.AddWithValue("@Quantity",        t.Quantity);
-        cmd.Parameters.AddWithValue("@QuantityUnit",    t.QuantityUnit);
-        cmd.Parameters.AddWithValue("@PricePerUnit",    t.PricePerUnit);
-        cmd.Parameters.AddWithValue("@BuyerName",       string.IsNullOrEmpty(t.BuyerName) ? (object)DBNull.Value : t.BuyerName);
-    }
-
-    private static void AddExpenseParams(SqlCommand cmd, ExpenseTransaction t)
-    {
-        cmd.Parameters.AddWithValue("@UserId",          t.UserId);
-        cmd.Parameters.AddWithValue("@TransactionType", t.TransactionType);
-        cmd.Parameters.AddWithValue("@Category",        string.IsNullOrEmpty(t.Category) ? (object)DBNull.Value : t.Category);
-        cmd.Parameters.AddWithValue("@Description",     string.IsNullOrEmpty(t.Description) ? (object)DBNull.Value : t.Description);
-        cmd.Parameters.AddWithValue("@Amount",          t.Amount);
-        cmd.Parameters.AddWithValue("@TransactionDate", t.TransactionDate);
-        cmd.Parameters.AddWithValue("@CreatedDate",     t.CreatedDate);
-        cmd.Parameters.AddWithValue("@Notes",           string.IsNullOrEmpty(t.Notes) ? (object)DBNull.Value : t.Notes);
-        cmd.Parameters.AddWithValue("@ExpenseCategory", t.ExpenseCategory);
-        cmd.Parameters.AddWithValue("@ExpenseName",     t.ExpenseName);
-    }
-
-    private static void AddLoanParams(SqlCommand cmd, LoanTransaction t)
-    {
-        cmd.Parameters.AddWithValue("@UserId",          t.UserId);
-        cmd.Parameters.AddWithValue("@TransactionType", t.TransactionType);
-        cmd.Parameters.AddWithValue("@Category",        string.IsNullOrEmpty(t.Category) ? (object)DBNull.Value : t.Category);
-        cmd.Parameters.AddWithValue("@Description",     string.IsNullOrEmpty(t.Description) ? (object)DBNull.Value : t.Description);
-        cmd.Parameters.AddWithValue("@Amount",          t.Amount);
-        cmd.Parameters.AddWithValue("@TransactionDate", t.TransactionDate);
-        cmd.Parameters.AddWithValue("@CreatedDate",     t.CreatedDate);
-        cmd.Parameters.AddWithValue("@Notes",           string.IsNullOrEmpty(t.Notes) ? (object)DBNull.Value : t.Notes);
-        cmd.Parameters.AddWithValue("@LoanType",        t.LoanType);
-        cmd.Parameters.AddWithValue("@LenderName",      t.LenderName);
-        cmd.Parameters.AddWithValue("@InterestRate",    t.InterestRate);
-        cmd.Parameters.AddWithValue("@DueDate",         t.DueDate);
-        cmd.Parameters.AddWithValue("@IsRepaid",        t.IsRepaid);
-        cmd.Parameters.AddWithValue("@RemainingAmount", t.RemainingAmount);
-    }
-
-    private static void AddSubsidyParams(SqlCommand cmd, SubsidyTransaction t)
-    {
-        cmd.Parameters.AddWithValue("@UserId",          t.UserId);
-        cmd.Parameters.AddWithValue("@TransactionType", t.TransactionType);
-        cmd.Parameters.AddWithValue("@Category",        string.IsNullOrEmpty(t.Category) ? (object)DBNull.Value : t.Category);
-        cmd.Parameters.AddWithValue("@Description",     string.IsNullOrEmpty(t.Description) ? (object)DBNull.Value : t.Description);
-        cmd.Parameters.AddWithValue("@Amount",          t.Amount);
-        cmd.Parameters.AddWithValue("@TransactionDate", t.TransactionDate);
-        cmd.Parameters.AddWithValue("@CreatedDate",     t.CreatedDate);
-        cmd.Parameters.AddWithValue("@Notes",           string.IsNullOrEmpty(t.Notes) ? (object)DBNull.Value : t.Notes);
-        cmd.Parameters.AddWithValue("@SchemeName",      t.SchemeName);
-        cmd.Parameters.AddWithValue("@SubsidyType",     t.SubsidyType);
-        cmd.Parameters.AddWithValue("@ReceivedDate",    t.ReceivedDate);
-    }
-
-    private static void AddMiscParams(SqlCommand cmd, MiscellaneousTransaction t)
-    {
-        cmd.Parameters.AddWithValue("@UserId",               t.UserId);
-        cmd.Parameters.AddWithValue("@TransactionType",      t.TransactionType);
-        cmd.Parameters.AddWithValue("@Category",             string.IsNullOrEmpty(t.Category) ? (object)DBNull.Value : t.Category);
-        cmd.Parameters.AddWithValue("@Description",          string.IsNullOrEmpty(t.Description) ? (object)DBNull.Value : t.Description);
-        cmd.Parameters.AddWithValue("@Amount",               t.Amount);
-        cmd.Parameters.AddWithValue("@TransactionDate",      t.TransactionDate);
-        cmd.Parameters.AddWithValue("@CreatedDate",          t.CreatedDate);
-        cmd.Parameters.AddWithValue("@Notes",                string.IsNullOrEmpty(t.Notes) ? (object)DBNull.Value : t.Notes);
-        cmd.Parameters.AddWithValue("@TransactionDirection", t.TransactionDirection);
-        cmd.Parameters.AddWithValue("@MiscCategory",         t.MiscCategory);
-    }
-
-    // ================================================================
-    // MAPPING HELPERS
-    // ================================================================
-
-    private static IncomeTransaction MapIncome(IDataRecord r) => new()
-    {
-        Id              = (int)r["Id"],
-        UserId          = (string)r["UserId"],
-        TransactionType = (string)r["TransactionType"],
-        Category        = r["Category"]    == DBNull.Value ? string.Empty : (string)r["Category"],
-        Description     = r["Description"] == DBNull.Value ? string.Empty : (string)r["Description"],
-        Amount          = (decimal)r["Amount"],
-        TransactionDate = (DateTime)r["TransactionDate"],
-        CreatedDate     = (DateTime)r["CreatedDate"],
-        UpdatedDate     = r["UpdatedDate"] == DBNull.Value ? null : (DateTime?)r["UpdatedDate"],
-        Notes           = r["Notes"]       == DBNull.Value ? string.Empty : (string)r["Notes"],
-        IsDeleted       = (bool)r["IsDeleted"],
-        IsSynced        = true,
-        CropName        = (string)r["CropName"],
-        Quantity        = (decimal)r["Quantity"],
-        QuantityUnit    = (string)r["QuantityUnit"],
-        PricePerUnit    = (decimal)r["PricePerUnit"],
-        BuyerName       = r["BuyerName"] == DBNull.Value ? string.Empty : (string)r["BuyerName"]
-    };
-
-    private static ExpenseTransaction MapExpense(IDataRecord r) => new()
-    {
-        Id              = (int)r["Id"],
-        UserId          = (string)r["UserId"],
-        TransactionType = (string)r["TransactionType"],
-        Category        = r["Category"]    == DBNull.Value ? string.Empty : (string)r["Category"],
-        Description     = r["Description"] == DBNull.Value ? string.Empty : (string)r["Description"],
-        Amount          = (decimal)r["Amount"],
-        TransactionDate = (DateTime)r["TransactionDate"],
-        CreatedDate     = (DateTime)r["CreatedDate"],
-        UpdatedDate     = r["UpdatedDate"] == DBNull.Value ? null : (DateTime?)r["UpdatedDate"],
-        Notes           = r["Notes"]       == DBNull.Value ? string.Empty : (string)r["Notes"],
-        IsDeleted       = (bool)r["IsDeleted"],
-        IsSynced        = true,
-        ExpenseCategory = (string)r["ExpenseCategory"],
-        ExpenseName     = (string)r["ExpenseName"]
-    };
-
-    private static LoanTransaction MapLoan(IDataRecord r) => new()
-    {
-        Id              = (int)r["Id"],
-        UserId          = (string)r["UserId"],
-        TransactionType = (string)r["TransactionType"],
-        Category        = r["Category"]    == DBNull.Value ? string.Empty : (string)r["Category"],
-        Description     = r["Description"] == DBNull.Value ? string.Empty : (string)r["Description"],
-        Amount          = (decimal)r["Amount"],
-        TransactionDate = (DateTime)r["TransactionDate"],
-        CreatedDate     = (DateTime)r["CreatedDate"],
-        UpdatedDate     = r["UpdatedDate"] == DBNull.Value ? null : (DateTime?)r["UpdatedDate"],
-        Notes           = r["Notes"]       == DBNull.Value ? string.Empty : (string)r["Notes"],
-        IsDeleted       = (bool)r["IsDeleted"],
-        IsSynced        = true,
-        LoanType        = (string)r["LoanType"],
-        LenderName      = (string)r["LenderName"],
-        InterestRate    = (decimal)r["InterestRate"],
-        DueDate         = (DateTime)r["DueDate"],
-        IsRepaid        = (bool)r["IsRepaid"],
-        RemainingAmount = (decimal)r["RemainingAmount"]
-    };
-
-    private static LoanRepayment MapRepayment(IDataRecord r) => new()
-    {
-        Id                = (int)r["Id"],
-        LoanTransactionId = (int)r["LoanTransactionId"],
-        AmountRepaid      = (decimal)r["AmountRepaid"],
-        RepaymentDate     = (DateTime)r["RepaymentDate"],
-        Notes             = r["Notes"] == DBNull.Value ? string.Empty : (string)r["Notes"],
-        IsSynced          = true
-    };
-
-    private static SubsidyTransaction MapSubsidy(IDataRecord r) => new()
-    {
-        Id              = (int)r["Id"],
-        UserId          = (string)r["UserId"],
-        TransactionType = (string)r["TransactionType"],
-        Category        = r["Category"]    == DBNull.Value ? string.Empty : (string)r["Category"],
-        Description     = r["Description"] == DBNull.Value ? string.Empty : (string)r["Description"],
-        Amount          = (decimal)r["Amount"],
-        TransactionDate = (DateTime)r["TransactionDate"],
-        CreatedDate     = (DateTime)r["CreatedDate"],
-        UpdatedDate     = r["UpdatedDate"] == DBNull.Value ? null : (DateTime?)r["UpdatedDate"],
-        Notes           = r["Notes"]       == DBNull.Value ? string.Empty : (string)r["Notes"],
-        IsDeleted       = (bool)r["IsDeleted"],
-        IsSynced        = true,
-        SchemeName      = (string)r["SchemeName"],
-        SubsidyType     = (string)r["SubsidyType"],
-        ReceivedDate    = (DateTime)r["ReceivedDate"]
-    };
-
-    private static MiscellaneousTransaction MapMisc(IDataRecord r) => new()
-    {
-        Id                   = (int)r["Id"],
-        UserId               = (string)r["UserId"],
-        TransactionType      = (string)r["TransactionType"],
-        Category             = r["Category"]    == DBNull.Value ? string.Empty : (string)r["Category"],
-        Description          = r["Description"] == DBNull.Value ? string.Empty : (string)r["Description"],
-        Amount               = (decimal)r["Amount"],
-        TransactionDate      = (DateTime)r["TransactionDate"],
-        CreatedDate          = (DateTime)r["CreatedDate"],
-        UpdatedDate          = r["UpdatedDate"] == DBNull.Value ? null : (DateTime?)r["UpdatedDate"],
-        Notes                = r["Notes"]       == DBNull.Value ? string.Empty : (string)r["Notes"],
-        IsDeleted            = (bool)r["IsDeleted"],
-        IsSynced             = true,
-        TransactionDirection = (string)r["TransactionDirection"],
-        MiscCategory         = (string)r["MiscCategory"]
-    };
 }

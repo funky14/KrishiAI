@@ -163,6 +163,29 @@ Handles:
 - **AiInsightsViewModel**: Integrates with `IAIChatService` to generate dynamic JSON insights.
 - **FinanceHistoryViewModel**: Logic for loading, filtering, and clearing transaction history.
 
+## AI Integration (Azure OpenAI)
+
+The Finance Tracker features a dynamic "AI Insights" module that gives users highly personalized, actionable farming and financial advice based on their actual numbers. 
+
+### 1. The AI Engine (`AIChatService.cs`)
+Powered by **Azure OpenAI** using the official `Azure.AI.OpenAI` NuGet package. The service checks if the user is online and if Azure AI configuration is properly set. It securely transmits prompts to Azure's GPT models.
+
+### 2. Contextual Prompting (`AiInsightsViewModel.cs`)
+When the insights page loads, the app calculates the user's financial summary for the current month:
+- Total Income
+- Total Expense
+- Net Profit
+- Outstanding Loan Balance
+
+These metrics are injected directly into a prompt sent to Azure OpenAI:
+> *"Analyze the following farm financial data for the current month... Provide exactly 3 concise, actionable insights (1-2 sentences each). Return the result as a valid JSON object..."*
+
+### 3. Structured JSON Response
+To map seamlessly to the UI, the AI is instructed to return its response as a raw JSON object with exactly three keys: `"CostOptimization"`, `"ProfitImprovement"`, and `"LoanReadiness"`. The app parses this JSON and binds the text directly to three separate summary cards.
+
+### 4. Hackathon Safety Fallback
+To ensure a flawless live demo even if the internet drops or the Azure API times out, `AiInsightsViewModel.cs` wraps the API call in a `try-catch` block. If an error occurs, it falls back to a generic set of sensible farming insights, ensuring the UI remains robust and populated.
+
 ## Usage Examples
 
 ### Adding Income

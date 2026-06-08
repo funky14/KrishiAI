@@ -106,7 +106,7 @@ public partial class AddIncomeViewModel : BaseViewModel
         try
         {
             var categoryName = SelectedCategory?.Name ?? "General";
-            var income = new IncomeTransaction
+            var income = new FinanceTransaction
             {
                 UserId = "user123",
                 TransactionType = "Income",

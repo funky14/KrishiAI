@@ -34,143 +34,39 @@ public class FinanceTransaction
 
     /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
     public bool IsSynced { get; set; } = false;
-}
-
-/// <summary>
-/// Income/Sales transaction
-/// </summary>
-[Table("IncomeTransactions")]
-public class IncomeTransaction
-{
-    [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }
-
-    [Indexed]
-    public string UserId { get; set; } = string.Empty;
-
-    public string TransactionType { get; set; } = "Income";
-
-    public string Category { get; set; } = string.Empty;
-
-    public string Description { get; set; } = string.Empty;
-
-    public decimal Amount { get; set; }
-
-    public DateTime TransactionDate { get; set; } = DateTime.Now;
-
-    public DateTime CreatedDate { get; set; } = DateTime.Now;
-
-    public DateTime? UpdatedDate { get; set; }
-
-    public string Notes { get; set; } = string.Empty;
-
-    public bool IsDeleted { get; set; } = false;
-
-    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
-    public bool IsSynced { get; set; } = false;
-
-    // Income-specific fields
+    // --- Income Specific Fields ---
     public string CropName { get; set; } = string.Empty;
-
     public decimal Quantity { get; set; } // in Quintals
-
     public string QuantityUnit { get; set; } = "Quintal";
-
     public decimal PricePerUnit { get; set; }
-
     public string BuyerName { get; set; } = string.Empty;
 
     [Ignore]
-    public decimal TotalAmount => Quantity * PricePerUnit;
-}
+    public decimal TotalAmount => Quantity > 0 && PricePerUnit > 0 ? Quantity * PricePerUnit : Amount;
 
-/// <summary>
-/// Expense transaction
-/// </summary>
-[Table("ExpenseTransactions")]
-public class ExpenseTransaction
-{
-    [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }
-
-    [Indexed]
-    public string UserId { get; set; } = string.Empty;
-
-    public string TransactionType { get; set; } = "Expense";
-
-    public string Category { get; set; } = string.Empty;
-
-    public string Description { get; set; } = string.Empty;
-
-    public decimal Amount { get; set; }
-
-    public DateTime TransactionDate { get; set; } = DateTime.Now;
-
-    public DateTime CreatedDate { get; set; } = DateTime.Now;
-
-    public DateTime? UpdatedDate { get; set; }
-
-    public string Notes { get; set; } = string.Empty;
-
-    public bool IsDeleted { get; set; } = false;
-
-    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
-    public bool IsSynced { get; set; } = false;
-
-    // Expense-specific fields
-    public string ExpenseCategory { get; set; } = string.Empty; // Seeds, Fertilizer, Water, Labor, etc.
-
+    // --- Expense Specific Fields ---
+    public string ExpenseCategory { get; set; } = string.Empty;
     public string ExpenseName { get; set; } = string.Empty;
-}
 
-/// <summary>
-/// Loan transaction
-/// </summary>
-[Table("LoanTransactions")]
-public class LoanTransaction
-{
-    [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }
-
-    [Indexed]
-    public string UserId { get; set; } = string.Empty;
-
-    public string TransactionType { get; set; } = "Loan";
-
-    public string Category { get; set; } = string.Empty;
-
-    public string Description { get; set; } = string.Empty;
-
-    public decimal Amount { get; set; }
-
-    public DateTime TransactionDate { get; set; } = DateTime.Now;
-
-    public DateTime CreatedDate { get; set; } = DateTime.Now;
-
-    public DateTime? UpdatedDate { get; set; }
-
-    public string Notes { get; set; } = string.Empty;
-
-    public bool IsDeleted { get; set; } = false;
-
-    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
-    public bool IsSynced { get; set; } = false;
-
-    // Loan-specific fields
+    // --- Loan Specific Fields ---
     public string LoanType { get; set; } = string.Empty; // Bank, Cooperative, Private, Government
-
     public string LenderName { get; set; } = string.Empty;
-
     public decimal InterestRate { get; set; } // Annual percentage
-
-    public DateTime DueDate { get; set; }
-
+    public DateTime? DueDate { get; set; }
     public bool IsRepaid { get; set; } = false;
-
     public decimal RemainingAmount { get; set; }
 
     [Ignore]
     public List<LoanRepayment> Repayments { get; set; } = new List<LoanRepayment>();
+
+    // --- Subsidy Specific Fields ---
+    public string SchemeName { get; set; } = string.Empty;
+    public string SubsidyType { get; set; } = string.Empty; // Seeds, Fertilizer, Equipment, etc.
+    public DateTime? ReceivedDate { get; set; }
+
+    // --- Miscellaneous Specific Fields ---
+    public string TransactionDirection { get; set; } = "Outgoing"; // Incoming or Outgoing
+    public string MiscCategory { get; set; } = string.Empty; // Equipment, Maintenance, Transport, etc.
 }
 
 /// <summary>
@@ -193,86 +89,6 @@ public class LoanRepayment
 
     /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
     public bool IsSynced { get; set; } = false;
-}
-
-/// <summary>
-/// Subsidy transaction
-/// </summary>
-[Table("SubsidyTransactions")]
-public class SubsidyTransaction
-{
-    [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }
-
-    [Indexed]
-    public string UserId { get; set; } = string.Empty;
-
-    public string TransactionType { get; set; } = "Subsidy";
-
-    public string Category { get; set; } = string.Empty;
-
-    public string Description { get; set; } = string.Empty;
-
-    public decimal Amount { get; set; }
-
-    public DateTime TransactionDate { get; set; } = DateTime.Now;
-
-    public DateTime CreatedDate { get; set; } = DateTime.Now;
-
-    public DateTime? UpdatedDate { get; set; }
-
-    public string Notes { get; set; } = string.Empty;
-
-    public bool IsDeleted { get; set; } = false;
-
-    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
-    public bool IsSynced { get; set; } = false;
-
-    // Subsidy-specific fields
-    public string SchemeName { get; set; } = string.Empty;
-
-    public string SubsidyType { get; set; } = string.Empty; // Seeds, Fertilizer, Equipment, etc.
-
-    public DateTime ReceivedDate { get; set; } = DateTime.Now;
-}
-
-/// <summary>
-/// Miscellaneous transaction
-/// </summary>
-[Table("MiscellaneousTransactions")]
-public class MiscellaneousTransaction
-{
-    [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }
-
-    [Indexed]
-    public string UserId { get; set; } = string.Empty;
-
-    public string TransactionType { get; set; } = "Miscellaneous";
-
-    public string Category { get; set; } = string.Empty;
-
-    public string Description { get; set; } = string.Empty;
-
-    public decimal Amount { get; set; }
-
-    public DateTime TransactionDate { get; set; } = DateTime.Now;
-
-    public DateTime CreatedDate { get; set; } = DateTime.Now;
-
-    public DateTime? UpdatedDate { get; set; }
-
-    public string Notes { get; set; } = string.Empty;
-
-    public bool IsDeleted { get; set; } = false;
-
-    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
-    public bool IsSynced { get; set; } = false;
-
-    // Misc-specific fields
-    public string TransactionDirection { get; set; } = "Outgoing"; // Incoming or Outgoing
-
-    public string MiscCategory { get; set; } = string.Empty; // Equipment, Maintenance, Transport, etc.
 }
 
 /// <summary>
