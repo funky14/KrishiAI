@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="KrishiAI.App.Views.SignupPage"
+             Title="KrishiAI Sign Up"
+             BackgroundColor="{StaticResource Primary}">
+
+    <ScrollView>
+        <VerticalStackLayout 
+            Padding="20"
+            Spacing="15">
+
+            <!-- App Logo/Title -->
+            <Label 
+                Text="🌾 KrishiAI"
+                FontSize="32"
+                FontAttributes="Bold"
+                HorizontalTextAlignment="Center"
+                TextColor="White"
+                Margin="0,0,0,20" />
+
+            <Label 
+                Text="Create Your Account"
+                FontSize="16"
+                HorizontalTextAlignment="Center"
+                TextColor="White"
+                Opacity="0.8" />
+
+            <!-- Card Container -->
+            <Frame 
+                CornerRadius="20"
+                HasShadow="True"
+                Padding="20"
+                Margin="0,20,0,0"
+                BackgroundColor="White">
+
+                <VerticalStackLayout Spacing="12">
+
+                    <!-- Full Name Entry -->
+                    <Label 
+                        Text="Full Name"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        TextColor="{StaticResource Primary}" />
+
+                    <Entry 
+                        x:Name="FullNameEntry"
+                        Placeholder="Enter your full name"
+                        PlaceholderColor="#CCCCCC"
+                        Text="{Binding FullName}"
+                        ReturnType="Next"
+                        ClearButtonVisibility="WhileEditing"
+                        Margin="0,0,0,5" />
+
+                    <!-- Email Entry -->
+                    <Label 
+                        Text="Email"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        TextColor="{StaticResource Primary}"
+                        Margin="0,10,0,0" />
+
+                    <Entry 
+                        x:Name="EmailEntry"
+                        Placeholder="Enter your email"
+                        PlaceholderColor="#CCCCCC"
+                        Text="{Binding Email}"
+                        Keyboard="Email"
+                        ReturnType="Next"
+                        ClearButtonVisibility="WhileEditing"
+                        Margin="0,0,0,5" />
+
+                    <!-- Mobile Number Entry (Optional) -->
+                    <Label 
+                        Text="Mobile Number (Optional)"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        TextColor="{StaticResource Primary}"
+                        Margin="0,10,0,0" />
+
+                    <Entry 
+                        x:Name="MobileNumberEntry"
+                        Placeholder="Enter your mobile number"
+                        PlaceholderColor="#CCCCCC"
+                        Text="{Binding PhoneNumber}"
+                        Keyboard="Telephone"
+                        ReturnType="Next"
+                        ClearButtonVisibility="WhileEditing"
+                        Margin="0,0,0,5" />
+
+                    <!-- Password Entry -->
+                    <Label 
+                        Text="Password"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        TextColor="{StaticResource Primary}"
+                        Margin="0,10,0,0" />
+
+                    <Entry 
+                        x:Name="PasswordEntry"
+                        Placeholder="Enter password (min 6 characters)"
+                        PlaceholderColor="#CCCCCC"
+                        Text="{Binding Password}"
+                        IsPassword="True"
+                        ReturnType="Next"
+                        Margin="0,0,0,5" />
+
+                    <!-- Confirm Password Entry -->
+                    <Label 
+                        Text="Confirm Password"
+                        FontSize="14"
+                        FontAttributes="Bold"
+                        TextColor="{StaticResource Primary}"
+                        Margin="0,10,0,0" />
+
+                    <Entry 
+                        x:Name="ConfirmPasswordEntry"
+                        Placeholder="Confirm password"
+                        PlaceholderColor="#CCCCCC"
+                        Text="{Binding ConfirmPassword}"
+                        IsPassword="True"
+                        ReturnType="Go"
+                        Margin="0,0,0,5" />
+
+                    <!-- Error Message -->
+                    <Label 
+                        Text="{Binding ErrorMessage}"
+                        FontSize="12"
+                        TextColor="{StaticResource Error}"
+                        IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                        Margin="0,10,0,5"
+                        Padding="10"
+                        BackgroundColor="#FFEBEE" />
+
+                    <!-- Sign Up Button -->
+                    <Button 
+                        Text="Sign Up"
+                        Command="{Binding SignupCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        CornerRadius="10"
+                        Padding="10"
+                        Margin="0,15,0,10"
+                        FontSize="16"
+                        FontAttributes="Bold" />
+
+                    <!-- Login Link -->
+                    <HorizontalStackLayout 
+                        Spacing="5"
+                        HorizontalOptions="Center">
+                        <Label 
+                            Text="Already have an account?"
+                            FontSize="14"
+                            TextColor="#666666" />
+                        <Label 
+                            Text="Login"
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            TextColor="{StaticResource Primary}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding NavigateToLoginCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </HorizontalStackLayout>
+
+                    <!-- Loading Indicator -->
+                    <ActivityIndicator 
+                        IsRunning="{Binding IsBusy}"
+                        IsVisible="{Binding IsBusy}"
+                        Color="{StaticResource Primary}"
+                        Scale="1.5"
+                        Margin="0,10,0,0" />
+
+                </VerticalStackLayout>
+
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

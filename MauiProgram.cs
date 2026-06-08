@@ -26,6 +26,7 @@ public static class MauiProgram
 #endif
 
         // Register Services
+        builder.Services.AddSingleton<ILocalizationService, LocalizationService>();
         builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
         builder.Services.AddSingleton<IDatabaseService, DatabaseService>(); // Offline-first SQLite; SyncQueueManager handles cloud sync when online
         builder.Services.AddSingleton<ICameraService, CameraService>();
@@ -36,6 +37,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<IAIChatService, AIChatService>();
         builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
         builder.Services.AddSingleton<DeviceIdentifierService>();
+
+        // Authentication Services
+        builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         
         // Register sync services (Phase 3)
         builder.Services.AddSingleton<HttpClient>();
@@ -43,6 +47,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<SyncQueueManager>();
 
         // Register ViewModels
+        builder.Services.AddSingleton<AuthViewModel>();
         builder.Services.AddSingleton<HomeViewModel>();
         builder.Services.AddSingleton<CropDiseaseViewModel>();
         builder.Services.AddSingleton<VoiceAssistantViewModel>();
@@ -50,6 +55,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<SettingsViewModel>();
 
         // Register Views with DI
+        builder.Services.AddSingleton<LoginPage>();
+        builder.Services.AddSingleton<SignupPage>();
         builder.Services.AddSingleton<HomePage>();
         builder.Services.AddSingleton<CropDiseasePage>();
         builder.Services.AddSingleton<VoiceAssistantPage>();

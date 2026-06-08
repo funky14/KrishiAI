@@ -18,7 +18,7 @@ The app will generate **random mock predictions** for testing UI/UX:
 
 **To use:**
 - Just capture/select an image
-- Tap "Analyze"
+- Tap "Analyze"th 
 - Mock results will display
 
 ---

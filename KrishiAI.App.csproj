@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-android</TargetFrameworks>
+		<TargetFrameworks>net8.0-android34.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
 
@@ -35,6 +35,40 @@
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+
+		<!-- Disable R8 minification for Debug builds to avoid assembly compression -->
+		<EnableR8>false</EnableR8>
+		<UseProguard>false</UseProguard>
+
+		<!-- Ensure assemblies are stored uncompressed in APK -->
+		<AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+
+		<!-- Embed assemblies into APK by default for stability -->
+		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+		<AndroidUseAapt2>true</AndroidUseAapt2>
+		<AndroidEnableMultiDex>true</AndroidEnableMultiDex>
+		<AndroidDexTool>d8</AndroidDexTool>
+		<AndroidLinkMode>None</AndroidLinkMode>
+		<!-- Disable fast deployment override -->
+		<AndroidEnableFastDeployment>false</AndroidEnableFastDeployment>
+	</PropertyGroup>
+
+	<!-- Debug configuration specific settings -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<!-- Embed assemblies in APK for debug builds to avoid Fast Deployment issues -->
+		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+		<EnableR8>false</EnableR8>
+		<UseProguard>false</UseProguard>
+		<AndroidLinkMode>None</AndroidLinkMode>
+		<!-- Ensure assemblies are not compressed -->
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<AndroidUseAapt2>true</AndroidUseAapt2>
+		<AndroidEnableMultiDex>true</AndroidEnableMultiDex>
+		<AndroidDexTool>d8</AndroidDexTool>
+		<AndroidDisableMultiDexLegacy>false</AndroidDisableMultiDexLegacy>
+		<!-- Completely disable Fast Deployment -->
+		<AndroidEnableFastDeployment>false</AndroidEnableFastDeployment>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -68,6 +102,7 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="7.0.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.3" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
@@ -85,5 +120,34 @@
 		<PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
 		<PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.39.0" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="KrishiAI.App\AppShell.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\HistoryPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\LoginPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\SignupPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="KrishiAI.App\Services\" />
+	  <Folder Include="KrishiAI.App\ViewModels\" />
+	  <Folder Include="KrishiAI.App\Views\" />
+	</ItemGroup>
+
+	<!-- Ensure Fast Deployment is completely disabled for embedded assemblies -->
+	<Target Name="DisableFastDeployment" BeforeTargets="Build">
+		<Message Text="🛑 Disabling Fast Deployment..." Importance="high" />
+		<CreateProperty Value="true">
+			<Output TaskParameter="Value" PropertyName="EmbedAssembliesIntoApk" />
+		</CreateProperty>
+	</Target>
 
 </Project>
