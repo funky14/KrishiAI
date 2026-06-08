@@ -6,8 +6,13 @@ public partial class App : Application
 {
     private readonly IConfigurationService _configService;
     private readonly ILocalizationService _localizationService;
+    private readonly FinanceSyncService _financeSyncService;
+    private readonly IConnectivityService _connectivityService;
 
-    public App(IConfigurationService configurationService, ILocalizationService localizationService)
+    public App(IConfigurationService configurationService,
+               ILocalizationService localizationService,
+               FinanceSyncService financeSyncService,
+               IConnectivityService connectivityService)
     {
         try
         {
@@ -16,9 +21,14 @@ public partial class App : Application
             InitializeComponent();
             System.Diagnostics.Debug.WriteLine("   InitializeComponent() done");
 
-            _configService = configurationService;
-            _localizationService = localizationService;
+            _configService        = configurationService;
+            _localizationService  = localizationService;
+            _financeSyncService   = financeSyncService;
+            _connectivityService  = connectivityService;
             System.Diagnostics.Debug.WriteLine("   Services assigned");
+
+            // Subscribe to connectivity changes — trigger finance sync when internet restored
+            _connectivityService.ConnectivityChanged += OnConnectivityChanged;
 
             // Initialize saved language preference
             var savedLanguage = Preferences.Get("AppLanguage", "en-US");
@@ -42,22 +52,41 @@ public partial class App : Application
     protected override async void OnStart()
     {
         base.OnStart();
-        
+
         try
         {
             System.Diagnostics.Debug.WriteLine("🔄 ONSTART: Initializing azure_config.json...");
             System.Diagnostics.Debug.WriteLine($"📂 App Data Directory: {FileSystem.AppDataDirectory}");
-            
+
             var config = await _configService.GetConfigurationAsync();
-            
+
             System.Diagnostics.Debug.WriteLine($"✅ Configuration loaded!");
             System.Diagnostics.Debug.WriteLine($"   - Speech configured: {!string.IsNullOrEmpty(config.SpeechServiceKey)}");
             System.Diagnostics.Debug.WriteLine($"   - OpenAI configured: {!string.IsNullOrEmpty(config.OpenAIKey)}");
+
+            // Sync any offline finance records saved while there was no internet
+            _ = Task.Run(() => _financeSyncService.SyncPendingAsync());
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"❌ ONSTART ERROR: {ex.Message}");
             System.Diagnostics.Debug.WriteLine($"❌ Stack: {ex.StackTrace}");
+        }
+    }
+
+    protected override void OnResume()
+    {
+        base.OnResume();
+        // Re-try sync whenever app comes back to foreground
+        _ = Task.Run(() => _financeSyncService.SyncPendingAsync());
+    }
+
+    private void OnConnectivityChanged(object? sender, bool isConnected)
+    {
+        if (isConnected)
+        {
+            System.Diagnostics.Debug.WriteLine("📶 Connectivity restored — triggering finance sync");
+            _ = Task.Run(() => _financeSyncService.SyncPendingAsync());
         }
     }
 

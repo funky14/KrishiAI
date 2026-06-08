@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KrishiAI.App.ViewModels"
+             xmlns:models="clr-namespace:KrishiAI.App.Models"
+             x:Class="KrishiAI.App.Views.AddIncomePage"
+             Title="Add Income"
+             BackgroundColor="#f8f9fa">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="15" Padding="20">
+            
+            <Label Text="Record your income / sales" HorizontalOptions="Center" FontSize="14" TextColor="#666" Margin="0,0,0,10" />
+
+            <Label Text="Select Category" FontAttributes="Bold" FontSize="16" TextColor="#2c2c2c" />
+            
+            <CollectionView ItemsSource="{Binding Categories}" SelectionMode="None">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3" VerticalItemSpacing="10" HorizontalItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:CategoryItem">
+                        <Frame Padding="10" CornerRadius="12" HasShadow="False" BackgroundColor="White" BorderColor="#e0e0e0">
+                            <Frame.Triggers>
+                                <DataTrigger TargetType="Frame" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="BorderColor" Value="#0f8d39" />
+                                </DataTrigger>
+                            </Frame.Triggers>
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AddIncomeViewModel}}, Path=SelectCategoryCommand}" CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+                            <VerticalStackLayout Spacing="5" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="{Binding Icon}" FontSize="24" HorizontalOptions="Center" />
+                                <Label Text="{Binding Name}" FontSize="10" HorizontalTextAlignment="Center" TextColor="#2c2c2c" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Crop Specific Fields -->
+            <VerticalStackLayout Spacing="15" IsVisible="{Binding IsCropSale}">
+                <Label Text="Crop Name (e.g. Rice)" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" Margin="0,10,0,0" />
+                <Frame Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                    <Entry Placeholder="Enter crop name" Text="{Binding CropName}" Margin="10,0" />
+                </Frame>
+
+                <Label Text="Quantity" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" />
+                <Grid ColumnDefinitions="*, 120" ColumnSpacing="10">
+                    <Frame Grid.Column="0" Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                        <Entry Placeholder="Enter quantity" Text="{Binding Quantity}" Keyboard="Numeric" Margin="10,0" />
+                    </Frame>
+                    <Frame Grid.Column="1" Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                        <Picker Title="Unit" ItemsSource="{Binding Units}" SelectedItem="{Binding QuantityUnit}" Margin="10,0" VerticalOptions="Center" />
+                    </Frame>
+                </Grid>
+
+                <Label Text="Selling Price (₹) per Quintal" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" />
+                <Frame Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                    <Entry Placeholder="Enter price" Text="{Binding PricePerUnit}" Keyboard="Numeric" Margin="10,0" />
+                </Frame>
+            </VerticalStackLayout>
+
+            <!-- General Item Fields -->
+            <VerticalStackLayout Spacing="15" IsVisible="{Binding IsCropSale, Converter={StaticResource InvertedBoolConverter}}">
+                <Label Text="Item / Description" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" Margin="0,10,0,0" />
+                <Frame Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                    <Entry Placeholder="Enter what you sold or received" Text="{Binding ItemName}" Margin="10,0" />
+                </Frame>
+
+                <Label Text="Total Amount (₹)" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" />
+                <Frame Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                    <Entry Placeholder="Enter total amount" Text="{Binding TotalAmount}" Keyboard="Numeric" Margin="10,0" />
+                </Frame>
+            </VerticalStackLayout>
+
+            <Label Text="Buyer Name (Optional)" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" Margin="0,10,0,0" />
+            <Frame Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                <Entry Placeholder="Enter buyer name" Text="{Binding BuyerName}" Margin="10,0" />
+            </Frame>
+
+            <Label Text="Date of Sale" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" />
+            <Frame Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                <DatePicker Date="{Binding TransactionDate}" Format="dd - MM - yyyy" Margin="10,0" />
+            </Frame>
+
+            <Button Text="Save Income" Command="{Binding SaveIncomeCommand}"
+                    BackgroundColor="#0f8d39" TextColor="White" FontAttributes="Bold"
+                    CornerRadius="12" HeightRequest="50" Margin="0,20,0,20" />
+                    
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#0f8d39" HorizontalOptions="Center" />
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

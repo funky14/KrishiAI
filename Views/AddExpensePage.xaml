@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KrishiAI.App.ViewModels"
+             xmlns:models="clr-namespace:KrishiAI.App.Models"
+             x:Class="KrishiAI.App.Views.AddExpensePage"
+             Title="Add Expense"
+             BackgroundColor="#f8f9fa">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="15" Padding="20">
+            
+            <Label Text="Record your expense" HorizontalOptions="Center" FontSize="14" TextColor="#666" Margin="0,0,0,10" />
+
+            <Label Text="Select Category" FontAttributes="Bold" FontSize="16" TextColor="#2c2c2c" />
+            
+            <CollectionView ItemsSource="{Binding Categories}" 
+                            SelectionMode="None">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3" VerticalItemSpacing="10" HorizontalItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:CategoryItem">
+                        <Frame Padding="10" CornerRadius="12" HasShadow="False"
+                               BackgroundColor="White" 
+                               BorderColor="#e0e0e0">
+                            <Frame.Triggers>
+                                <DataTrigger TargetType="Frame" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="BorderColor" Value="#0f8d39" />
+                                </DataTrigger>
+                            </Frame.Triggers>
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AddExpenseViewModel}}, Path=SelectCategoryCommand}" CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+                            <VerticalStackLayout Spacing="5" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="{Binding Icon}" FontSize="24" HorizontalOptions="Center" />
+                                <Label Text="{Binding Name}" FontSize="10" HorizontalTextAlignment="Center" TextColor="#2c2c2c" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="Expense Name" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" Margin="0,10,0,0" />
+            <Frame Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                <Entry Placeholder="Enter expense name" Text="{Binding ExpenseName}" Margin="10,0" />
+            </Frame>
+
+            <Label Text="Amount (₹)" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" />
+            <Frame Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                <Entry Placeholder="Enter amount" Text="{Binding Amount}" Keyboard="Numeric" Margin="10,0" />
+            </Frame>
+
+            <Label Text="Date" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" />
+            <Frame Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                <DatePicker Date="{Binding TransactionDate}" Format="dd - MM - yyyy" Margin="10,0" />
+            </Frame>
+
+            <Label Text="Notes (Optional)" FontAttributes="Bold" FontSize="14" TextColor="#2c2c2c" />
+            <Frame Padding="0" CornerRadius="8" BorderColor="#e0e0e0" HasShadow="False">
+                <Editor Placeholder="Add notes" Text="{Binding Notes}" HeightRequest="80" Margin="10,0" />
+            </Frame>
+
+            <Button Text="Save Expense" Command="{Binding SaveExpenseCommand}"
+                    BackgroundColor="#0f8d39" TextColor="White" FontAttributes="Bold"
+                    CornerRadius="12" HeightRequest="50" Margin="0,20,0,20" />
+                    
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#0f8d39" HorizontalOptions="Center" />
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

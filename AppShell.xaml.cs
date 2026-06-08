@@ -1,3 +1,5 @@
+using KrishiAI.App.Views;
+
 namespace KrishiAI.App;
 
 public partial class AppShell : Shell
@@ -19,6 +21,12 @@ public partial class AppShell : Shell
             {
                 System.Diagnostics.Debug.WriteLine($"✅ Navigated to: {e.Current?.Location}");
             };
+
+            Routing.RegisterRoute(nameof(AddExpensePage), typeof(AddExpensePage));
+            Routing.RegisterRoute(nameof(AddIncomePage), typeof(AddIncomePage));
+            Routing.RegisterRoute(nameof(AddLoanPage), typeof(AddLoanPage));
+            Routing.RegisterRoute(nameof(AddSubsidyPage), typeof(AddSubsidyPage));
+            Routing.RegisterRoute(nameof(FinanceVoiceEntryPage), typeof(FinanceVoiceEntryPage));
             
             System.Diagnostics.Debug.WriteLine("✅ AppShell initialized successfully");
         }

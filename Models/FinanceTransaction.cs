@@ -31,6 +31,9 @@ public class FinanceTransaction
     public string Notes { get; set; } = string.Empty;
 
     public bool IsDeleted { get; set; } = false;
+
+    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
+    public bool IsSynced { get; set; } = false;
 }
 
 /// <summary>
@@ -63,6 +66,9 @@ public class IncomeTransaction
 
     public bool IsDeleted { get; set; } = false;
 
+    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
+    public bool IsSynced { get; set; } = false;
+
     // Income-specific fields
     public string CropName { get; set; } = string.Empty;
 
@@ -74,6 +80,7 @@ public class IncomeTransaction
 
     public string BuyerName { get; set; } = string.Empty;
 
+    [Ignore]
     public decimal TotalAmount => Quantity * PricePerUnit;
 }
 
@@ -106,6 +113,9 @@ public class ExpenseTransaction
     public string Notes { get; set; } = string.Empty;
 
     public bool IsDeleted { get; set; } = false;
+
+    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
+    public bool IsSynced { get; set; } = false;
 
     // Expense-specific fields
     public string ExpenseCategory { get; set; } = string.Empty; // Seeds, Fertilizer, Water, Labor, etc.
@@ -143,6 +153,9 @@ public class LoanTransaction
 
     public bool IsDeleted { get; set; } = false;
 
+    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
+    public bool IsSynced { get; set; } = false;
+
     // Loan-specific fields
     public string LoanType { get; set; } = string.Empty; // Bank, Cooperative, Private, Government
 
@@ -156,6 +169,7 @@ public class LoanTransaction
 
     public decimal RemainingAmount { get; set; }
 
+    [Ignore]
     public List<LoanRepayment> Repayments { get; set; } = new List<LoanRepayment>();
 }
 
@@ -176,6 +190,9 @@ public class LoanRepayment
     public DateTime RepaymentDate { get; set; } = DateTime.Now;
 
     public string Notes { get; set; } = string.Empty;
+
+    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
+    public bool IsSynced { get; set; } = false;
 }
 
 /// <summary>
@@ -207,6 +224,9 @@ public class SubsidyTransaction
     public string Notes { get; set; } = string.Empty;
 
     public bool IsDeleted { get; set; } = false;
+
+    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
+    public bool IsSynced { get; set; } = false;
 
     // Subsidy-specific fields
     public string SchemeName { get; set; } = string.Empty;
@@ -245,6 +265,9 @@ public class MiscellaneousTransaction
     public string Notes { get; set; } = string.Empty;
 
     public bool IsDeleted { get; set; } = false;
+
+    /// <summary>False until this record has been successfully pushed to Azure SQL.</summary>
+    public bool IsSynced { get; set; } = false;
 
     // Misc-specific fields
     public string TransactionDirection { get; set; } = "Outgoing"; // Incoming or Outgoing

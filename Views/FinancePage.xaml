@@ -62,6 +62,9 @@
                 <!-- Add Income -->
                 <Frame Grid.Row="0" Grid.Column="0" BorderColor="Transparent" HasShadow="True" 
                        CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PromptAddIncomeCommand}" />
+                    </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                         <Label Text="➕" FontSize="24" HorizontalTextAlignment="Center" />
                         <Label Text="Add Income" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
@@ -72,6 +75,9 @@
                 <!-- Add Expense -->
                 <Frame Grid.Row="0" Grid.Column="1" BorderColor="Transparent" HasShadow="True" 
                        CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PromptAddExpenseCommand}" />
+                    </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                         <Label Text="🧾" FontSize="24" HorizontalTextAlignment="Center" />
                         <Label Text="Add Expense" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
@@ -82,6 +88,9 @@
                 <!-- Add Loan -->
                 <Frame Grid.Row="0" Grid.Column="2" BorderColor="Transparent" HasShadow="True" 
                        CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PromptAddLoanCommand}" />
+                    </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                         <Label Text="🏦" FontSize="24" HorizontalTextAlignment="Center" />
                         <Label Text="Add Loan" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
@@ -92,6 +101,9 @@
                 <!-- Add Subsidy -->
                 <Frame Grid.Row="1" Grid.Column="0" BorderColor="Transparent" HasShadow="True" 
                        CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PromptAddSubsidyCommand}" />
+                    </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                         <Label Text="🎁" FontSize="24" HorizontalTextAlignment="Center" />
                         <Label Text="Add Subsidy" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
@@ -102,6 +114,9 @@
                 <!-- Voice Entry -->
                 <Frame Grid.Row="1" Grid.Column="1" BorderColor="Transparent" HasShadow="True" 
                        CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToVoiceCommand}" />
+                    </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                         <Label Text="🎤" FontSize="24" HorizontalTextAlignment="Center" />
                         <Label Text="Voice Entry" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
@@ -112,6 +127,9 @@
                 <!-- Misc -->
                 <Frame Grid.Row="1" Grid.Column="2" BorderColor="Transparent" HasShadow="True" 
                        CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PromptAddMiscCommand}" />
+                    </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
                         <Label Text="📦" FontSize="24" HorizontalTextAlignment="Center" />
                         <Label Text="Miscellaneous" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
@@ -135,23 +153,25 @@
                         <VerticalStackLayout Spacing="8" VerticalOptions="Center">
                             <HorizontalStackLayout Spacing="6">
                                 <BoxView BackgroundColor="#ff5a5a" WidthRequest="8" HeightRequest="8" CornerRadius="4" />
-                                <Label Text="Expense: ₹{binding TotalExpense}" FontSize="11" VerticalOptions="Center" />
+                                <Label Text="{Binding TotalExpense, StringFormat='Expense: ₹{0:F0}'}" FontSize="11" VerticalOptions="Center" />
                             </HorizontalStackLayout>
                             <HorizontalStackLayout Spacing="6">
                                 <BoxView BackgroundColor="#3bb54a" WidthRequest="8" HeightRequest="8" CornerRadius="4" />
-                                <Label Text="Income: ₹{binding TotalIncome}" FontSize="11" VerticalOptions="Center" />
+                                <Label Text="{Binding TotalIncome, StringFormat='Income: ₹{0:F0}'}" FontSize="11" VerticalOptions="Center" />
                             </HorizontalStackLayout>
                             <HorizontalStackLayout Spacing="6">
                                 <BoxView BackgroundColor="#2b72d2" WidthRequest="8" HeightRequest="8" CornerRadius="4" />
-                                <Label Text="Profit: ₹{binding NetProfit}" FontSize="11" VerticalOptions="Center" />
+                                <Label Text="{Binding NetProfit, StringFormat='Profit: ₹{0:F0}'}" FontSize="11" VerticalOptions="Center" />
                             </HorizontalStackLayout>
                         </VerticalStackLayout>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Spacing="10" Margin="0,10,0,0">
                         <Button Text="📊 Reports" BackgroundColor="#0f8d39" TextColor="White" FontSize="12" 
+                                Command="{Binding NavigateToReportsCommand}"
                                 FontAttributes="Bold" CornerRadius="8" Padding="12,8" HorizontalOptions="FillAndExpand" />
                         <Button Text="📜 History" BackgroundColor="#2b72d2" TextColor="White" FontSize="12" 
+                                Command="{Binding NavigateToHistoryCommand}"
                                 FontAttributes="Bold" CornerRadius="8" Padding="12,8" HorizontalOptions="FillAndExpand" />
                     </HorizontalStackLayout>
                 </VerticalStackLayout>

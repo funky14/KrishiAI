@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 using KrishiAI.App.Models;
 using KrishiAI.App.Services;
 
@@ -55,7 +57,14 @@ public partial class FinanceViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Error", $"Failed to load summary: {ex.Message}", "OK");
+            if (ex.Message.Contains("Timeout") || ex.Message.Contains("network"))
+            {
+                await Toast.Make("Network timeout. The server is waking up, please pull down to refresh.", ToastDuration.Long).Show();
+            }
+            else
+            {
+                await Toast.Make("Failed to load summary. Offline mode active.", ToastDuration.Short).Show();
+            }
         }
         finally
         {
@@ -75,7 +84,14 @@ public partial class FinanceViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Error", $"Failed to load transactions: {ex.Message}", "OK");
+            if (ex.Message.Contains("Timeout") || ex.Message.Contains("network"))
+            {
+                await Toast.Make("Network timeout loading transactions.", ToastDuration.Short).Show();
+            }
+            else
+            {
+                await Toast.Make("Failed to load transactions.", ToastDuration.Short).Show();
+            }
         }
         finally
         {
@@ -226,6 +242,59 @@ public partial class FinanceViewModel : BaseViewModel
         {
             IsLoading = false;
         }
+    }
+
+    // UI Interaction Commands
+    [RelayCommand]
+    public async Task PromptAddIncomeAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(Views.AddIncomePage));
+    }
+
+    [RelayCommand]
+    public async Task PromptAddExpenseAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(Views.AddExpensePage));
+    }
+
+    [RelayCommand]
+    public async Task PromptAddLoanAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(Views.AddLoanPage));
+    }
+
+    [RelayCommand]
+    public async Task PromptAddSubsidyAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(Views.AddSubsidyPage));
+    }
+
+    [RelayCommand]
+    public async Task PromptAddMiscAsync()
+    {
+        string result = await Shell.Current.DisplayPromptAsync("Add Misc", "Enter amount (₹):", keyboard: Keyboard.Numeric);
+        if (!string.IsNullOrWhiteSpace(result) && decimal.TryParse(result, out decimal amount))
+        {
+            await AddMiscTransactionAsync(new MiscellaneousTransaction { Amount = amount, TransactionDate = DateTime.Now, CreatedDate = DateTime.Now, UserId = "demo_user", TransactionType = "Misc", MiscCategory = "Other", TransactionDirection = "Outgoing", Category = "Misc" });
+        }
+    }
+
+    [RelayCommand]
+    public async Task NavigateToVoiceAssistantAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(Views.FinanceVoiceEntryPage));
+    }
+
+    [RelayCommand]
+    public async Task NavigateToReportsAsync()
+    {
+        await Shell.Current.DisplayAlert("Reports", "Detailed reports feature coming soon!", "OK");
+    }
+
+    [RelayCommand]
+    public async Task NavigateToHistoryAsync()
+    {
+        await Shell.Current.GoToAsync("//history");
     }
 
     /// <summary>
