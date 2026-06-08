@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using KrishiAI.App.Services;
 
 namespace KrishiAI.App.ViewModels;
@@ -25,5 +26,17 @@ public partial class BaseViewModel : ObservableObject
     {
         LocalizationService = localizationService;
         LocalizationService.LanguageChanged += (s, e) => OnLanguageChanged();
+    }
+
+    [RelayCommand]
+    private async Task NavigateToVoice()
+    {
+        await Shell.Current.GoToAsync("VoiceAssistantPage");
+    }
+
+    [RelayCommand]
+    private async Task NavigateToHistory()
+    {
+        await Shell.Current.GoToAsync("HistoryPage");
     }
 }

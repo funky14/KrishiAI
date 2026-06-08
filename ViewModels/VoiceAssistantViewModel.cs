@@ -23,10 +23,10 @@ public partial class VoiceAssistantViewModel : BaseViewModel
     private string currentTranscription = string.Empty;
 
     [ObservableProperty]
-    private SupportedLanguage selectedLanguage;
-
-    [ObservableProperty]
     private ObservableCollection<VoiceCommand> conversationHistory = new();
+
+    public string CurrentLanguageName => _localizationService.GetCurrentLanguage();
+
 
     [ObservableProperty]
     private string voiceAssistantText = string.Empty;
@@ -58,7 +58,8 @@ public partial class VoiceAssistantViewModel : BaseViewModel
     [ObservableProperty]
     private string conversationHistoryText = string.Empty;
 
-    public ObservableCollection<SupportedLanguage> SupportedLanguages { get; set; }
+
+    private readonly ILocalizationService _localizationService;
 
 #pragma warning disable CS8618
     public VoiceAssistantViewModel(
@@ -74,22 +75,11 @@ public partial class VoiceAssistantViewModel : BaseViewModel
             _speechService = speechService;
             _ttsService = ttsService;
             _chatService = chatService;
+            _localizationService = localizationService;
 
             InitializeLocalization(localizationService);
 
             Title = "Voice Assistant";
-
-            var languages = _speechService.GetSupportedLanguages();
-            System.Diagnostics.Debug.WriteLine($"   Languages loaded: {languages?.Count ?? 0}");
-
-            SupportedLanguages = new ObservableCollection<SupportedLanguage>(languages ?? new List<SupportedLanguage>());
-
-            // Auto-detect device language
-            if (languages != null && languages.Any())
-            {
-                SelectedLanguage = DetectDeviceLanguage(languages);
-                System.Diagnostics.Debug.WriteLine($"   Selected language: {SelectedLanguage?.LanguageName ?? "None"}");
-            }
 
             UpdateLocalizedStrings();
 
@@ -102,7 +92,6 @@ public partial class VoiceAssistantViewModel : BaseViewModel
 
             // Ensure minimum initialization
             Title = "Voice Assistant";
-            SupportedLanguages = new ObservableCollection<SupportedLanguage>();
         }
 #pragma warning restore CS8618
     }
@@ -124,39 +113,10 @@ public partial class VoiceAssistantViewModel : BaseViewModel
     public override void OnLanguageChanged()
     {
         UpdateLocalizedStrings();
+        OnPropertyChanged(nameof(CurrentLanguageName));
     }
 
-    private SupportedLanguage DetectDeviceLanguage(List<SupportedLanguage> languages)
-    {
-        try
-        {
-            // Get device's current culture/language
-            var deviceLanguage = System.Globalization.CultureInfo.CurrentCulture.Name; // e.g., "en-US", "hi-IN"
-            
-            // Try exact match first
-            var matchedLanguage = languages.FirstOrDefault(l => 
-                l.LanguageCode.Equals(deviceLanguage, StringComparison.OrdinalIgnoreCase));
-            
-            if (matchedLanguage != null)
-                return matchedLanguage;
-            
-            // Try partial match (e.g., "hi" matches "hi-IN")
-            var languagePrefix = deviceLanguage.Split('-')[0]; // Get "hi" from "hi-IN"
-            matchedLanguage = languages.FirstOrDefault(l => 
-                l.LanguageCode.StartsWith(languagePrefix, StringComparison.OrdinalIgnoreCase));
-            
-            if (matchedLanguage != null)
-                return matchedLanguage;
-            
-            // Default to English if no match
-            return languages.FirstOrDefault(l => l.LanguageCode.StartsWith("en")) ?? languages.First();
-        }
-        catch
-        {
-            // Fallback to first language (English)
-            return languages.First();
-        }
-    }
+
 
     [RelayCommand]
     private async Task StartRecording()
@@ -166,7 +126,8 @@ public partial class VoiceAssistantViewModel : BaseViewModel
             IsRecording = true;
             CurrentTranscription = "Listening...";
 
-            var transcription = await _speechService.StartListeningAsync(SelectedLanguage.LanguageCode);
+            var languageCode = _localizationService.GetCurrentLanguageCode();
+            var transcription = await _speechService.StartListeningAsync(languageCode);
             
             if (!string.IsNullOrEmpty(transcription))
             {
@@ -196,32 +157,33 @@ public partial class VoiceAssistantViewModel : BaseViewModel
         try
         {
             IsProcessing = true;
+            var languageCode = _localizationService.GetCurrentLanguageCode();
 
             // Add user message to history
             var userCommand = new VoiceCommand
             {
                 CommandText = query,
-                Language = SelectedLanguage.LanguageCode,
+                Language = languageCode,
                 Timestamp = DateTime.Now,
                 IsUserMessage = true
             };
             ConversationHistory.Add(userCommand);
 
             // Get AI response
-            var response = await _chatService.ProcessQueryAsync(query, SelectedLanguage.LanguageCode);
+            var response = await _chatService.ProcessQueryAsync(query, languageCode);
 
             // Add AI response to history
             var aiCommand = new VoiceCommand
             {
                 CommandText = response,
-                Language = SelectedLanguage.LanguageCode,
+                Language = languageCode,
                 Timestamp = DateTime.Now,
                 IsUserMessage = false
             };
             ConversationHistory.Add(aiCommand);
 
             // Speak response
-            await _ttsService.SpeakAsync(response, SelectedLanguage.LanguageCode);
+            await _ttsService.SpeakAsync(response, languageCode);
 
             CurrentTranscription = string.Empty;
         }
@@ -249,5 +211,11 @@ public partial class VoiceAssistantViewModel : BaseViewModel
     {
         ConversationHistory.Clear();
         CurrentTranscription = string.Empty;
+    }
+
+    [RelayCommand]
+    private async Task GoBack()
+    {
+        await Shell.Current.GoToAsync("..");
     }
 }

@@ -7,6 +7,11 @@
              BackgroundColor="#E8F5E9"
              Title="Home">
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Voice" IconImageSource="microphone.png" Command="{Binding NavigateToVoiceCommand}" />
+        <ToolbarItem Text="History" IconImageSource="history.png" Command="{Binding NavigateToHistoryCommand}" />
+    </ContentPage.ToolbarItems>
+
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
 

@@ -29,6 +29,8 @@ public partial class AppShell : Shell
             Routing.RegisterRoute(nameof(AddMiscellaneousPage), typeof(AddMiscellaneousPage));
             Routing.RegisterRoute(nameof(FinanceVoiceEntryPage), typeof(FinanceVoiceEntryPage));
             Routing.RegisterRoute(nameof(FinanceHistoryPage), typeof(FinanceHistoryPage));
+            Routing.RegisterRoute(nameof(VoiceAssistantPage), typeof(VoiceAssistantPage));
+            Routing.RegisterRoute(nameof(HistoryPage), typeof(HistoryPage));
             Routing.RegisterRoute(nameof(FinanceReportsPage), typeof(FinanceReportsPage));
             Routing.RegisterRoute(nameof(ProfitSummaryPage), typeof(ProfitSummaryPage));
             Routing.RegisterRoute(nameof(AiInsightsPage), typeof(AiInsightsPage));

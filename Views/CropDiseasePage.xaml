@@ -7,15 +7,15 @@
              Title="{Binding CropDiseaseDetectionText}"
              BackgroundColor="#E8F5E9">
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Voice" IconImageSource="microphone.png" Command="{Binding NavigateToVoiceCommand}" />
+        <ToolbarItem Text="History" IconImageSource="history.png" Command="{Binding NavigateToHistoryCommand}" />
+    </ContentPage.ToolbarItems>
+
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
 
-            <!-- Header -->
-            <Label Text="{Binding CropDiseaseDetectionText}" 
-                   FontSize="24" 
-                   FontAttributes="Bold"
-                   TextColor="#2E7D32"
-                   Margin="0,10,0,10"/>
+
 
             <!-- Camera Card -->
             <Frame BackgroundColor="White" 
