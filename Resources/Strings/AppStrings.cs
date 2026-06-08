@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace KrishiAI.App.Resources.Strings;
 
-public static class AppStrings
+public static partial class AppStrings
 {
     private static readonly Dictionary<string, Dictionary<string, string>> _translations = new()
     {
@@ -1133,6 +1133,18 @@ public static class AppStrings
         return key; // Return key if translation not found
     }
 
+    // Allow runtime registration of additional translation keys (used by startup code)
+    public static void RegisterTranslations(Dictionary<string, Dictionary<string, string>> additions)
+    {
+        if (additions == null) return;
+
+        foreach (var kv in additions)
+        {
+            // overwrite or add
+            _translations[kv.Key] = kv.Value;
+        }
+    }
+
     // Public static properties for easy access
     public static string GoodMorning => GetString("GoodMorning");
     public static string GoodAfternoon => GetString("GoodAfternoon");
@@ -1218,4 +1230,36 @@ public static class AppStrings
     public static string ClearHistoryConfirm => GetString("ClearHistoryConfirm");
     public static string HistoryClearedSuccessfully => GetString("HistoryClearedSuccessfully");
     public static string Version => GetString("Version");
+    public static string WeatherAndIrrigation => GetString("WeatherAndIrrigation");
+    public static string CurrentWeather => GetString("CurrentWeather");
+    public static string WeatherRisks => GetString("WeatherRisks");
+    public static string SevenDayForecast => GetString("SevenDayForecast");
+    public static string ManageCrops => GetString("ManageCrops");
+    public static string Refresh => GetString("Refresh");
+    public static string Temperature => GetString("Temperature");
+    public static string Humidity => GetString("Humidity");
+    public static string Rainfall => GetString("Rainfall");
+    public static string WindSpeed => GetString("WindSpeed");
+    public static string ViewAllRisks => GetString("ViewAllRisks");
+    public static string ViewAll => GetString("ViewAll");
+    public static string PartlyCloudy => GetString("PartlyCloudy");
+    public static string Max => GetString("Max");
+    public static string Min => GetString("Min");
+    public static string FeelsLike => GetString("FeelsLike");
+    public static string Wind => GetString("Wind");
+    public static string Humidity_Upper => GetString("Humidity_Upper");
+    public static string FeelsLikeValue => GetString("FeelsLikeValue");
+    public static string AIIrrigationAdvisor => GetString("AIIrrigationAdvisor");
+    public static string Recommended => GetString("Recommended");
+    public static string IrrigateTomorrowMorning => GetString("IrrigateTomorrowMorning");
+    public static string For => GetString("For");
+    public static string Hours => GetString("Hours");
+    public static string Crop => GetString("Crop");
+    public static string GrowthStage => GetString("GrowthStage");
+    public static string SoilMoisture => GetString("SoilMoisture");
+    public static string ViewIrrigationPlan => GetString("ViewIrrigationPlan");
+    public static string Radius => GetString("Radius");
+    public static string Padddy => GetString("Padddy");
+    public static string Tillering => GetString("Tillering");
+    public static string Low => GetString("Low");
 }

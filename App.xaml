@@ -9,6 +9,8 @@
             <!-- Converters -->
             <helpers:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
             <helpers:NotNullConverter x:Key="NotNullConverter"/>
+            <helpers:IsNotNullConverter x:Key="IsNotNullConverter"/>
+            <helpers:IsNotNullOrEmptyConverter x:Key="IsNotNullOrEmptyConverter"/>
             <helpers:StringNotEmptyConverter x:Key="StringNotEmptyConverter"/>
             
             <!-- Colors -->

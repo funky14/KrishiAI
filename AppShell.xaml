@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:KrishiAI.App.Views"
+    xmlns:strings="clr-namespace:KrishiAI.App.Resources.Strings"
     Shell.FlyoutBehavior="Disabled"
     Shell.NavBarIsVisible="True"
     Shell.TabBarBackgroundColor="{StaticResource Primary}"
@@ -13,38 +14,44 @@
     <!-- Home Tab -->
     <TabBar>
         <ShellContent
-            Title="Home"
+            Title="{x:Static strings:AppStrings.Home}"
             Icon="home.png"
             ContentTemplate="{DataTemplate views:HomePage}"
             Route="home" />
 
+        <!-- Weather Tab -->
+        <ShellContent
+            Title="{x:Static strings:AppStrings.WeatherAndIrrigation}"
+            Icon="cloud.png"
+            ContentTemplate="{DataTemplate views:WeatherDashboardPage}"
+            Route="weather" />
+
         <!-- Crop Disease Tab -->
         <ShellContent
-            Title="Disease"
+            Title="{x:Static strings:AppStrings.Disease}"
             Icon="leaf.png"
             ContentTemplate="{DataTemplate views:CropDiseasePage}"
             Route="disease" />
 
         <!-- Voice Assistant Tab -->
         <ShellContent
-            Title="Voice"
+            Title="{x:Static strings:AppStrings.VoiceAssistant}"
             Icon="microphone.png"
             ContentTemplate="{DataTemplate views:VoiceAssistantPage}"
             Route="voice" />
 
         <!-- History Tab -->
         <ShellContent
-            Title="History"
+            Title="{x:Static strings:AppStrings.History}"
             Icon="history.png"
             ContentTemplate="{DataTemplate views:HistoryPage}"
             Route="history" />
 
-        <!-- Settings Tab -->
-        <ShellContent
-            Title="Settings"
-            Icon="settings.png"
-            ContentTemplate="{DataTemplate views:SettingsPage}"
-            Route="settings" />
     </TabBar>
+
+    <!-- Add a toolbar 'More' button to access Settings and other pages (keeps bottom tabs <= 5) -->
+    <Shell.ToolbarItems>
+        <ToolbarItem Text="More" IconImageSource="more.png" Priority="0" Order="Primary" Clicked="OnMoreClicked" />
+    </Shell.ToolbarItems>
 
 </Shell>

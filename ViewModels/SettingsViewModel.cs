@@ -120,6 +120,7 @@ public partial class SettingsViewModel : BaseViewModel
 
     private void UpdateLocalizedStrings()
     {
+        Title = AppStrings.Settings;
         SettingsText = AppStrings.Settings;
         PreferencesText = AppStrings.Preferences;
         DefaultLanguageText = AppStrings.DefaultLanguage;
@@ -147,6 +148,12 @@ public partial class SettingsViewModel : BaseViewModel
     public override void OnLanguageChanged()
     {
         UpdateLocalizedStrings();
+    }
+
+    public override void OnAppearing()
+    {
+        base.OnAppearing();
+        UpdateLocalizedStrings(); // Refresh strings when page appears
     }
 
     [RelayCommand]

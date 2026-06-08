@@ -68,6 +68,7 @@ public partial class HistoryViewModel : BaseViewModel
 
     private void UpdateLocalizedStrings()
     {
+        Title = AppStrings.DetectionHistory;
         DetectionHistoryText = AppStrings.DetectionHistory;
         SyncingDetectionHistoryText = AppStrings.SyncingDetectionHistory;
         YourDetectionRecordsText = AppStrings.YourDetectionRecords;
@@ -87,10 +88,12 @@ public partial class HistoryViewModel : BaseViewModel
     public override async void OnAppearing()
     {
         base.OnAppearing();
-        
+
+        UpdateLocalizedStrings(); // Refresh translations when page appears
+
         // Subscribe to connectivity changes (Phase 4)
         _connectivityService.ConnectivityChanged += OnConnectivityChanged;
-        
+
         // Load from local store first (local-first)
         await LoadHistory();
 

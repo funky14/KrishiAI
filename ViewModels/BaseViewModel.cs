@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using KrishiAI.App.Services;
+using Microsoft.Maui.ApplicationModel;
 
 namespace KrishiAI.App.ViewModels;
 
@@ -24,6 +25,18 @@ public partial class BaseViewModel : ObservableObject
     protected void InitializeLocalization(ILocalizationService localizationService)
     {
         LocalizationService = localizationService;
-        LocalizationService.LanguageChanged += (s, e) => OnLanguageChanged();
+        // Ensure language change handling runs on the UI thread because handlers update bound properties
+        LocalizationService.LanguageChanged += (s, e) =>
+        {
+            try
+            {
+                MainThread.BeginInvokeOnMainThread(() => OnLanguageChanged());
+            }
+            catch
+            {
+                // Fallback: invoke directly if MainThread isn't available (design-time)
+                OnLanguageChanged();
+            }
+        };
     }
 }

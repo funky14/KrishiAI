@@ -59,6 +59,12 @@ public partial class HomeViewModel : BaseViewModel
         UpdateLocalizedStrings();
     }
 
+    public override void OnAppearing()
+    {
+        base.OnAppearing();
+        UpdateLocalizedStrings(); // Refresh strings including time-based greeting
+    }
+
     private void UpdateLocalizedStrings()
     {
         GreetingText = GetTimeBasedGreeting();

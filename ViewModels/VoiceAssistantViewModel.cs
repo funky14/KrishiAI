@@ -109,6 +109,7 @@ public partial class VoiceAssistantViewModel : BaseViewModel
 
     private void UpdateLocalizedStrings()
     {
+        Title = AppStrings.VoiceAssistant;
         VoiceAssistantText = AppStrings.VoiceAssistant;
         SelectLanguageText = AppStrings.SelectLanguage;
         TapToSpeakText = AppStrings.TapToSpeak;
@@ -124,6 +125,12 @@ public partial class VoiceAssistantViewModel : BaseViewModel
     public override void OnLanguageChanged()
     {
         UpdateLocalizedStrings();
+    }
+
+    public override void OnAppearing()
+    {
+        base.OnAppearing();
+        UpdateLocalizedStrings(); // Refresh strings when page appears
     }
 
     private SupportedLanguage DetectDeviceLanguage(List<SupportedLanguage> languages)

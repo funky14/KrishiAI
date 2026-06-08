@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:KrishiAI.App.ViewModels"
+             xmlns:irrigation="clr-namespace:KrishiAI.App.Models.Irrigation"
+             x:Class="KrishiAI.App.Views.IrrigationAdvisorPage"
+             x:DataType="viewmodels:IrrigationAdvisorViewModel"
+             BackgroundColor="#E8F5E9"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <!-- Soil Moisture Card -->
+            <Frame BackgroundColor="White" Padding="20" CornerRadius="12" HasShadow="True">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="💧 Soil Moisture" FontSize="18" FontAttributes="Bold" TextColor="#2E7D32"/>
+
+                    <Slider Minimum="0" Maximum="100" 
+                            Value="{Binding SoilMoistureInput}" 
+                            MinimumTrackColor="#4CAF50" 
+                            MaximumTrackColor="#E0E0E0"/>
+
+                    <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+                        <Label Text="{Binding SoilMoistureInput, StringFormat='{0:F0}%'}" 
+                               FontSize="24" 
+                               FontAttributes="Bold"/>
+                        <Label Text="{Binding SoilMoistureStatus}" 
+                               FontSize="16" 
+                               TextColor="{Binding SoilMoistureColor}"/>
+                    </HorizontalStackLayout>
+
+                    <Button Text="Generate Recommendation" 
+                            Command="{Binding GenerateRecommendationCommand}"
+                            BackgroundColor="#4CAF50" 
+                            TextColor="White" 
+                            CornerRadius="8"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Current Recommendation -->
+            <Frame BackgroundColor="#FFF9C4" 
+                   Padding="20" 
+                   CornerRadius="12" 
+                   HasShadow="True"
+                   IsVisible="{Binding HasRecommendation}">
+                <VerticalStackLayout Spacing="12">
+                    <HorizontalStackLayout Spacing="12">
+                        <Label Text="{Binding IrrigationStatusIcon}" FontSize="32"/>
+                        <Label Text="{Binding IrrigationStatusText}" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               VerticalOptions="Center"
+                               TextColor="#F57F17"/>
+                    </HorizontalStackLayout>
+
+                    <Label Text="{Binding CurrentRecommendation.RecommendationMessage}" 
+                           FontSize="16" 
+                           FontAttributes="Bold"/>
+                    <Label Text="{Binding CurrentRecommendation.DetailedExplanation}" 
+                           FontSize="14" 
+                           TextColor="#666" 
+                           LineBreakMode="WordWrap"/>
+
+                    <Button Text="Mark as Completed" 
+                            Command="{Binding MarkAsCompletedCommand}"
+                            BackgroundColor="#8BC34A" 
+                            TextColor="White" 
+                            CornerRadius="8"
+                            Margin="0,8,0,0"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- History -->
+            <Frame BackgroundColor="White" Padding="20" CornerRadius="12" HasShadow="True">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="📜 Irrigation History" FontSize="18" FontAttributes="Bold" TextColor="#2E7D32"/>
+                    <CollectionView ItemsSource="{Binding History}" MaximumHeightRequest="300">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="irrigation:IrrigationRecommendation">
+                                <Frame Padding="12" Margin="0,4" BackgroundColor="#F5F5F5" CornerRadius="8">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="{Binding GeneratedAt, StringFormat='MMM dd, h:mm tt'}" 
+                                               FontSize="12" 
+                                               TextColor="#666"/>
+                                        <Label Text="{Binding RecommendationMessage}" 
+                                               FontSize="14" 
+                                               FontAttributes="Bold"/>
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#4CAF50"/>
+            <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullOrEmptyConverter}}" TextColor="Red" FontSize="14"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

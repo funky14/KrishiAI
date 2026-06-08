@@ -104,6 +104,7 @@ public partial class CropDiseaseViewModel : BaseViewModel
 
     private void UpdateLocalizedStrings()
     {
+        Title = AppStrings.CropDiseaseDetection;
         CropDiseaseDetectionText = AppStrings.CropDiseaseDetection;
         TapToCaptureOrSelectText = AppStrings.TapToCaptureOrSelect;
         ACropImageText = AppStrings.ACropImage;
@@ -129,6 +130,7 @@ public partial class CropDiseaseViewModel : BaseViewModel
     public override async void OnAppearing()
     {
         base.OnAppearing();
+        UpdateLocalizedStrings(); // Refresh strings when page appears
         await _aiService.InitializeAsync();
         await _recommendationService.InitializeAsync();
     }

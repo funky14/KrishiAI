@@ -35,13 +35,24 @@ public static class MauiProgram
         builder.Services.AddSingleton<ISpeechRecognitionService, SpeechRecognitionService>();
         builder.Services.AddSingleton<ITextToSpeechService, TextToSpeechService>();
         builder.Services.AddSingleton<IAIChatService, AIChatService>();
+        builder.Services.AddSingleton<ITranslationService, TranslationService>();
         builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
         builder.Services.AddSingleton<DeviceIdentifierService>();
-        
+
         // Register sync services (Phase 3)
-        builder.Services.AddSingleton<HttpClient>();
+        builder.Services.AddSingleton(s => new HttpClient());
         builder.Services.AddSingleton<IHistorySyncService, HistorySyncService>();
         builder.Services.AddSingleton<SyncQueueManager>();
+
+        // Register Weather & Irrigation Services
+        builder.Services.AddSingleton<Services.Weather.IWeatherService, Services.Weather.WeatherService>();
+        builder.Services.AddSingleton<Services.Irrigation.IIrrigationService, Services.Irrigation.IrrigationService>();
+        builder.Services.AddSingleton<Services.Risk.IRiskAnalysisService, Services.Risk.RiskAnalysisService>();
+        builder.Services.AddSingleton<Services.Notification.INotificationService, Services.Notification.NotificationService>();
+        builder.Services.AddSingleton<Services.Location.ILocationService, Services.Location.LocationService>();
+
+        // Register AppShell so it can receive ILocalizationService via DI
+        builder.Services.AddSingleton<AppShell>();
 
         // Register ViewModels
         builder.Services.AddSingleton<HomeViewModel>();
@@ -50,12 +61,24 @@ public static class MauiProgram
         builder.Services.AddSingleton<HistoryViewModel>();
         builder.Services.AddSingleton<SettingsViewModel>();
 
+        // Register Weather & Irrigation ViewModels
+        builder.Services.AddSingleton<WeatherDashboardViewModel>();
+        builder.Services.AddSingleton<IrrigationAdvisorViewModel>();
+        builder.Services.AddSingleton<WeatherRiskViewModel>();
+        builder.Services.AddSingleton<CropManagementViewModel>();
+
         // Register Views with DI
         builder.Services.AddSingleton<HomePage>();
         builder.Services.AddSingleton<CropDiseasePage>();
         builder.Services.AddSingleton<VoiceAssistantPage>();
         builder.Services.AddSingleton<HistoryPage>();
         builder.Services.AddSingleton<SettingsPage>();
+
+        // Register Weather & Irrigation Views
+        builder.Services.AddSingleton<WeatherDashboardPage>();
+        builder.Services.AddSingleton<IrrigationAdvisorPage>();
+        builder.Services.AddSingleton<WeatherRiskPage>();
+        builder.Services.AddSingleton<CropManagementPage>();
 
         return builder.Build();
     }

@@ -1,4 +1,5 @@
 using KrishiAI.App.Models;
+using KrishiAI.App.Resources.Strings;
 using System.Globalization;
 
 namespace KrishiAI.App.Services;
@@ -125,11 +126,46 @@ public class LocalizationService : ILocalizationService
             // Notify listeners
             LanguageChanged?.Invoke(this, EventArgs.Empty);
 
+            // Start background translation generation for any missing translations
+            // (fire-and-forget)
+            _ = GenerateMissingTranslationsAsync(languageCode);
+
             System.Diagnostics.Debug.WriteLine($"✅ Language changed to: {languageCode}");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"❌ Error setting culture: {ex.Message}");
+        }
+    }
+
+    private async Task GenerateMissingTranslationsAsync(string languageCode)
+    {
+        try
+        {
+            var translator = MauiApplication.Current.Services.GetService(typeof(ITranslationService)) as ITranslationService;
+            if (translator == null) return;
+
+            // Build English source map from AppStrings static dictionary
+            var english = new Dictionary<string, string>();
+            // We will include a subset of commonly used keys to avoid large API usage.
+            var keys = new[] { "Home", "WeatherAndIrrigation", "CurrentWeather", "WeatherRisks", "SevenDayForecast", "ViewAll", "Recommended", "ViewIrrigationPlan" };
+            foreach (var k in keys)
+            {
+                english[k] = AppStrings.GetString(k) ?? k;
+            }
+
+            var additions = await translator.GenerateMissingTranslationsAsync(english, languageCode);
+            if (additions != null)
+            {
+                // Register into AppStrings runtime
+                AppStrings.RegisterTranslations(additions);
+                // notify again so UI picks up new translations
+                LanguageChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"GenerateMissingTranslationsAsync error: {ex.Message}");
         }
     }
 

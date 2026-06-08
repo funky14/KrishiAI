@@ -1,4 +1,5 @@
 using KrishiAI.App.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace KrishiAI.App;
 
@@ -25,7 +26,15 @@ public partial class App : Application
             _localizationService.SetCulture(savedLanguage);
             System.Diagnostics.Debug.WriteLine($"   Language set to: {savedLanguage}");
 
-            MainPage = new AppShell();
+            // Resolve AppShell from DI so constructor injection works
+            try
+            {
+                MainPage = App.Current?.Handler?.MauiContext?.Services.GetService<AppShell>() ?? new AppShell(localizationService);
+            }
+            catch
+            {
+                MainPage = new AppShell(localizationService);
+            }
             System.Diagnostics.Debug.WriteLine("✅ APP CONSTRUCTOR COMPLETED - AppShell created");
         }
         catch (Exception ex)
