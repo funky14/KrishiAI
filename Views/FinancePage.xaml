@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="KrishiAI.App.Views.FinancePage"
+             Title="Finance Tracker"
+             BackgroundColor="#f8faf7">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="ExpenseColor">#ff5a5a</Color>
+            <Color x:Key="IncomeColor">#3bb54a</Color>
+            <Color x:Key="ProfitColor">#2b72d2</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            
+            <!-- Header -->
+            <Label Text="Finance Tracker" FontSize="28" FontAttributes="Bold" TextColor="#1f382c" />
+            
+            <!-- Finance Summary Cards -->
+            <HorizontalStackLayout Spacing="8">
+                <!-- Expense Card -->
+                <Frame BorderColor="Transparent" HasShadow="True" CornerRadius="14" Padding="12" 
+                       BackgroundColor="#fff1f0" WidthRequest="110" HeightRequest="100">
+                    <VerticalStackLayout Spacing="8" VerticalOptions="FillAndExpand">
+                        <Label Text="Expenses" FontSize="11" FontAttributes="Bold" TextColor="#666" />
+                        <Label Text="{Binding TotalExpense, StringFormat='₹{0:F0}'}" FontSize="20" 
+                               FontAttributes="Bold" TextColor="#222" />
+                        <Label Text="This month" FontSize="10" TextColor="#888" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Income Card -->
+                <Frame BorderColor="Transparent" HasShadow="True" CornerRadius="14" Padding="12" 
+                       BackgroundColor="#eef8ef" WidthRequest="110" HeightRequest="100">
+                    <VerticalStackLayout Spacing="8" VerticalOptions="FillAndExpand">
+                        <Label Text="Income" FontSize="11" FontAttributes="Bold" TextColor="#666" />
+                        <Label Text="{Binding TotalIncome, StringFormat='₹{0:F0}'}" FontSize="20" 
+                               FontAttributes="Bold" TextColor="#222" />
+                        <Label Text="This month" FontSize="10" TextColor="#888" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Profit Card -->
+                <Frame BorderColor="Transparent" HasShadow="True" CornerRadius="14" Padding="12" 
+                       BackgroundColor="#f2f3ff" WidthRequest="110" HeightRequest="100">
+                    <VerticalStackLayout Spacing="8" VerticalOptions="FillAndExpand">
+                        <Label Text="Profit" FontSize="11" FontAttributes="Bold" TextColor="#666" />
+                        <Label Text="{Binding NetProfit, StringFormat='₹{0:F0}'}" FontSize="20" 
+                               FontAttributes="Bold" TextColor="#222" />
+                        <Label Text="This month" FontSize="10" TextColor="#888" />
+                    </VerticalStackLayout>
+                </Frame>
+            </HorizontalStackLayout>
+
+            <!-- Quick Actions -->
+            <Label Text="Quick Actions" FontSize="16" FontAttributes="Bold" Margin="0,8,0,0" />
+            
+            <Grid ColumnDefinitions="*,*,*" RowDefinitions="*,*" ColumnSpacing="10" RowSpacing="10">
+                <!-- Add Income -->
+                <Frame Grid.Row="0" Grid.Column="0" BorderColor="Transparent" HasShadow="True" 
+                       CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="➕" FontSize="24" HorizontalTextAlignment="Center" />
+                        <Label Text="Add Income" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
+                        <Label Text="Record sales" FontSize="10" TextColor="#888" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Add Expense -->
+                <Frame Grid.Row="0" Grid.Column="1" BorderColor="Transparent" HasShadow="True" 
+                       CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="🧾" FontSize="24" HorizontalTextAlignment="Center" />
+                        <Label Text="Add Expense" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
+                        <Label Text="Record cost" FontSize="10" TextColor="#888" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Add Loan -->
+                <Frame Grid.Row="0" Grid.Column="2" BorderColor="Transparent" HasShadow="True" 
+                       CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="🏦" FontSize="24" HorizontalTextAlignment="Center" />
+                        <Label Text="Add Loan" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
+                        <Label Text="Loan taken" FontSize="10" TextColor="#888" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Add Subsidy -->
+                <Frame Grid.Row="1" Grid.Column="0" BorderColor="Transparent" HasShadow="True" 
+                       CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="🎁" FontSize="24" HorizontalTextAlignment="Center" />
+                        <Label Text="Add Subsidy" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
+                        <Label Text="Subsidy" FontSize="10" TextColor="#888" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Voice Entry -->
+                <Frame Grid.Row="1" Grid.Column="1" BorderColor="Transparent" HasShadow="True" 
+                       CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="🎤" FontSize="24" HorizontalTextAlignment="Center" />
+                        <Label Text="Voice Entry" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
+                        <Label Text="Add by voice" FontSize="10" TextColor="#888" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Misc -->
+                <Frame Grid.Row="1" Grid.Column="2" BorderColor="Transparent" HasShadow="True" 
+                       CornerRadius="14" Padding="14" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="📦" FontSize="24" HorizontalTextAlignment="Center" />
+                        <Label Text="Miscellaneous" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
+                        <Label Text="Other transactions" FontSize="10" TextColor="#888" />
+                    </VerticalStackLayout>
+                </Frame>
+            </Grid>
+
+            <!-- This Month Overview -->
+            <Label Text="This Month Overview" FontSize="16" FontAttributes="Bold" Margin="0,8,0,0" />
+            
+            <Frame BorderColor="Transparent" HasShadow="True" CornerRadius="16" Padding="16" BackgroundColor="White">
+                <VerticalStackLayout Spacing="12">
+                    <HorizontalStackLayout Spacing="16" VerticalOptions="FillAndExpand">
+                        <!-- Donut Chart Placeholder -->
+                        <Frame BorderColor="#ddd" CornerRadius="60" Padding="0" WidthRequest="120" HeightRequest="120">
+                            <Label Text="📊" FontSize="48" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Frame>
+
+                        <!-- Legend -->
+                        <VerticalStackLayout Spacing="8" VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="6">
+                                <BoxView BackgroundColor="#ff5a5a" WidthRequest="8" HeightRequest="8" CornerRadius="4" />
+                                <Label Text="Expense: ₹{binding TotalExpense}" FontSize="11" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="6">
+                                <BoxView BackgroundColor="#3bb54a" WidthRequest="8" HeightRequest="8" CornerRadius="4" />
+                                <Label Text="Income: ₹{binding TotalIncome}" FontSize="11" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="6">
+                                <BoxView BackgroundColor="#2b72d2" WidthRequest="8" HeightRequest="8" CornerRadius="4" />
+                                <Label Text="Profit: ₹{binding NetProfit}" FontSize="11" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+
+                    <HorizontalStackLayout Spacing="10" Margin="0,10,0,0">
+                        <Button Text="📊 Reports" BackgroundColor="#0f8d39" TextColor="White" FontSize="12" 
+                                FontAttributes="Bold" CornerRadius="8" Padding="12,8" HorizontalOptions="FillAndExpand" />
+                        <Button Text="📜 History" BackgroundColor="#2b72d2" TextColor="White" FontSize="12" 
+                                FontAttributes="Bold" CornerRadius="8" Padding="12,8" HorizontalOptions="FillAndExpand" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}" 
+                             Color="#0f8d39" Scale="1.5" Margin="0,20,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

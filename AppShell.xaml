@@ -39,6 +39,13 @@
             ContentTemplate="{DataTemplate views:HistoryPage}"
             Route="history" />
 
+        <!-- Finance Tab -->
+        <ShellContent
+            Title="Finance"
+            Icon="wallet.png"
+            ContentTemplate="{DataTemplate views:FinancePage}"
+            Route="finance" />
+
         <!-- Settings Tab -->
         <ShellContent
             Title="Settings"

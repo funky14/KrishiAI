@@ -37,6 +37,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IAIChatService, AIChatService>();
         builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
         builder.Services.AddSingleton<DeviceIdentifierService>();
+        builder.Services.AddSingleton<IFinanceService, FinanceService>(); // Finance Tracker Service
         
         // Register sync services (Phase 3)
         builder.Services.AddSingleton<HttpClient>();
@@ -49,6 +50,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<VoiceAssistantViewModel>();
         builder.Services.AddSingleton<HistoryViewModel>();
         builder.Services.AddSingleton<SettingsViewModel>();
+        builder.Services.AddSingleton<FinanceViewModel>();
 
         // Register Views with DI
         builder.Services.AddSingleton<HomePage>();
@@ -56,6 +58,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<VoiceAssistantPage>();
         builder.Services.AddSingleton<HistoryPage>();
         builder.Services.AddSingleton<SettingsPage>();
+        builder.Services.AddSingleton<FinancePage>();
 
         return builder.Build();
     }
