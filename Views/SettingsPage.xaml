@@ -33,7 +33,7 @@
                         <Picker x:Name="LanguagePicker"
                                 ItemsSource="{Binding SupportedLanguages}"
                                 SelectedItem="{Binding SelectedLanguage}"
-                                ItemDisplayBinding="{Binding NativeName}"
+                                ItemDisplayBinding="{Binding DisplayName}"
                                 BackgroundColor="#F5F5F5"
                                 TextColor="#333333"
                                 FontSize="15"/>
