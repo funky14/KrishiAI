@@ -41,6 +41,28 @@ KrishiAI is a cross-platform mobile application built with .NET MAUI that helps 
 - **Azure Services**: Speech Recognition, Text-to-Speech, OpenAI (optional)
 - **Android API 35**: Target Android 15 (minimum API 24 / Android 7.0)
 
+### AI Features Breakdown
+
+**Voice Assistance & Conversational Finance Entry:**
+- **Azure Cognitive Services (Speech AI):** 
+  - Uses `Microsoft.CognitiveServices.Speech` for native Speech-to-Text (capturing the farmer's voice) and Text-to-Speech (asking questions verbally).
+  - Provides rich localization with natural-sounding neural voices across 7 Indian languages (e.g., `hi-IN-SwaraNeural`, `mr-IN-AarohiNeural`).
+- **Azure OpenAI Service (LLM):**
+  - Uses the `Azure.AI.OpenAI` SDK to connect to a Large Language Model (e.g., GPT).
+  - Powers the conversational intelligence: extracts structured JSON data (Type, Category, Amount, Name) from raw text and conversation history.
+  - Dynamically generates localized follow-up questions if mandatory fields are missing.
+
+**Smart Financial Insights:**
+- **Azure OpenAI Service (LLM):**
+  - Analyzes the farmer's monthly financial summary (Total Income, Total Expense, Net Profit, Outstanding Loan).
+  - Generates 3 tailored, actionable business recommendations formatted as JSON:
+    - **Cost Optimization**: Strategies to reduce farming overhead (e.g., targeted fertilizer application).
+    - **Profit Improvement**: Recommendations for maximizing yield and finding better market timing.
+    - **Loan Readiness**: Assessment of debt-to-income ratio and advice for future agricultural loans (like KCC).
+
+**Crop Disease Detection:**
+- **On-Device ML:** Uses a pretrained MobileNetV2 ONNX model running entirely offline via `Microsoft.ML.OnnxRuntime`.
+
 ## Project Structure
 
 ```
