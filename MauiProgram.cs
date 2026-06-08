@@ -38,9 +38,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<IConnectivityService, ConnectivityService>();
         builder.Services.AddSingleton<DeviceIdentifierService>();
 
-        // Authentication Services
+        // SQL Server Authentication Services
+        builder.Services.AddSingleton<ISqlServerConnectionService, SqlServerConnectionService>();
+        builder.Services.AddSingleton<ISqlServerUserService, SqlServerUserService>();
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
-        
+
         // Register sync services (Phase 3)
         builder.Services.AddSingleton<HttpClient>();
         builder.Services.AddSingleton<IHistorySyncService, HistorySyncService>();
@@ -57,6 +59,7 @@ public static class MauiProgram
         // Register Views with DI
         builder.Services.AddSingleton<LoginPage>();
         builder.Services.AddSingleton<SignupPage>();
+        builder.Services.AddSingleton<ForgotPasswordPage>();
         builder.Services.AddSingleton<HomePage>();
         builder.Services.AddSingleton<CropDiseasePage>();
         builder.Services.AddSingleton<VoiceAssistantPage>();

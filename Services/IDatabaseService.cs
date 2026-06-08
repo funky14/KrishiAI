@@ -5,6 +5,15 @@ namespace KrishiAI.App.Services;
 public interface IDatabaseService
 {
     Task InitializeAsync();
+
+    // ===== USER MANAGEMENT =====
+    Task<int> SaveUserAsync(User user);
+    Task<User?> GetUserByEmailAsync(string email);
+    Task<User?> GetUserByIdAsync(int id);
+    Task<List<User>> GetAllUsersAsync();
+    Task<bool> UserExistsAsync(string email);
+
+    // ===== DETECTION HISTORY =====
     Task<int> SaveDetectionAsync(DiseaseDetectionResult result);
     Task<List<DiseaseDetectionResult>> GetHistoryAsync();
     Task<int> DeleteDetectionAsync(DiseaseDetectionResult result);

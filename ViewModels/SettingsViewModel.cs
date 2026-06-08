@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using KrishiAI.App.Models;
 using KrishiAI.App.Services;
 using KrishiAI.App.Resources.Strings;
+using KrishiAI.App.Views;
 using System.Collections.ObjectModel;
 
 namespace KrishiAI.App.ViewModels;
@@ -252,8 +253,23 @@ public partial class SettingsViewModel : BaseViewModel
 
             System.Diagnostics.Debug.WriteLine("✅ User logged out successfully");
 
-            // Navigate to login page
-            await Shell.Current.GoToAsync("//login");
+            // Navigate to login page by setting MainPage
+            var authViewModel = IPlatformApplication.Current?.Services.GetService<AuthViewModel>();
+            if (authViewModel != null)
+            {
+                var loginPage = new LoginPage(authViewModel);
+                Application.Current!.MainPage = new NavigationPage(loginPage)
+                {
+                    BarBackgroundColor = (Color)Application.Current.Resources["Primary"],
+                    BarTextColor = Colors.White
+                };
+                System.Diagnostics.Debug.WriteLine("✅ Navigated to LoginPage");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("❌ AuthViewModel not available");
+                ErrorMessage = "Failed to navigate to login";
+            }
         }
         catch (Exception ex)
         {

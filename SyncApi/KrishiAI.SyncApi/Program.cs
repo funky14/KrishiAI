@@ -219,6 +219,192 @@ app.MapPost("/api/images/upload", async (HttpRequest request) =>
     return Results.Ok(new { url });
 });
 
+// ===== USER LOGIN ENDPOINT =====
+app.MapPost("/api/users/login", async (UserLoginRequest req) =>
+{
+    var conn = BuildConnectionString(builder.Configuration);
+    if (string.IsNullOrWhiteSpace(conn))
+    {
+        return Results.Problem("Database not configured. Set ConnectionStrings__KrishiSql or KRISHI_SQL_* environment variables.");
+    }
+
+    // Validate required fields
+    if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.PasswordHash))
+    {
+        return Results.BadRequest(new { error = "Email and password are required." });
+    }
+
+    try
+    {
+        await using var sql = new SqlConnection(conn);
+        await sql.OpenAsync();
+
+        const string querySql = @"
+SELECT Id, Email, PasswordHash, FullName, PhoneNumber, CreatedAt, LastLogin, IsActive
+FROM dbo.[User]
+WHERE Email = @Email AND IsActive = 1;";
+
+        await using var cmd = new SqlCommand(querySql, sql);
+        cmd.Parameters.AddWithValue("@Email", req.Email);
+
+        await using var reader = await cmd.ExecuteReaderAsync();
+        if (!await reader.ReadAsync())
+        {
+            return Results.Unauthorized();
+        }
+
+        var storedPasswordHash = reader["PasswordHash"].ToString();
+        if (storedPasswordHash != req.PasswordHash)
+        {
+            return Results.Unauthorized();
+        }
+
+        var userId = (int)reader["Id"];
+        var email = reader["Email"].ToString();
+        var fullName = reader["FullName"].ToString();
+
+        // Update LastLogin
+        await reader.CloseAsync();
+        const string updateSql = "UPDATE dbo.[User] SET LastLogin = @LastLogin WHERE Id = @Id;";
+        await using var updateCmd = new SqlCommand(updateSql, sql);
+        updateCmd.Parameters.AddWithValue("@LastLogin", DateTime.UtcNow);
+        updateCmd.Parameters.AddWithValue("@Id", userId);
+        await updateCmd.ExecuteNonQueryAsync();
+
+        return Results.Ok(new { 
+            id = userId,
+            email = email,
+            fullName = fullName,
+            message = "Login successful"
+        });
+    }
+    catch (SqlException ex)
+    {
+        return Results.Problem($"Database error: {ex.Message}");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Error: {ex.Message}");
+    }
+});
+
+// ===== PASSWORD RESET ENDPOINT =====
+app.MapPost("/api/users/reset-password", async (UserResetPasswordRequest req) =>
+{
+    var conn = BuildConnectionString(builder.Configuration);
+    if (string.IsNullOrWhiteSpace(conn))
+    {
+        return Results.Problem("Database not configured. Set ConnectionStrings__KrishiSql or KRISHI_SQL_* environment variables.");
+    }
+
+    // Validate required fields
+    if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.NewPasswordHash))
+    {
+        return Results.BadRequest(new { error = "Email and new password are required." });
+    }
+
+    try
+    {
+        await using var sql = new SqlConnection(conn);
+        await sql.OpenAsync();
+
+        // Check if user exists
+        const string checkSql = "SELECT Id FROM dbo.[User] WHERE Email = @Email;";
+        await using var checkCmd = new SqlCommand(checkSql, sql);
+        checkCmd.Parameters.AddWithValue("@Email", req.Email);
+        var userId = await checkCmd.ExecuteScalarAsync();
+
+        if (userId == null)
+        {
+            return Results.BadRequest(new { error = "User not found." });
+        }
+
+        // Update password
+        const string updateSql = "UPDATE dbo.[User] SET PasswordHash = @NewPasswordHash WHERE Email = @Email;";
+        await using var updateCmd = new SqlCommand(updateSql, sql);
+        updateCmd.Parameters.AddWithValue("@NewPasswordHash", req.NewPasswordHash);
+        updateCmd.Parameters.AddWithValue("@Email", req.Email);
+        await updateCmd.ExecuteNonQueryAsync();
+
+        return Results.Ok(new { 
+            message = "Password reset successfully"
+        });
+    }
+    catch (SqlException ex)
+    {
+        return Results.Problem($"Database error: {ex.Message}");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Error: {ex.Message}");
+    }
+});
+
+// ===== USER REGISTRATION ENDPOINT =====
+app.MapPost("/api/users/register", async (UserRegisterRequest req) =>
+{
+    var conn = BuildConnectionString(builder.Configuration);
+    if (string.IsNullOrWhiteSpace(conn))
+    {
+        return Results.Problem("Database not configured. Set ConnectionStrings__KrishiSql or KRISHI_SQL_* environment variables.");
+    }
+
+    // Validate required fields
+    if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.PasswordHash) || string.IsNullOrWhiteSpace(req.FullName))
+    {
+        return Results.BadRequest(new { error = "Email, password, and full name are required." });
+    }
+
+    try
+    {
+        await using var sql = new SqlConnection(conn);
+        await sql.OpenAsync();
+
+        // Check if user already exists
+        const string checkSql = "SELECT COUNT(*) FROM dbo.[User] WHERE Email = @Email;";
+        await using var checkCmd = new SqlCommand(checkSql, sql);
+        checkCmd.Parameters.AddWithValue("@Email", req.Email);
+        var count = (int?)await checkCmd.ExecuteScalarAsync() ?? 0;
+
+        if (count > 0)
+        {
+            return Results.BadRequest(new { error = "Email already registered." });
+        }
+
+        // Insert new user
+        const string insertSql = @"
+INSERT INTO dbo.[User] (Email, PasswordHash, FullName, PhoneNumber, CreatedAt, LastLogin, IsActive)
+VALUES (@Email, @PasswordHash, @FullName, @PhoneNumber, @CreatedAt, @LastLogin, @IsActive);
+SELECT SCOPE_IDENTITY();";
+
+        await using var insertCmd = new SqlCommand(insertSql, sql);
+        insertCmd.Parameters.AddWithValue("@Email", req.Email);
+        insertCmd.Parameters.AddWithValue("@PasswordHash", req.PasswordHash);
+        insertCmd.Parameters.AddWithValue("@FullName", req.FullName);
+        insertCmd.Parameters.AddWithValue("@PhoneNumber", (object?)req.PhoneNumber ?? DBNull.Value);
+        insertCmd.Parameters.AddWithValue("@CreatedAt", DateTime.UtcNow);
+        insertCmd.Parameters.AddWithValue("@LastLogin", DBNull.Value);
+        insertCmd.Parameters.AddWithValue("@IsActive", true);
+
+        var userId = await insertCmd.ExecuteScalarAsync();
+
+        return Results.Ok(new { 
+            id = userId,
+            email = req.Email,
+            fullName = req.FullName,
+            message = "User registered successfully"
+        });
+    }
+    catch (SqlException ex)
+    {
+        return Results.Problem($"Database error: {ex.Message}");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Error: {ex.Message}");
+    }
+});
+
 app.Run();
 
 static string BuildConnectionString(IConfiguration configuration)
@@ -300,4 +486,24 @@ sealed class DetectionHistoryDto
     public int Version { get; set; }
     public string? DeviceId { get; set; }
     public string? DeviceName { get; set; }
+}
+
+sealed class UserRegisterRequest
+{
+    public string Email { get; set; } = string.Empty;
+    public string PasswordHash { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public string? PhoneNumber { get; set; }
+}
+
+sealed class UserLoginRequest
+{
+    public string Email { get; set; } = string.Empty;
+    public string PasswordHash { get; set; } = string.Empty;
+}
+
+sealed class UserResetPasswordRequest
+{
+    public string Email { get; set; } = string.Empty;
+    public string NewPasswordHash { get; set; } = string.Empty;
 }

@@ -56,8 +56,10 @@
 
 	<!-- Debug configuration specific settings -->
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-		<!-- Embed assemblies in APK for debug builds to avoid Fast Deployment issues -->
-		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+		<!-- Enable Fast Deployment for faster iteration in Debug builds -->
+		<AndroidEnableFastDeployment>true</AndroidEnableFastDeployment>
+		<!-- Disable embedding to keep APK small for incremental deployments -->
+		<EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
 		<EnableR8>false</EnableR8>
 		<UseProguard>false</UseProguard>
 		<AndroidLinkMode>None</AndroidLinkMode>
@@ -67,8 +69,24 @@
 		<AndroidEnableMultiDex>true</AndroidEnableMultiDex>
 		<AndroidDexTool>d8</AndroidDexTool>
 		<AndroidDisableMultiDexLegacy>false</AndroidDisableMultiDexLegacy>
-		<!-- Completely disable Fast Deployment -->
+		<!-- Enable incremental Java compilation for faster builds -->
+		<AndroidEnableIncrementalJava>true</AndroidEnableIncrementalJava>
+		<!-- Standard deployment timeout -->
+		<DeployTimeout>120000</DeployTimeout>
+		<!-- Initial ADB timeout -->
+		<AdbInitialOutputWaitTime>60</AdbInitialOutputWaitTime>
+		<AndroidProfileOnStart>false</AndroidProfileOnStart>
+	</PropertyGroup>
+
+	<!-- Release configuration specific settings -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<!-- Embed assemblies into APK for Release builds for stability -->
+		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+		<!-- Disable Fast Deployment in Release for production-like behavior -->
 		<AndroidEnableFastDeployment>false</AndroidEnableFastDeployment>
+		<AndroidLinkMode>SdkOnly</AndroidLinkMode>
+		<AndroidEnableMultiDex>true</AndroidEnableMultiDex>
+		<AndroidDexTool>d8</AndroidDexTool>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -125,6 +143,9 @@
 	  <MauiXaml Update="KrishiAI.App\AppShell.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\ForgotPasswordPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\HistoryPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -142,12 +163,13 @@
 	  <Folder Include="KrishiAI.App\Views\" />
 	</ItemGroup>
 
-	<!-- Ensure Fast Deployment is completely disabled for embedded assemblies -->
-	<Target Name="DisableFastDeployment" BeforeTargets="Build">
-		<Message Text="🛑 Disabling Fast Deployment..." Importance="high" />
-		<CreateProperty Value="true">
-			<Output TaskParameter="Value" PropertyName="EmbedAssembliesIntoApk" />
-		</CreateProperty>
+	<!-- Fast Deployment is now enabled for Debug builds for faster iteration -->
+	<!-- Removed: DisableFastDeployment target - now using incremental deployment in Debug -->
+
+	<!-- Pre-deployment message for emulator -->
+	<Target Name="PreDeploymentInfo" BeforeTargets="Deploy">
+		<Message Text="⏳ Starting deployment... The emulator may take 2-5 minutes to fully boot." Importance="high" />
+		<Message Text="💡 Tip: If deployment times out, check that your emulator has sufficient RAM (at least 4GB allocated)" Importance="high" />
 	</Target>
 
 </Project>

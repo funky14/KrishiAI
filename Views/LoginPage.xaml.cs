@@ -38,6 +38,14 @@ public partial class LoginPage : ContentPage
             };
             System.Diagnostics.Debug.WriteLine("   - OnNavigateToSignup event subscribed");
 
+            // Subscribe to navigation to forgot password
+            _viewModel.OnNavigateToForgotPassword += async () =>
+            {
+                System.Diagnostics.Debug.WriteLine("🔐 LoginPage: OnNavigateToForgotPassword triggered");
+                await Navigation.PushAsync(new ForgotPasswordPage(_viewModel));
+            };
+            System.Diagnostics.Debug.WriteLine("   - OnNavigateToForgotPassword event subscribed");
+
             System.Diagnostics.Debug.WriteLine("✅ LoginPage: Constructor completed successfully");
         }
         catch (Exception ex)

@@ -1,5 +1,9 @@
 namespace KrishiAI.App.Models;
 
+/// <summary>
+/// User model for authentication and profile management
+/// Used with SQL Server database
+/// </summary>
 public class User
 {
     public int Id { get; set; }

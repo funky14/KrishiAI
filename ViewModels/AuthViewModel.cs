@@ -25,6 +25,15 @@ public partial class AuthViewModel : BaseViewModel
     public string phoneNumber = string.Empty;
 
     [ObservableProperty]
+    public string newPassword = string.Empty;
+
+    [ObservableProperty]
+    public string confirmNewPassword = string.Empty;
+
+    [ObservableProperty]
+    public string successMessage = string.Empty;
+
+    [ObservableProperty]
     public bool isLoginMode = true;
 
     public event Func<Task>? OnLoginSuccess;
@@ -197,5 +206,76 @@ public partial class AuthViewModel : BaseViewModel
     public void NavigateToForgotPassword()
     {
         OnNavigateToForgotPassword?.Invoke();
+    }
+
+    [RelayCommand]
+    public async Task ResetPasswordAsync()
+    {
+        if (IsBusy)
+            return;
+
+        // Validate email
+        if (string.IsNullOrWhiteSpace(Email))
+        {
+            ErrorMessage = "Email is required";
+            return;
+        }
+
+        // Validate new password
+        if (string.IsNullOrWhiteSpace(NewPassword))
+        {
+            ErrorMessage = "New password is required";
+            return;
+        }
+
+        if (NewPassword.Length < 6)
+        {
+            ErrorMessage = "Password must be at least 6 characters";
+            return;
+        }
+
+        // Validate password confirmation
+        if (NewPassword != ConfirmNewPassword)
+        {
+            ErrorMessage = "Passwords do not match";
+            return;
+        }
+
+        try
+        {
+            IsBusy = true;
+            ErrorMessage = string.Empty;
+            SuccessMessage = string.Empty;
+
+            // Call password reset
+            var (success, message) = await _authService.ResetPasswordAsync(Email, NewPassword);
+
+            if (success)
+            {
+                SuccessMessage = "Password reset successfully! Redirecting to login...";
+                ErrorMessage = string.Empty;
+
+                // Clear form
+                Email = string.Empty;
+                NewPassword = string.Empty;
+                ConfirmNewPassword = string.Empty;
+
+                // Navigate back to login after delay
+                await Task.Delay(2000);
+                OnNavigateToLogin?.Invoke();
+            }
+            else
+            {
+                ErrorMessage = message;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Reset error: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }
