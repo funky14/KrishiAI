@@ -31,7 +31,15 @@ public partial class BaseViewModel : ObservableObject
     [RelayCommand]
     private async Task NavigateToVoice()
     {
-        await Shell.Current.GoToAsync("VoiceAssistantPage");
+        var location = Shell.Current.CurrentState.Location.OriginalString;
+        if (location.Contains("finance", StringComparison.OrdinalIgnoreCase))
+        {
+            await Shell.Current.GoToAsync("FinanceVoiceEntryPage");
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("VoiceAssistantPage");
+        }
     }
 
     [RelayCommand]
