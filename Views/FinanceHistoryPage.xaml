@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KrishiAI.App.ViewModels"
+             xmlns:models="clr-namespace:KrishiAI.App.Models"
+             x:Class="KrishiAI.App.Views.FinanceHistoryPage"
+             Title="Finance History"
+             BackgroundColor="#f8f9fa">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <views:FilterBgConverter x:Key="FilterBgConverter" xmlns:views="clr-namespace:KrishiAI.App.Views" />
+            <views:FilterTextConverter x:Key="FilterTextConverter" xmlns:views="clr-namespace:KrishiAI.App.Views" />
+            <views:AmountColorConverter x:Key="AmountColorConverter" xmlns:views="clr-namespace:KrishiAI.App.Views" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="15">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="5" Margin="0,0,0,15">
+            <Label Text="All your transactions" FontSize="18" FontAttributes="Bold" TextColor="#2c2c2c" />
+            
+            <Frame Padding="10,5" CornerRadius="8" BackgroundColor="#eef8ef" BorderColor="Transparent" HorizontalOptions="Start">
+                <Label Text="Last 6 Months ▾" FontSize="12" TextColor="#0f8d39" FontAttributes="Bold" />
+            </Frame>
+        </VerticalStackLayout>
+        
+        <!-- Filters (Scrollable horizontally) -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Margin="0,0,0,15">
+            <HorizontalStackLayout Spacing="10">
+                <!-- All -->
+                <Button Text="All" Command="{Binding ApplyFilterCommand}" CommandParameter="All"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterBgConverter}, ConverterParameter='All'}" 
+                        TextColor="{Binding SelectedFilter, Converter={StaticResource FilterTextConverter}, ConverterParameter='All'}"
+                        CornerRadius="20" HeightRequest="40" Padding="15,0" />
+                <!-- Expense -->
+                <Button Text="Expense" Command="{Binding ApplyFilterCommand}" CommandParameter="Expense"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterBgConverter}, ConverterParameter='Expense'}" 
+                        TextColor="{Binding SelectedFilter, Converter={StaticResource FilterTextConverter}, ConverterParameter='Expense'}"
+                        CornerRadius="20" HeightRequest="40" Padding="15,0" />
+                <!-- Income -->
+                <Button Text="Income" Command="{Binding ApplyFilterCommand}" CommandParameter="Income"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterBgConverter}, ConverterParameter='Income'}" 
+                        TextColor="{Binding SelectedFilter, Converter={StaticResource FilterTextConverter}, ConverterParameter='Income'}"
+                        CornerRadius="20" HeightRequest="40" Padding="15,0" />
+                <!-- Loan -->
+                <Button Text="Loan" Command="{Binding ApplyFilterCommand}" CommandParameter="Loan"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterBgConverter}, ConverterParameter='Loan'}" 
+                        TextColor="{Binding SelectedFilter, Converter={StaticResource FilterTextConverter}, ConverterParameter='Loan'}"
+                        CornerRadius="20" HeightRequest="40" Padding="15,0" />
+                <!-- Subsidy -->
+                <Button Text="Subsidy" Command="{Binding ApplyFilterCommand}" CommandParameter="Subsidy"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterBgConverter}, ConverterParameter='Subsidy'}" 
+                        TextColor="{Binding SelectedFilter, Converter={StaticResource FilterTextConverter}, ConverterParameter='Subsidy'}"
+                        CornerRadius="20" HeightRequest="40" Padding="15,0" />
+                <!-- Misc -->
+                <Button Text="Misc" Command="{Binding ApplyFilterCommand}" CommandParameter="Misc"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterBgConverter}, ConverterParameter='Misc'}" 
+                        TextColor="{Binding SelectedFilter, Converter={StaticResource FilterTextConverter}, ConverterParameter='Misc'}"
+                        CornerRadius="20" HeightRequest="40" Padding="15,0" />
+            </HorizontalStackLayout>
+        </ScrollView>
+        
+        <!-- Transaction List -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Transactions}">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Spacing="10" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Label Text="No transactions found." TextColor="#888" FontSize="16" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:FinanceTransaction">
+                    <Frame Margin="0,0,0,10" Padding="12" CornerRadius="12" HasShadow="False" BorderColor="#e0e0e0" BackgroundColor="White">
+                        <Grid ColumnDefinitions="50,*,Auto">
+                            <!-- Icon -->
+                            <Frame Grid.Column="0" WidthRequest="40" HeightRequest="40" CornerRadius="20" 
+                                   BackgroundColor="#f2f3ff" BorderColor="Transparent" Padding="0"
+                                   HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="💸" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Frame>
+                            
+                            <!-- Details -->
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2" Margin="10,0,0,0">
+                                <Label Text="{Binding Category}" FontSize="14" FontAttributes="Bold" TextColor="#2c2c2c" />
+                                <Label Text="{Binding Description}" FontSize="12" TextColor="#666" />
+                            </VerticalStackLayout>
+                            
+                            <!-- Amount and Date -->
+                            <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2" HorizontalOptions="End">
+                                <Label Text="{Binding Amount, StringFormat='₹{0:F0}'}" FontSize="14" FontAttributes="Bold" 
+                                       TextColor="{Binding TransactionType, Converter={StaticResource AmountColorConverter}}" 
+                                       HorizontalOptions="End" />
+                                <Label Text="{Binding TransactionDate, StringFormat='{0:MMM dd}'}" FontSize="10" TextColor="#888" HorizontalOptions="End" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        
+        <!-- Clear History Button -->
+        <Button Grid.Row="3" Text="Clear History" Command="{Binding ClearHistoryCommand}"
+                BackgroundColor="Transparent" TextColor="#ff5a5a" FontAttributes="Bold"
+                BorderColor="#ff5a5a" BorderWidth="1" CornerRadius="12" HeightRequest="50" Margin="0,15,0,0" />
+                
+        <ActivityIndicator Grid.Row="2" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#0f8d39" HorizontalOptions="Center" VerticalOptions="Center" />
+        
+    </Grid>
+
+</ContentPage>

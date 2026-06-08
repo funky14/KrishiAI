@@ -6,50 +6,42 @@
              x:Class="KrishiAI.App.Views.VoiceAssistantPage"
              x:DataType="viewmodels:VoiceAssistantViewModel"
              Title="{Binding VoiceAssistantText}"
-             BackgroundColor="#E8F5E9">
+             BackgroundColor="#F9FBF9">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Voice" IconImageSource="microphone.png" Command="{Binding NavigateToVoiceCommand}" />
+        <ToolbarItem Text="History" IconImageSource="history.png" Command="{Binding NavigateToHistoryCommand}" />
+    </ContentPage.ToolbarItems>
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="30">
 
-            <!-- Header -->
-            <Label Text="{Binding VoiceAssistantText}" 
-                   FontSize="24" 
-                   FontAttributes="Bold"
-                   TextColor="#2E7D32"
-                   Margin="0,10,0,10"/>
 
-            <!-- Language Selector -->
-            <Frame BackgroundColor="White" 
-                   BorderColor="#E0E0E0" 
-                   CornerRadius="15"
-                   Padding="20" 
-                   HasShadow="True">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="{Binding SelectLanguageText}" FontSize="16" FontAttributes="Bold" TextColor="#333333"/>
-                    <Picker ItemsSource="{Binding SupportedLanguages}"
-                            SelectedItem="{Binding SelectedLanguage}"
-                            ItemDisplayBinding="{Binding NativeName}"
-                            BackgroundColor="#F5F5F5"
-                            TextColor="#333333"
-                            FontSize="16"/>
-                </VerticalStackLayout>
-            </Frame>
 
             <!-- Microphone Circle -->
-            <Frame CornerRadius="100" 
+            <Frame CornerRadius="125" 
                    Padding="0" 
-                   HeightRequest="200" 
-                   WidthRequest="200"
+                   HeightRequest="250" 
+                   WidthRequest="250"
                    HorizontalOptions="Center"
-                   BackgroundColor="#2196F3"
+                   BackgroundColor="#81C784"
                    BorderColor="Transparent"
-                   HasShadow="True"
-                   Margin="0,20,0,20">
+                   HasShadow="False"
+                   Margin="0,10,0,10">
                 <Grid>
-                    <Label Text="🎤" 
-                           FontSize="100" 
-                           HorizontalOptions="Center" 
-                           VerticalOptions="Center"/>
+                    <Frame CornerRadius="90" 
+                           HeightRequest="180" 
+                           WidthRequest="180"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           BackgroundColor="#4CAF50"
+                           BorderColor="Transparent"
+                           HasShadow="True">
+                        <Label Text="🎤" 
+                               FontSize="70" 
+                               HorizontalOptions="Center" 
+                               VerticalOptions="Center"/>
+                    </Frame>
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding StartRecordingCommand}"/>
                     </Grid.GestureRecognizers>
@@ -59,32 +51,27 @@
             <!-- Tap to Speak -->
             <Label Text="{Binding TapToSpeakText}" 
                    FontSize="18" 
-                   TextColor="#666666"
+                   FontAttributes="Bold"
+                   TextColor="#00332B"
                    HorizontalOptions="Center"
-                   Margin="0,0,0,10"/>
+                   Margin="0,-10,0,5"/>
 
             <!-- Note -->
-            <Frame BackgroundColor="#FFF9C4" 
-                   BorderColor="#FFF9C4" 
-                   CornerRadius="10"
-                   Padding="15" 
-                   HasShadow="False"
-                   Margin="0,10,0,20">
-                <Label Text="{Binding NoteSpeakText}" 
-                       FontSize="14" 
-                       TextColor="#666666"
-                       HorizontalTextAlignment="Center"/>
-            </Frame>
+            <Label Text="{Binding NoteSpeakText}" 
+                   FontSize="15" 
+                   TextColor="#666666"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,0,0,20"/>
 
             <!-- Ask Button -->
             <Button Text="{Binding AskVoiceAssistantText}"
                     Command="{Binding StartRecordingCommand}"
-                    BackgroundColor="#2196F3"
+                    BackgroundColor="#8D6E63"
                     TextColor="White"
                     HeightRequest="55"
                     FontSize="18"
                     FontAttributes="Bold"
-                    CornerRadius="10"/>
+                    CornerRadius="15"/>
 
             <!-- Recording/Processing Indicators -->
             <ActivityIndicator IsRunning="{Binding IsRecording}"

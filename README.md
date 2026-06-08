@@ -18,6 +18,13 @@ KrishiAI is a cross-platform mobile application built with .NET MAUI that helps 
 - **Text-to-Speech**: Listen to responses in your language
 - **Conversation History**: Review past interactions
 
+### 💰 Finance Tracker
+- **Income & Expense Logs**: Track all crop sales and farming costs
+- **Loan & Subsidy Tracking**: Manage agricultural loans and government subsidies
+- **Advanced Reports**: Microcharts-powered visual breakdowns and 6-month profit trends
+- **AI Financial Insights**: Get AI-generated actionable suggestions for cost optimization and loan readiness
+- **Detailed History**: Filterable ledger for all transactions
+
 ### 💾 Offline-First Architecture
 - Disease detection works completely offline
 - SQLite local database for history
@@ -150,6 +157,14 @@ dotnet build -f net9.0-android -t:Run
 2. View all past disease detections
 3. Tap delete icon to remove individual items
 4. Use **Clear All History** to delete all records
+
+### Finance Tracker
+1. Navigate to the **Finance** tab
+2. Use Quick Actions to log Income, Expense, Loan, or Subsidy
+3. Tap **Miscellaneous** for specialized costs (e.g., equipment rental, maintenance)
+4. View **Reports & Analytics** for visual Donut and Bar charts of your finances
+5. Check **Profit Summary** to see your 6-month historical line chart
+6. Consult **AI Insights** for smart suggestions on improving profitability
 
 ### Settings
 1. Navigate to the **Settings** tab

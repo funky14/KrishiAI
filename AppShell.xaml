@@ -25,19 +25,13 @@
             ContentTemplate="{DataTemplate views:CropDiseasePage}"
             Route="disease" />
 
-        <!-- Voice Assistant Tab -->
-        <ShellContent
-            Title="Voice"
-            Icon="microphone.png"
-            ContentTemplate="{DataTemplate views:VoiceAssistantPage}"
-            Route="voice" />
 
-        <!-- History Tab -->
+        <!-- Finance Tab -->
         <ShellContent
-            Title="History"
-            Icon="history.png"
-            ContentTemplate="{DataTemplate views:HistoryPage}"
-            Route="history" />
+            Title="Finance"
+            Icon="wallet.png"
+            ContentTemplate="{DataTemplate views:FinancePage}"
+            Route="finance" />
 
         <!-- Settings Tab -->
         <ShellContent

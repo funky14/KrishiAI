@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KrishiAI.App.ViewModels"
+             xmlns:microcharts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
+             x:Class="KrishiAI.App.Views.FinanceReportsPage"
+             Title="Reports &amp; Analytics"
+             BackgroundColor="#f8f9fa">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="20">
+            
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Frame Padding="15,8" CornerRadius="20" BackgroundColor="#eef8ef" BorderColor="Transparent">
+                    <Label Text="This Month ▾" FontSize="14" TextColor="#0f8d39" FontAttributes="Bold" />
+                </Frame>
+                <Frame Padding="15,8" CornerRadius="20" BackgroundColor="#eef8ef" BorderColor="Transparent">
+                    <Label Text="All Crops ▾" FontSize="14" TextColor="#0f8d39" FontAttributes="Bold" />
+                </Frame>
+            </HorizontalStackLayout>
+
+            <!-- Expense Breakdown -->
+            <Frame Padding="20" CornerRadius="16" HasShadow="False" BorderColor="#e0e0e0" BackgroundColor="White">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Expense Breakdown" FontSize="16" FontAttributes="Bold" TextColor="#2c2c2c" />
+                    
+                    <microcharts:ChartView Chart="{Binding ExpenseChart}" HeightRequest="200" BackgroundColor="Transparent" />
+                    
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#0f8d39" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Income Breakdown -->
+            <Frame Padding="20" CornerRadius="16" HasShadow="False" BorderColor="#e0e0e0" BackgroundColor="White">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Income Breakdown" FontSize="16" FontAttributes="Bold" TextColor="#2c2c2c" />
+                    
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <VerticalStackLayout Spacing="5" Margin="0,0,0,10">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="{Binding Name}" FontSize="12" TextColor="#666" />
+                                    <Label Grid.Column="1" Text="{Binding Amount, StringFormat='₹{0:F0}'}" FontSize="12" FontAttributes="Bold" TextColor="#2c2c2c" />
+                                </Grid>
+                                <ProgressBar Progress="{Binding Percentage}" ProgressColor="{Binding ColorHex}" HeightRequest="8" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                    <BindableLayout.ItemsSource>
+                        <Binding Path="IncomeBreakdown" />
+                    </BindableLayout.ItemsSource>
+                    
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="View Profit Summary" Command="{Binding NavigateToProfitSummaryCommand}"
+                    BackgroundColor="#0f8d39" TextColor="White" FontAttributes="Bold"
+                    CornerRadius="12" HeightRequest="50" Margin="0,10,0,20" />
+                    
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
