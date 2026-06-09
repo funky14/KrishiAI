@@ -151,12 +151,36 @@ public partial class App : Application
     /// </summary>
     public async Task NavigateToLoginAsync()
     {
-        var authViewModel = IPlatformApplication.Current?.Services.GetService<AuthViewModel>();
-        MainPage = new NavigationPage(new LoginPage(authViewModel!))
+        try
         {
-            BarBackgroundColor = (Color)Application.Current!.Resources["Primary"]
-        };
-        System.Diagnostics.Debug.WriteLine("✅ Navigated to LoginPage after logout");
+            System.Diagnostics.Debug.WriteLine("🔄 NavigateToLoginAsync: Starting logout navigation...");
+
+            // Get fresh AuthViewModel
+            var authViewModel = IPlatformApplication.Current?.Services.GetService<AuthViewModel>();
+            if (authViewModel == null)
+            {
+                System.Diagnostics.Debug.WriteLine("❌ AuthViewModel not available");
+                return;
+            }
+
+            // Create login page wrapped in NavigationPage
+            var loginPage = new LoginPage(authViewModel);
+            var navPage = new NavigationPage(loginPage)
+            {
+                BarBackgroundColor = (Color)Application.Current!.Resources["Primary"],
+                BarTextColor = Colors.White
+            };
+
+            // Clear MainPage (removes AppShell completely) and set LoginPage
+            MainPage = navPage;
+
+            System.Diagnostics.Debug.WriteLine("✅ NavigateToLoginAsync: Successfully navigated to LoginPage");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ NavigateToLoginAsync Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌ Stack: {ex.StackTrace}");
+        }
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

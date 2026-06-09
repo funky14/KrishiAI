@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android36.0</TargetFrameworks>
@@ -56,24 +56,21 @@
 
 	<!-- Debug configuration specific settings -->
 	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-		<!-- Enable Fast Deployment for faster iteration in Debug builds -->
-		<AndroidEnableFastDeployment>true</AndroidEnableFastDeployment>
-		<!-- Disable embedding to keep APK small for incremental deployments -->
-		<EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
+		<!-- Fast Deployment disabled: assemblies must be embedded in APK to avoid startup crash -->
+		<AndroidEnableFastDeployment>false</AndroidEnableFastDeployment>
+		<!-- Embed assemblies so Mono runtime can find them on startup -->
+		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
 		<EnableR8>false</EnableR8>
 		<UseProguard>false</UseProguard>
 		<AndroidLinkMode>None</AndroidLinkMode>
-		<!-- Ensure assemblies are not compressed -->
 		<AndroidPackageFormat>apk</AndroidPackageFormat>
 		<AndroidUseAapt2>true</AndroidUseAapt2>
 		<AndroidEnableMultiDex>true</AndroidEnableMultiDex>
 		<AndroidDexTool>d8</AndroidDexTool>
 		<AndroidDisableMultiDexLegacy>false</AndroidDisableMultiDexLegacy>
-		<!-- Enable incremental Java compilation for faster builds -->
 		<AndroidEnableIncrementalJava>true</AndroidEnableIncrementalJava>
-		<!-- Standard deployment timeout -->
-		<DeployTimeout>120000</DeployTimeout>
-		<!-- Initial ADB timeout -->
+		<!-- Extended deployment timeout for emulator -->
+		<DeployTimeout>300000</DeployTimeout>
 		<AdbInitialOutputWaitTime>60</AdbInitialOutputWaitTime>
 		<AndroidProfileOnStart>false</AndroidProfileOnStart>
 	</PropertyGroup>

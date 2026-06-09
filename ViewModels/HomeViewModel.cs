@@ -13,9 +13,6 @@ public partial class HomeViewModel : BaseViewModel
     private string greetingText = string.Empty;
 
     [ObservableProperty]
-    private string farmerText = string.Empty;
-
-    [ObservableProperty]
     private string plantHealthMonitorText = string.Empty;
 
     [ObservableProperty]
@@ -55,9 +52,6 @@ public partial class HomeViewModel : BaseViewModel
     private string farmingTipsText = string.Empty;
 
     [ObservableProperty]
-    private bool isProfileDropdownOpen = false;
-
-    [ObservableProperty]
     private string currentUserName = string.Empty;
 
     [ObservableProperty]
@@ -75,7 +69,6 @@ public partial class HomeViewModel : BaseViewModel
     private void UpdateLocalizedStrings()
     {
         GreetingText = GetTimeBasedGreeting();
-        FarmerText = AppStrings.Farmer;
         PlantHealthMonitorText = AppStrings.PlantHealthMonitor;
         PlantHealthMonitorDescText = AppStrings.PlantHealthMonitorDesc;
         HowCanIHelpYouText = AppStrings.HowCanIHelpYou;
@@ -124,44 +117,6 @@ public partial class HomeViewModel : BaseViewModel
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"❌ Error loading user info: {ex.Message}");
-        }
-    }
-
-    [RelayCommand]
-    private void ToggleProfileDropdown()
-    {
-        IsProfileDropdownOpen = !IsProfileDropdownOpen;
-    }
-
-    [RelayCommand]
-    private async Task LogoutFromProfile()
-    {
-        try
-        {
-            IsBusy = true;
-            var confirm = await Application.Current!.MainPage!.DisplayAlert(
-                "Logout", "Are you sure you want to logout?", "Yes", "No");
-            if (!confirm) 
-            { 
-                IsBusy = false; 
-                return; 
-            }
-
-            await _authenticationService.LogoutAsync();
-            System.Diagnostics.Debug.WriteLine("✅ User logged out successfully");
-
-            // Close dropdown and navigate to login
-            IsProfileDropdownOpen = false;
-            await Shell.Current.GoToAsync("//login");
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"❌ Logout Error: {ex.Message}");
-            await Application.Current!.MainPage!.DisplayAlert("Error", $"Error logging out: {ex.Message}", "OK");
-        }
-        finally 
-        { 
-            IsBusy = false; 
         }
     }
 

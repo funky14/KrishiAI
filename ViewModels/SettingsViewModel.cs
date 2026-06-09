@@ -92,6 +92,15 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty]
     private string versionText = string.Empty;
 
+    [ObservableProperty]
+    private bool isProfileDropdownOpen = false;
+
+    [ObservableProperty]
+    private string currentUserName = string.Empty;
+
+    [ObservableProperty]
+    private string currentUserPhone = string.Empty;
+
     public ObservableCollection<SupportedLanguage> SupportedLanguages { get; set; }
 
     public SettingsViewModel(IDatabaseService databaseService, ILocalizationService localizationService, IAuthenticationService authenticationService)
@@ -107,6 +116,7 @@ public partial class SettingsViewModel : BaseViewModel
         SupportedLanguages = new ObservableCollection<SupportedLanguage>(_localizationService.GetSupportedLanguages());
 
         LoadSettings();
+        LoadCurrentUserInfo();
         UpdateLocalizedStrings();
     }
 
@@ -250,24 +260,20 @@ public partial class SettingsViewModel : BaseViewModel
 
             // Call authentication service logout
             await _authenticationService.LogoutAsync();
-
             System.Diagnostics.Debug.WriteLine("✅ User logged out successfully");
 
-            // Navigate to login page by setting MainPage
-            var authViewModel = IPlatformApplication.Current?.Services.GetService<AuthViewModel>();
-            if (authViewModel != null)
+            // Close dropdown first
+            IsProfileDropdownOpen = false;
+
+            // Use the App's method to navigate to login - cleaner and safer
+            if (Application.Current is App app)
             {
-                var loginPage = new LoginPage(authViewModel);
-                Application.Current!.MainPage = new NavigationPage(loginPage)
-                {
-                    BarBackgroundColor = (Color)Application.Current.Resources["Primary"],
-                    BarTextColor = Colors.White
-                };
-                System.Diagnostics.Debug.WriteLine("✅ Navigated to LoginPage");
+                await app.NavigateToLoginAsync();
+                System.Diagnostics.Debug.WriteLine("✅ Navigated to LoginPage via App method");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("❌ AuthViewModel not available");
+                System.Diagnostics.Debug.WriteLine("❌ Failed to get App instance");
                 ErrorMessage = "Failed to navigate to login";
             }
         }
@@ -284,5 +290,50 @@ public partial class SettingsViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    private void LoadCurrentUserInfo()
+    {
+        try
+        {
+            var currentUser = _authenticationService.GetCurrentUserAsync().GetAwaiter().GetResult();
+            if (currentUser != null)
+            {
+                CurrentUserName = currentUser.FullName ?? "User";
+                CurrentUserPhone = currentUser.PhoneNumber ?? "No phone number";
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ Error loading user info: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task EditProfile()
+    {
+        try
+        {
+            // Close dropdown first
+            IsProfileDropdownOpen = false;
+
+            // Show a message indicating Edit Profile feature
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Edit Profile",
+                "Edit Profile feature will be available soon.",
+                "OK");
+
+            System.Diagnostics.Debug.WriteLine("📝 Edit Profile button clicked");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ Edit Profile Error: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void ToggleProfileDropdown()
+    {
+        IsProfileDropdownOpen = !IsProfileDropdownOpen;
     }
 }
