@@ -93,4 +93,31 @@ public partial class FinanceHistoryViewModel : BaseViewModel
             }
         }
     }
+
+    [RelayCommand]
+    public async Task EditTransactionAsync(FinanceTransaction transaction)
+    {
+        if (transaction == null) return;
+
+        var navParams = new Dictionary<string, object>
+        {
+            { "TransactionToEdit", transaction }
+        };
+
+        string route = transaction.TransactionType switch
+        {
+            "Expense" => "AddExpensePage",
+            "Income" => "AddIncomePage",
+            "Loan" => "AddLoanPage",
+            "Subsidy" => "AddSubsidyPage",
+            "Misc" => "AddMiscellaneousPage",
+            "Miscellaneous" => "AddMiscellaneousPage",
+            _ => null
+        };
+
+        if (route != null)
+        {
+            await Shell.Current.GoToAsync(route, navParams);
+        }
+    }
 }

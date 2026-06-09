@@ -8,6 +8,7 @@ using KrishiAI.App.Services;
 
 namespace KrishiAI.App.ViewModels;
 
+[QueryProperty(nameof(TransactionToEdit), "TransactionToEdit")]
 public partial class AddMiscellaneousViewModel : BaseViewModel
 {
     private readonly IFinanceService _financeService;
@@ -23,6 +24,33 @@ public partial class AddMiscellaneousViewModel : BaseViewModel
 
     [ObservableProperty]
     private string notes = string.Empty;
+
+    [ObservableProperty]
+    private string pageTitle = "Add Miscellaneous";
+
+    private FinanceTransaction? _transactionToEdit;
+    public FinanceTransaction? TransactionToEdit
+    {
+        get => _transactionToEdit;
+        set
+        {
+            _transactionToEdit = value;
+            if (value != null)
+            {
+                PageTitle = "Edit Miscellaneous";
+                var categoryToSelect = Categories.FirstOrDefault(c => c.Name == value.MiscCategory) ?? Categories.FirstOrDefault();
+                if (categoryToSelect != null)
+                {
+                    SelectCategory(categoryToSelect);
+                }
+                
+                TransactionName = value.Description ?? "";
+                Amount = value.Amount;
+                TransactionDate = value.TransactionDate;
+                Notes = value.Notes ?? "";
+            }
+        }
+    }
 
     public ObservableCollection<CategoryItem> Categories { get; } = new();
 
@@ -74,28 +102,41 @@ public partial class AddMiscellaneousViewModel : BaseViewModel
         {
             var categoryName = SelectedCategory?.Name ?? "Custom Entry";
             var direction = (categoryName.Contains("Income") || categoryName.Contains("Rental")) ? "Incoming" : "Outgoing";
-
-            var misc = new FinanceTransaction
+            
+            if (_transactionToEdit != null)
             {
-                UserId = "demo_user",
-                TransactionType = "Misc",
-                Category = "Misc",
-                MiscCategory = categoryName,
-                Description = TransactionName,
-                Amount = Amount,
-                TransactionDirection = direction,
-                TransactionDate = TransactionDate,
-                CreatedDate = DateTime.Now,
-                Notes = Notes
-            };
+                _transactionToEdit.MiscCategory = categoryName;
+                _transactionToEdit.Description = TransactionName;
+                _transactionToEdit.Amount = Amount;
+                _transactionToEdit.TransactionDirection = direction;
+                _transactionToEdit.TransactionDate = TransactionDate;
+                _transactionToEdit.Notes = Notes;
+                
+                await _financeService.UpdateMiscTransactionAsync(_transactionToEdit);
+                await Toast.Make("Transaction updated successfully", ToastDuration.Short, 14).Show();
+            }
+            else
+            {
+                var misc = new FinanceTransaction
+                {
+                    UserId = "demo_user",
+                    TransactionType = "Misc",
+                    Category = "Misc",
+                    MiscCategory = categoryName,
+                    Description = TransactionName,
+                    Amount = Amount,
+                    TransactionDirection = direction,
+                    TransactionDate = TransactionDate,
+                    CreatedDate = DateTime.Now,
+                    Notes = Notes
+                };
 
-            await _financeService.AddMiscTransactionAsync(misc);
+                await _financeService.AddMiscTransactionAsync(misc);
+                await Toast.Make("Transaction saved successfully", ToastDuration.Short, 14).Show();
+            }
             
             // Navigate back
             await Shell.Current.GoToAsync("..");
-
-            // Show mobile-friendly success message
-            await Toast.Make("Transaction saved successfully", ToastDuration.Short, 14).Show();
         }
         catch (Exception ex)
         {

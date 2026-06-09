@@ -8,6 +8,7 @@ using KrishiAI.App.Services;
 
 namespace KrishiAI.App.ViewModels;
 
+[QueryProperty(nameof(TransactionToEdit), "TransactionToEdit")]
 public partial class AddIncomeViewModel : BaseViewModel
 {
     private readonly IFinanceService _financeService;
@@ -38,6 +39,44 @@ public partial class AddIncomeViewModel : BaseViewModel
 
     [ObservableProperty]
     private DateTime transactionDate = DateTime.Now;
+
+    [ObservableProperty]
+    private string pageTitle = "Add Income";
+
+    private FinanceTransaction? _transactionToEdit;
+    public FinanceTransaction? TransactionToEdit
+    {
+        get => _transactionToEdit;
+        set
+        {
+            _transactionToEdit = value;
+            if (value != null)
+            {
+                PageTitle = "Edit Income";
+                var categoryToSelect = Categories.FirstOrDefault(c => c.Name == value.Category) ?? Categories.FirstOrDefault();
+                if (categoryToSelect != null)
+                {
+                    SelectCategory(categoryToSelect);
+                }
+                
+                TransactionDate = value.TransactionDate;
+                BuyerName = value.BuyerName ?? "";
+                
+                if (IsCropSale)
+                {
+                    CropName = value.CropName ?? "";
+                    Quantity = value.Quantity;
+                    QuantityUnit = value.QuantityUnit ?? "Quintals";
+                    PricePerUnit = value.PricePerUnit;
+                }
+                else
+                {
+                    ItemName = value.Description ?? "";
+                    TotalAmount = value.Amount;
+                }
+            }
+        }
+    }
 
     public ObservableCollection<CategoryItem> Categories { get; } = new();
 
@@ -106,42 +145,72 @@ public partial class AddIncomeViewModel : BaseViewModel
         try
         {
             var categoryName = SelectedCategory?.Name ?? "General";
-            var income = new FinanceTransaction
+            
+            if (_transactionToEdit != null)
             {
-                UserId = "user123",
-                TransactionType = "Income",
-                Category = categoryName,
-                TransactionDate = TransactionDate,
-                CreatedDate = DateTime.Now,
-                BuyerName = BuyerName
-            };
+                _transactionToEdit.Category = categoryName;
+                _transactionToEdit.TransactionDate = TransactionDate;
+                _transactionToEdit.BuyerName = BuyerName;
 
-            if (IsCropSale)
-            {
-                income.CropName = CropName;
-                income.Quantity = Quantity;
-                income.QuantityUnit = QuantityUnit;
-                income.PricePerUnit = PricePerUnit;
-                income.Amount = Quantity * PricePerUnit;
-                income.Description = "Crop Sale";
+                if (IsCropSale)
+                {
+                    _transactionToEdit.CropName = CropName;
+                    _transactionToEdit.Quantity = Quantity;
+                    _transactionToEdit.QuantityUnit = QuantityUnit;
+                    _transactionToEdit.PricePerUnit = PricePerUnit;
+                    _transactionToEdit.Amount = Quantity * PricePerUnit;
+                    _transactionToEdit.Description = "Crop Sale";
+                }
+                else
+                {
+                    _transactionToEdit.CropName = "N/A";
+                    _transactionToEdit.Quantity = 1;
+                    _transactionToEdit.QuantityUnit = "Units";
+                    _transactionToEdit.PricePerUnit = TotalAmount;
+                    _transactionToEdit.Amount = TotalAmount;
+                    _transactionToEdit.Description = ItemName;
+                }
+
+                await _financeService.UpdateIncomeAsync(_transactionToEdit);
+                await Toast.Make("Income updated successfully", ToastDuration.Short, 14).Show();
             }
             else
             {
-                income.CropName = "N/A";
-                income.Quantity = 1;
-                income.QuantityUnit = "Units";
-                income.PricePerUnit = TotalAmount;
-                income.Amount = TotalAmount;
-                income.Description = ItemName;
-            }
+                var income = new FinanceTransaction
+                {
+                    UserId = "user123",
+                    TransactionType = "Income",
+                    Category = categoryName,
+                    TransactionDate = TransactionDate,
+                    CreatedDate = DateTime.Now,
+                    BuyerName = BuyerName
+                };
 
-            await _financeService.AddIncomeAsync(income);
+                if (IsCropSale)
+                {
+                    income.CropName = CropName;
+                    income.Quantity = Quantity;
+                    income.QuantityUnit = QuantityUnit;
+                    income.PricePerUnit = PricePerUnit;
+                    income.Amount = Quantity * PricePerUnit;
+                    income.Description = "Crop Sale";
+                }
+                else
+                {
+                    income.CropName = "N/A";
+                    income.Quantity = 1;
+                    income.QuantityUnit = "Units";
+                    income.PricePerUnit = TotalAmount;
+                    income.Amount = TotalAmount;
+                    income.Description = ItemName;
+                }
+
+                await _financeService.AddIncomeAsync(income);
+                await Toast.Make("Income saved successfully", ToastDuration.Short, 14).Show();
+            }
             
             // Navigate back
             await Shell.Current.GoToAsync("..");
-
-            // Show mobile-friendly success message
-            await Toast.Make("Income saved successfully", ToastDuration.Short, 14).Show();
         }
         catch (Exception ex)
         {

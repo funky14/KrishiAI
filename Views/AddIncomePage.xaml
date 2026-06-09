@@ -4,7 +4,7 @@
              xmlns:vm="clr-namespace:KrishiAI.App.ViewModels"
              xmlns:models="clr-namespace:KrishiAI.App.Models"
              x:Class="KrishiAI.App.Views.AddIncomePage"
-             Title="Add Income"
+             Title="{Binding PageTitle}"
              BackgroundColor="#f8f9fa">
 
     <ContentPage.ToolbarItems>
@@ -124,7 +124,7 @@
                 <DatePicker Date="{Binding TransactionDate}" Format="dd - MM - yyyy" Margin="10,0" />
             </Frame>
 
-            <Button Text="Save Income" Command="{Binding SaveIncomeCommand}"
+            <Button Text="Save" Command="{Binding SaveIncomeCommand}"
                     BackgroundColor="#0f8d39" TextColor="White" FontAttributes="Bold"
                     CornerRadius="12" HeightRequest="50" Margin="0,20,0,20" />
                     

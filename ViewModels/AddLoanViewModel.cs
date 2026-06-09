@@ -8,6 +8,7 @@ using KrishiAI.App.Services;
 
 namespace KrishiAI.App.ViewModels;
 
+[QueryProperty(nameof(TransactionToEdit), "TransactionToEdit")]
 public partial class AddLoanViewModel : BaseViewModel
 {
     private readonly IFinanceService _financeService;
@@ -35,6 +36,34 @@ public partial class AddLoanViewModel : BaseViewModel
 
     [ObservableProperty]
     private string lenderNamePlaceholder = "Enter bank name";
+
+    [ObservableProperty]
+    private string pageTitle = "Add Loan";
+
+    private FinanceTransaction? _transactionToEdit;
+    public FinanceTransaction? TransactionToEdit
+    {
+        get => _transactionToEdit;
+        set
+        {
+            _transactionToEdit = value;
+            if (value != null)
+            {
+                PageTitle = "Edit Loan";
+                var categoryToSelect = Categories.FirstOrDefault(c => c.Name == value.LoanType) ?? Categories.FirstOrDefault();
+                if (categoryToSelect != null)
+                {
+                    SelectCategory(categoryToSelect);
+                }
+                
+                LoanName = value.Description ?? "";
+                Amount = value.Amount;
+                LenderName = value.LenderName ?? "";
+                TransactionDate = value.TransactionDate;
+                Notes = value.Notes ?? "";
+            }
+        }
+    }
 
     public ObservableCollection<CategoryItem> Categories { get; } = new();
 
@@ -114,29 +143,44 @@ public partial class AddLoanViewModel : BaseViewModel
         try
         {
             var categoryName = SelectedCategory?.Name ?? "General";
-            var loan = new FinanceTransaction
+            
+            if (_transactionToEdit != null)
             {
-                UserId = "user123",
-                TransactionType = "Loan",
-                Category = "Loan",
-                LoanType = categoryName,
-                Description = LoanName,
-                Amount = Amount,
-                RemainingAmount = Amount,
-                LenderName = LenderName,
-                TransactionDate = TransactionDate,
-                CreatedDate = DateTime.Now,
-                DueDate = TransactionDate.AddYears(1), // Default due date 1 year
-                Notes = Notes
-            };
+                _transactionToEdit.LoanType = categoryName;
+                _transactionToEdit.Description = LoanName;
+                _transactionToEdit.Amount = Amount;
+                _transactionToEdit.RemainingAmount = Amount;
+                _transactionToEdit.LenderName = LenderName;
+                _transactionToEdit.TransactionDate = TransactionDate;
+                _transactionToEdit.Notes = Notes;
+                
+                await _financeService.UpdateLoanAsync(_transactionToEdit);
+                await Toast.Make("Loan updated successfully", ToastDuration.Short, 14).Show();
+            }
+            else
+            {
+                var loan = new FinanceTransaction
+                {
+                    UserId = "user123",
+                    TransactionType = "Loan",
+                    Category = "Loan",
+                    LoanType = categoryName,
+                    Description = LoanName,
+                    Amount = Amount,
+                    RemainingAmount = Amount,
+                    LenderName = LenderName,
+                    TransactionDate = TransactionDate,
+                    CreatedDate = DateTime.Now,
+                    DueDate = TransactionDate.AddYears(1), // Default due date 1 year
+                    Notes = Notes
+                };
 
-            await _financeService.AddLoanAsync(loan);
+                await _financeService.AddLoanAsync(loan);
+                await Toast.Make("Loan saved successfully", ToastDuration.Short, 14).Show();
+            }
             
             // Navigate back
             await Shell.Current.GoToAsync("..");
-
-            // Show success message
-            await Toast.Make("Loan saved successfully", ToastDuration.Short, 14).Show();
         }
         catch (Exception ex)
         {

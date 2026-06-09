@@ -4,7 +4,7 @@
              xmlns:vm="clr-namespace:KrishiAI.App.ViewModels"
              xmlns:models="clr-namespace:KrishiAI.App.Models"
              x:Class="KrishiAI.App.Views.AddExpensePage"
-             Title="Add Expense"
+             Title="{Binding PageTitle}"
              BackgroundColor="#f8f9fa">
 
     <ContentPage.ToolbarItems>
@@ -80,7 +80,7 @@
                 <Editor Placeholder="Add notes" Text="{Binding Notes}" HeightRequest="80" Margin="10,0" />
             </Frame>
 
-            <Button Text="Save Expense" Command="{Binding SaveExpenseCommand}"
+            <Button Text="Save" Command="{Binding SaveExpenseCommand}"
                     BackgroundColor="#0f8d39" TextColor="White" FontAttributes="Bold"
                     CornerRadius="12" HeightRequest="50" Margin="0,20,0,20" />
                     

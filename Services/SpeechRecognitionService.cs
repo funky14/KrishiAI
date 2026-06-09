@@ -103,13 +103,15 @@ public class SpeechRecognitionService : ISpeechRecognitionService
         return new List<SupportedLanguage>
         {
             new SupportedLanguage { LanguageCode = "en-US", LanguageName = "English", NativeName = "English", VoiceName = "en-US-JennyNeural" },
+            new SupportedLanguage { LanguageCode = "kn-IN", LanguageName = "Kannada", NativeName = "ಕನ್ನಡ", VoiceName = "kn-IN-GaganNeural" },
             new SupportedLanguage { LanguageCode = "hi-IN", LanguageName = "Hindi", NativeName = "हिंदी", VoiceName = "hi-IN-SwaraNeural" },
             new SupportedLanguage { LanguageCode = "mr-IN", LanguageName = "Marathi", NativeName = "मराठी", VoiceName = "mr-IN-AarohiNeural" },
             new SupportedLanguage { LanguageCode = "ta-IN", LanguageName = "Tamil", NativeName = "தமிழ்", VoiceName = "ta-IN-PallaviNeural" },
             new SupportedLanguage { LanguageCode = "te-IN", LanguageName = "Telugu", NativeName = "తెలుగు", VoiceName = "te-IN-ShrutiNeural" },
-            new SupportedLanguage { LanguageCode = "pa-IN", LanguageName = "Punjabi", NativeName = "ਪੰਜਾਬੀ", VoiceName = "pa-IN-GauriNeural" },
+            new SupportedLanguage { LanguageCode = "pa-IN", LanguageName = "Punjabi", NativeName = "ਪੰਜਾਬੀ", VoiceName = "pa-IN-GianNeural" },
             new SupportedLanguage { LanguageCode = "gu-IN", LanguageName = "Gujarati", NativeName = "ગુજરાતી", VoiceName = "gu-IN-DhwaniNeural" },
-            new SupportedLanguage { LanguageCode = "bn-IN", LanguageName = "Bengali", NativeName = "বাংলা", VoiceName = "bn-IN-TanishaaNeural" }
+            new SupportedLanguage { LanguageCode = "ml-IN", LanguageName = "Malayalam", NativeName = "മലയാളം", VoiceName = "ml-IN-SobhanaNeural" },
+            new SupportedLanguage { LanguageCode = "bn-IN", LanguageName = "Bengali", NativeName = "বাংলা", VoiceName = "bn-IN-BashkarNeural" }
         };
     }
 
@@ -118,10 +120,15 @@ public class SpeechRecognitionService : ISpeechRecognitionService
         var mockPhrases = new Dictionary<string, string>
         {
             ["en-US"] = "My tomato plants have yellow leaves",
+            ["kn-IN"] = "ನನ್ನ ಟೊಮೆಟೊ ಗಿಡಗಳು ಹಳದಿ ಎಲೆಗಳನ್ನು ಹೊಂದಿವೆ",
             ["hi-IN"] = "मेरे टमाटर के पौधों की पत्तियां पीली हो रही हैं",
             ["mr-IN"] = "माझ्या टोमॅटोच्या झाडांची पाने पिवळी होत आहेत",
             ["ta-IN"] = "என் தக்காளி செடிகளின் இலைகள் மஞ்சள் நிறமாக உள்ளன",
-            ["te-IN"] = "నా టమోటా మొక్కల ఆకులు పసుపు రంగులో ఉన్నాయి"
+            ["te-IN"] = "నా టమోటా మొక్కల ఆకులు పసుపు రంగులో ఉన్నాయి",
+            ["pa-IN"] = "ਮੇਰੇ ਟਮਾਟਰ ਦੇ ਪੌਦਿਆਂ ਦੇ ਪੱਤੇ ਪੀਲੇ ਹਨ",
+            ["gu-IN"] = "મારા ટામેટાંના છોડમાં પીળા પાંદડા છે",
+            ["ml-IN"] = "എൻ്റെ തക്കാളി ചെടികൾക്ക് മഞ്ഞ ഇലകളുണ്ട്",
+            ["bn-IN"] = "আমার টমেটো গাছের পাতা হলুদ হয়ে গেছে"
         };
 
         return mockPhrases.TryGetValue(languageCode, out var phrase) ? phrase : mockPhrases["en-US"];

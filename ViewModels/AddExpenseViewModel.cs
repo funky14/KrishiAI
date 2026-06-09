@@ -8,6 +8,7 @@ using KrishiAI.App.Services;
 
 namespace KrishiAI.App.ViewModels;
 
+[QueryProperty(nameof(TransactionToEdit), "TransactionToEdit")]
 public partial class AddExpenseViewModel : BaseViewModel
 {
     private readonly IFinanceService _financeService;
@@ -23,6 +24,33 @@ public partial class AddExpenseViewModel : BaseViewModel
 
     [ObservableProperty]
     private string notes = string.Empty;
+
+    [ObservableProperty]
+    private string pageTitle = "Add Expense";
+
+    private FinanceTransaction? _transactionToEdit;
+    public FinanceTransaction? TransactionToEdit
+    {
+        get => _transactionToEdit;
+        set
+        {
+            _transactionToEdit = value;
+            if (value != null)
+            {
+                PageTitle = "Edit Expense";
+                ExpenseName = value.ExpenseName ?? value.Description ?? value.CropName ?? "";
+                Amount = value.Amount;
+                TransactionDate = value.TransactionDate;
+                Notes = value.Notes ?? "";
+                
+                var categoryToSelect = Categories.FirstOrDefault(c => c.Name == value.Category);
+                if (categoryToSelect != null)
+                {
+                    SelectCategory(categoryToSelect);
+                }
+            }
+        }
+    }
 
     public ObservableCollection<CategoryItem> Categories { get; } = new();
 
@@ -75,26 +103,42 @@ public partial class AddExpenseViewModel : BaseViewModel
         try
         {
             var categoryName = SelectedCategory?.Name ?? "General";
-            var expense = new FinanceTransaction
+            
+            if (_transactionToEdit != null)
             {
-                UserId = "user123", // TODO: Get from auth service
-                TransactionType = "Expense",
-                Category = categoryName,
-                ExpenseCategory = categoryName,
-                ExpenseName = ExpenseName,
-                Amount = Amount,
-                TransactionDate = TransactionDate,
-                CreatedDate = DateTime.Now,
-                Notes = Notes
-            };
+                _transactionToEdit.Category = categoryName;
+                _transactionToEdit.ExpenseCategory = categoryName;
+                _transactionToEdit.ExpenseName = ExpenseName;
+                _transactionToEdit.Description = ExpenseName;
+                _transactionToEdit.Amount = Amount;
+                _transactionToEdit.TransactionDate = TransactionDate;
+                _transactionToEdit.Notes = Notes;
+                
+                await _financeService.UpdateExpenseAsync(_transactionToEdit);
+                await Toast.Make("Expense updated successfully", ToastDuration.Short, 14).Show();
+            }
+            else
+            {
+                var expense = new FinanceTransaction
+                {
+                    UserId = "user123", // TODO: Get from auth service
+                    TransactionType = "Expense",
+                    Category = categoryName,
+                    ExpenseCategory = categoryName,
+                    ExpenseName = ExpenseName,
+                    Description = ExpenseName,
+                    Amount = Amount,
+                    TransactionDate = TransactionDate,
+                    CreatedDate = DateTime.Now,
+                    Notes = Notes
+                };
 
-            await _financeService.AddExpenseAsync(expense);
+                await _financeService.AddExpenseAsync(expense);
+                await Toast.Make("Expense saved successfully", ToastDuration.Short, 14).Show();
+            }
             
             // Navigate back
             await Shell.Current.GoToAsync("..");
-
-            // Show mobile-friendly success message
-            await Toast.Make("Expense saved successfully", ToastDuration.Short, 14).Show();
         }
         catch (Exception ex)
         {

@@ -30,7 +30,7 @@ public partial class FinanceVoiceEntryViewModel : BaseViewModel
     [ObservableProperty]
     private bool hasResult;
 
-    public List<string> Languages { get; } = new() { "English", "Hindi", "Marathi", "Gujarati" };
+    public List<string> Languages { get; private set; }
 
     public FinanceVoiceEntryViewModel(
         IAIChatService aiService, 
@@ -44,6 +44,9 @@ public partial class FinanceVoiceEntryViewModel : BaseViewModel
         _speechService = speechService;
         _ttsService = ttsService;
         _localizationService = localizationService;
+        
+        Languages = _localizationService.GetSupportedLanguages().Select(l => l.LanguageName).ToList();
+        selectedLanguage = Languages.FirstOrDefault() ?? "English";
     }
 
     [RelayCommand]
@@ -57,7 +60,7 @@ public partial class FinanceVoiceEntryViewModel : BaseViewModel
 
         try
         {
-            var languageCode = _localizationService.GetCurrentLanguageCode();
+            var languageCode = GetLanguageCode();
             var transcription = await _speechService.StartListeningAsync(languageCode);
             
             if (!string.IsNullOrWhiteSpace(transcription))
@@ -195,7 +198,7 @@ If ANY mandatory field is missing, output a friendly question in the user's lang
 
     public async Task SpeakGreetingAsync()
     {
-        var languageCode = _localizationService.GetCurrentLanguageCode();
+        var languageCode = GetLanguageCode();
         
         var greetings = new Dictionary<string, string>
         {
@@ -206,7 +209,9 @@ If ANY mandatory field is missing, output a friendly question in the user's lang
             ["te-IN"] = "నమస్కారం. మీరు ఏ ఆర్థిక లావాదేవీని రికార్డ్ చేయాలనుకుంటున్నారు?",
             ["pa-IN"] = "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ। ਤੁਸੀਂ ਕਿਹੜਾ ਵਿੱਤੀ ਲੈਣ-ਦੇਣ ਰਿਕਾਰਡ ਕਰਨਾ ਚਾਹੋਗੇ?",
             ["gu-IN"] = "નમસ્તે. તમે કયો નાણાકીય વ્યવહાર નોંધવા માંગો છો?",
-            ["bn-IN"] = "নমস্কার। আপনি কোন আর্থিক লেনদেন রেকর্ড করতে চান?"
+            ["ml-IN"] = "നമസ്കാരം. ഏത് സാമ്പത്തിക ഇടപാടാണ് നിങ്ങൾ രേഖപ്പെടുത്താൻ ആഗ്രഹിക്കുന്നത്?",
+            ["bn-IN"] = "নমস্কার। আপনি কোন আর্থিক লেনদেন রেকর্ড করতে চান?",
+            ["kn-IN"] = "ನಮಸ್ಕಾರ. ನೀವು ಯಾವ ಹಣಕಾಸು ವ್ಯವಹಾರವನ್ನು ದಾಖಲಿಸಲು ಬಯಸುತ್ತೀರಿ?"
         };
 
         if (!greetings.TryGetValue(languageCode, out string greeting))
@@ -219,5 +224,16 @@ If ANY mandatory field is missing, output a friendly question in the user's lang
             AiResponseText = greeting;
             await _ttsService.SpeakAsync(greeting, languageCode);
         }
+    }
+
+    public void StopSpeech()
+    {
+        _ = _ttsService.StopAsync();
+    }
+
+    private string GetLanguageCode()
+    {
+        var lang = _localizationService.GetSupportedLanguages().FirstOrDefault(l => l.LanguageName == SelectedLanguage);
+        return lang?.LanguageCode ?? "en-US";
     }
 }

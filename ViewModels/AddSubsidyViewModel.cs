@@ -8,6 +8,7 @@ using KrishiAI.App.Services;
 
 namespace KrishiAI.App.ViewModels;
 
+[QueryProperty(nameof(TransactionToEdit), "TransactionToEdit")]
 public partial class AddSubsidyViewModel : BaseViewModel
 {
     private readonly IFinanceService _financeService;
@@ -26,6 +27,33 @@ public partial class AddSubsidyViewModel : BaseViewModel
 
     [ObservableProperty]
     private string schemeNamePlaceholder = "Enter scheme name (e.g. PM-KISAN)";
+
+    [ObservableProperty]
+    private string pageTitle = "Add Subsidy";
+
+    private FinanceTransaction? _transactionToEdit;
+    public FinanceTransaction? TransactionToEdit
+    {
+        get => _transactionToEdit;
+        set
+        {
+            _transactionToEdit = value;
+            if (value != null)
+            {
+                PageTitle = "Edit Subsidy";
+                var categoryToSelect = Categories.FirstOrDefault(c => c.Name == value.SubsidyType) ?? Categories.FirstOrDefault();
+                if (categoryToSelect != null)
+                {
+                    SelectCategory(categoryToSelect);
+                }
+                
+                SchemeName = value.SchemeName ?? "";
+                Amount = value.Amount;
+                TransactionDate = value.TransactionDate;
+                Notes = value.Notes ?? "";
+            }
+        }
+    }
 
     public ObservableCollection<CategoryItem> Categories { get; } = new();
 
@@ -105,28 +133,43 @@ public partial class AddSubsidyViewModel : BaseViewModel
         try
         {
             var categoryName = SelectedCategory?.Name ?? "General";
-            var subsidy = new FinanceTransaction
+            
+            if (_transactionToEdit != null)
             {
-                UserId = "user123",
-                TransactionType = "Subsidy",
-                Category = "Subsidy",
-                SubsidyType = categoryName,
-                SchemeName = SchemeName,
-                Description = SchemeName,
-                Amount = Amount,
-                TransactionDate = TransactionDate,
-                ReceivedDate = TransactionDate,
-                CreatedDate = DateTime.Now,
-                Notes = Notes
-            };
+                _transactionToEdit.SubsidyType = categoryName;
+                _transactionToEdit.SchemeName = SchemeName;
+                _transactionToEdit.Description = SchemeName;
+                _transactionToEdit.Amount = Amount;
+                _transactionToEdit.TransactionDate = TransactionDate;
+                _transactionToEdit.ReceivedDate = TransactionDate;
+                _transactionToEdit.Notes = Notes;
+                
+                await _financeService.UpdateSubsidyAsync(_transactionToEdit);
+                await Toast.Make("Subsidy updated successfully", ToastDuration.Short, 14).Show();
+            }
+            else
+            {
+                var subsidy = new FinanceTransaction
+                {
+                    UserId = "user123",
+                    TransactionType = "Subsidy",
+                    Category = "Subsidy",
+                    SubsidyType = categoryName,
+                    SchemeName = SchemeName,
+                    Description = SchemeName,
+                    Amount = Amount,
+                    TransactionDate = TransactionDate,
+                    ReceivedDate = TransactionDate,
+                    CreatedDate = DateTime.Now,
+                    Notes = Notes
+                };
 
-            await _financeService.AddSubsidyAsync(subsidy);
+                await _financeService.AddSubsidyAsync(subsidy);
+                await Toast.Make("Subsidy saved successfully", ToastDuration.Short, 14).Show();
+            }
             
             // Navigate back
             await Shell.Current.GoToAsync("..");
-
-            // Show success message
-            await Toast.Make("Subsidy saved successfully", ToastDuration.Short, 14).Show();
         }
         catch (Exception ex)
         {
