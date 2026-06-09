@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11822.322
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KrishiAI.App", "KrishiAI.App.csproj", "{C3D957CC-8E8E-B359-3292-E3E88912D93B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C3D957CC-8E8E-B359-3292-E3E88912D93B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3D957CC-8E8E-B359-3292-E3E88912D93B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3D957CC-8E8E-B359-3292-E3E88912D93B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{C3D957CC-8E8E-B359-3292-E3E88912D93B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3D957CC-8E8E-B359-3292-E3E88912D93B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E54F4E85-C06C-4252-B4E7-0FAC1FB03066}
+	EndGlobalSection
+EndGlobal

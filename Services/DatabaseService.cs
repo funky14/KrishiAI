@@ -16,20 +16,77 @@ public class DatabaseService : IDatabaseService
                 return;
 
             var dbPath = Path.Combine(FileSystem.AppDataDirectory, "krishiai.db3");
+            Debug.WriteLine($"💾 Database Path: {dbPath}");
+            Debug.WriteLine($"💾 AppDataDirectory: {FileSystem.AppDataDirectory}");
+
             _database = new SQLiteAsyncConnection(dbPath);
+
+            Debug.WriteLine("📊 Creating User table...");
+            await _database.CreateTableAsync<User>();
+            Debug.WriteLine("📊 User table created successfully");
+
+            Debug.WriteLine("📊 Creating DiseaseDetectionResult table...");
             await _database.CreateTableAsync<DiseaseDetectionResult>();
-            Debug.WriteLine($"Database initialized at: {dbPath}");
+            Debug.WriteLine("📊 DiseaseDetectionResult table created successfully");
+
+            Debug.WriteLine($"✅ Database initialized at: {dbPath}");
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"InitializeAsync Error: {ex.Message}");
+            Debug.WriteLine($"❌ InitializeAsync Error: {ex.Message}");
+            Debug.WriteLine($"❌ Stack trace: {ex.StackTrace}");
         }
     }
+
+    // ===== USER MANAGEMENT =====
+
+    public async Task<int> SaveUserAsync(User user)
+    {
+        await InitializeAsync();
+
+        if (user.Id == 0)
+        {
+            return await _database!.InsertAsync(user);
+        }
+        else
+        {
+            return await _database!.UpdateAsync(user);
+        }
+    }
+
+    public async Task<User?> GetUserByEmailAsync(string email)
+    {
+        await InitializeAsync();
+        return await _database!.Table<User>()
+            .FirstOrDefaultAsync(x => x.Email == email);
+    }
+
+    public async Task<User?> GetUserByIdAsync(int id)
+    {
+        await InitializeAsync();
+        return await _database!.GetAsync<User>(id);
+    }
+
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        await InitializeAsync();
+        return await _database!.Table<User>().ToListAsync();
+    }
+
+    public async Task<bool> UserExistsAsync(string email)
+    {
+        await InitializeAsync();
+        var user = await _database!.Table<User>()
+            .FirstOrDefaultAsync(x => x.Email == email);
+        return user != null;
+    }
+
+    // ===== DETECTION HISTORY =====
 
     public async Task<int> SaveDetectionAsync(DiseaseDetectionResult result)
     {
         await InitializeAsync();
-        
+
         if (result.Id == 0)
         {
             return await _database!.InsertAsync(result);

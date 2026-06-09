@@ -21,7 +21,7 @@
                     <Label Text="{Binding GreetingText}" 
                            FontSize="14" 
                            TextColor="#666666"/>
-                    <Label Text="{Binding FarmerText}" 
+                    <Label Text="{Binding CurrentUserName}" 
                            FontSize="32" 
                            FontAttributes="Bold"
                            TextColor="#2E7D32"/>

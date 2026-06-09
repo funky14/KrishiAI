@@ -43,12 +43,19 @@ public static class MauiProgram
         builder.Services.AddSingleton<IFinanceService, FinanceService>();                  // Connectivity-aware router (SQLite offline / Azure SQL online)
         builder.Services.AddSingleton<FinanceSyncService>();                               // Pushes offline SQLite records to Azure SQL on reconnect
         
+
+        // SQL Server Authentication Services
+        builder.Services.AddSingleton<ISqlServerConnectionService, SqlServerConnectionService>();
+        builder.Services.AddSingleton<ISqlServerUserService, SqlServerUserService>();
+        builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
+
         // Register sync services (Phase 3)
         builder.Services.AddSingleton<HttpClient>();
         builder.Services.AddSingleton<IHistorySyncService, HistorySyncService>();
         builder.Services.AddSingleton<SyncQueueManager>();
 
         // Register ViewModels
+        builder.Services.AddSingleton<AuthViewModel>();
         builder.Services.AddSingleton<HomeViewModel>();
         builder.Services.AddSingleton<CropDiseaseViewModel>();
         builder.Services.AddSingleton<VoiceAssistantViewModel>();
@@ -67,8 +74,12 @@ public static class MauiProgram
         builder.Services.AddTransient<FinanceReportsViewModel>();
         builder.Services.AddTransient<ProfitSummaryViewModel>();
         builder.Services.AddTransient<AiInsightsViewModel>();
+        builder.Services.AddSingleton<EditProfileViewModel>();
 
         // Register Views with DI
+        builder.Services.AddSingleton<LoginPage>();
+        builder.Services.AddSingleton<SignupPage>();
+        builder.Services.AddSingleton<ForgotPasswordPage>();
         builder.Services.AddSingleton<HomePage>();
         builder.Services.AddSingleton<CropDiseasePage>();
         builder.Services.AddSingleton<VoiceAssistantPage>();
@@ -87,6 +98,7 @@ public static class MauiProgram
         builder.Services.AddTransient<FinanceReportsPage>();
         builder.Services.AddTransient<ProfitSummaryPage>();
         builder.Services.AddTransient<AiInsightsPage>();
+        builder.Services.AddSingleton<EditProfilePage>();
 
         return builder.Build();
     }

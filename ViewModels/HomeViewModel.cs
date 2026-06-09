@@ -7,11 +7,10 @@ namespace KrishiAI.App.ViewModels;
 
 public partial class HomeViewModel : BaseViewModel
 {
-    [ObservableProperty]
-    private string greetingText = string.Empty;
+    private readonly IAuthenticationService _authenticationService;
 
     [ObservableProperty]
-    private string farmerText = string.Empty;
+    private string greetingText = string.Empty;
 
     [ObservableProperty]
     private string plantHealthMonitorText = string.Empty;
@@ -52,17 +51,24 @@ public partial class HomeViewModel : BaseViewModel
     [ObservableProperty]
     private string farmingTipsText = string.Empty;
 
-    public HomeViewModel(ILocalizationService localizationService)
+    [ObservableProperty]
+    private string currentUserName = string.Empty;
+
+    [ObservableProperty]
+    private string currentUserPhone = string.Empty;
+
+    public HomeViewModel(ILocalizationService localizationService, IAuthenticationService authenticationService)
     {
+        _authenticationService = authenticationService;
         InitializeLocalization(localizationService);
         Title = "KrishiAI - Farmer Assistant";
         UpdateLocalizedStrings();
+        LoadCurrentUserInfo();
     }
 
     private void UpdateLocalizedStrings()
     {
         GreetingText = GetTimeBasedGreeting();
-        FarmerText = AppStrings.Farmer;
         PlantHealthMonitorText = AppStrings.PlantHealthMonitor;
         PlantHealthMonitorDescText = AppStrings.PlantHealthMonitorDesc;
         HowCanIHelpYouText = AppStrings.HowCanIHelpYou;
@@ -95,6 +101,23 @@ public partial class HomeViewModel : BaseViewModel
             return AppStrings.GoodEvening;
         else
             return AppStrings.GoodNight;
+    }
+
+    private void LoadCurrentUserInfo()
+    {
+        try
+        {
+            var currentUser = _authenticationService.GetCurrentUserAsync().GetAwaiter().GetResult();
+            if (currentUser != null)
+            {
+                CurrentUserName = currentUser.FullName ?? "User";
+                CurrentUserPhone = currentUser.PhoneNumber ?? "No phone number";
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"❌ Error loading user info: {ex.Message}");
+        }
     }
 
     [RelayCommand]

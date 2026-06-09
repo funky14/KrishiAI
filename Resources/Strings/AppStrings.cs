@@ -532,6 +532,86 @@ public static class AppStrings
             ["bn-IN"] = "সেটিংস সংরক্ষণ করুন"
         },
 
+        // Edit Profile
+        ["EditProfile"] = new()
+        {
+            ["en-US"] = "Edit Profile",
+            ["kn-IN"] = "ಪ್ರೊಫೈಲ್ ಸಂಪಾದಿಸಿ",
+            ["hi-IN"] = "प्रोफाइल संपादित करें",
+            ["mr-IN"] = "प्रोफाइल संपादित करा",
+            ["ta-IN"] = "சுயவிவரத்தை திருத்து",
+            ["te-IN"] = "ప్రొఫైల్‌ను సవరించండి",
+            ["pa-IN"] = "ਪ੍ਰੋਫਾਈਲ ਸੰਪਾਦਿਤ ਕਰੋ",
+            ["gu-IN"] = "પ્રોફાઇલ સંપાદિત કરો",
+            ["ml-IN"] = "പ്രൊഫൈൽ എഡിറ്റ് ചെയ്യുക",
+            ["bn-IN"] = "প্রোফাইল সম্পাদনা করুন"
+        },
+        ["FullName"] = new()
+        {
+            ["en-US"] = "Full Name",
+            ["kn-IN"] = "ಸಂಪೂರ್ಣ ಹೆಸರು",
+            ["hi-IN"] = "पूरा नाम",
+            ["mr-IN"] = "संपूर्ण नाव",
+            ["ta-IN"] = "முழு பெயர்",
+            ["te-IN"] = "పూర్తి పేరు",
+            ["pa-IN"] = "ਪੂਰਾ ਨਾਮ",
+            ["gu-IN"] = "સંપૂર્ણ નામ",
+            ["ml-IN"] = "പൂർണ്ണ നാമം",
+            ["bn-IN"] = "সম্পূর্ণ নাম"
+        },
+        ["PhoneNumber"] = new()
+        {
+            ["en-US"] = "Phone Number",
+            ["kn-IN"] = "ಫೋನ್ ಸಂಖ್ಯೆ",
+            ["hi-IN"] = "फोन नंबर",
+            ["mr-IN"] = "फोन क्रमांक",
+            ["ta-IN"] = "தொலைபேசி எண்",
+            ["te-IN"] = "ఫోన్ నంబర్",
+            ["pa-IN"] = "ਫੋਨ ਨੰਬਰ",
+            ["gu-IN"] = "ફોન નંબર",
+            ["ml-IN"] = "ഫോൺ നമ്പർ",
+            ["bn-IN"] = "ফোন নম্বর"
+        },
+        ["UpdateProfile"] = new()
+        {
+            ["en-US"] = "Update Profile",
+            ["kn-IN"] = "ಪ್ರೊಫೈಲ್ ನವೀಕರಿಸಿ",
+            ["hi-IN"] = "प्रोफाइल अपडेट करें",
+            ["mr-IN"] = "प्रोफाइल अपडेट करा",
+            ["ta-IN"] = "சுயவிவரத்தை புதுப்பிக்கவும்",
+            ["te-IN"] = "ప్రొఫైల్ అప్‌డేట్ చేయండి",
+            ["pa-IN"] = "ਪ੍ਰੋਫਾਈਲ ਅੱਪਡੇਟ ਕਰੋ",
+            ["gu-IN"] = "પ્રોફાઇલ અપડેટ કરો",
+            ["ml-IN"] = "പ്രൊഫൈൽ അപ്ഡേറ്റ് ചെയ്യുക",
+            ["bn-IN"] = "প্রোফाইল আপডেট করুন"
+        },
+        ["ProfileUpdateSuccess"] = new()
+        {
+            ["en-US"] = "Profile updated successfully!",
+            ["kn-IN"] = "ಪ್ರೊಫೈಲ್ ಯಶಸ್ವಿಯಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ!",
+            ["hi-IN"] = "प्रोफाइल सफलतापूर्वक अपडेट हो गया!",
+            ["mr-IN"] = "प्रोफाइल यशस्वीरित्या अपडेट झाली!",
+            ["ta-IN"] = "சுயவிவரம் வெற்றிகரமாக புதுப்பிக்கப்பட்டுள்ளது!",
+            ["te-IN"] = "ప్రొఫైల్ విజయవంతంగా అప్‌డేట్ చేయబడింది!",
+            ["pa-IN"] = "ਪ੍ਰੋਫਾਈਲ ਸਫਲਤਾਪੂਰਵਕ ਅੱਪਡੇਟ ਹੋ ਗਈ!",
+            ["gu-IN"] = "પ્રોફાઇલ સફળતાપૂર્વક અપડેટ થઇ ગઈ!",
+            ["ml-IN"] = "പ്രൊഫൈൽ വിജയകരമായി അപ്ഡേറ്റ് ചെയ്യപ്പെട്ടു!",
+            ["bn-IN"] = "প্রোফাইল সফলভাবে আপডেট হয়েছে!"
+        },
+        ["PleaseEnterValidName"] = new()
+        {
+            ["en-US"] = "Please enter a valid name",
+            ["kn-IN"] = "ದಯವಿಟ್ಟು ಸರಿಯಾದ ಹೆಸರನ್ನು ನಮೂದಿಸಿ",
+            ["hi-IN"] = "कृपया एक वैध नाम दर्ज करें",
+            ["mr-IN"] = "कृपया वैध नाव प्रविष्ट करा",
+            ["ta-IN"] = "சரியான பெயரை உள்ளிடவும்",
+            ["te-IN"] = "దయచేసి చెల్లుబాటు అయ్యే పేరు నమోదు చేయండి",
+            ["pa-IN"] = "ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਵੈਧ ਨਾਮ ਦਰਜ ਕਰੋ",
+            ["gu-IN"] = "કૃપયા માન્ય નામ દાખલ કરો",
+            ["ml-IN"] = "ദയവായി ഒരു സാധുവായ നാമം നൽകുക",
+            ["bn-IN"] = "অনুগ্রহ করে একটি বৈধ নাম প্রবেশ করুন"
+        },
+
         // Crop Disease Page
         ["CropDiseaseDetection"] = new()
         {
@@ -1218,4 +1298,10 @@ public static class AppStrings
     public static string ClearHistoryConfirm => GetString("ClearHistoryConfirm");
     public static string HistoryClearedSuccessfully => GetString("HistoryClearedSuccessfully");
     public static string Version => GetString("Version");
+    public static string EditProfile => GetString("EditProfile");
+    public static string FullName => GetString("FullName");
+    public static string PhoneNumber => GetString("PhoneNumber");
+    public static string UpdateProfile => GetString("UpdateProfile");
+    public static string ProfileUpdateSuccess => GetString("ProfileUpdateSuccess");
+    public static string PleaseEnterValidName => GetString("PleaseEnterValidName");
 }

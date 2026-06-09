@@ -41,4 +41,7 @@
             Route="settings" />
     </TabBar>
 
+    <!-- Routes for modal navigation -->
+    <ShellContent Route="editprofile" ContentTemplate="{DataTemplate views:EditProfilePage}" />
+
 </Shell>
