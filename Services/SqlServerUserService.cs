@@ -294,6 +294,67 @@ WHERE Id = @Id";
             return null;
         }
     }
+
+    /// <summary>
+    /// Update user profile information (FullName and PhoneNumber)
+    /// </summary>
+    public async Task<(bool Success, string Message, User? User)> UpdateUserAsync(int userId, string? fullName, string? phoneNumber)
+    {
+        try
+        {
+            Log($"📝 UpdateUserAsync: Updating user {userId}");
+
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                Log($"   ❌ Full name is required");
+                return (false, "Full name is required", null);
+            }
+
+            const string updateQuery = @"
+UPDATE dbo.[User]
+SET FullName = @FullName, PhoneNumber = @PhoneNumber
+WHERE Id = @Id;
+SELECT Id, Email, PasswordHash, FullName, PhoneNumber, CreatedAt, LastLogin, IsActive
+FROM dbo.[User]
+WHERE Id = @Id";
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "@Id", userId },
+                { "@FullName", fullName.Trim() },
+                { "@PhoneNumber", phoneNumber ?? string.Empty }
+            };
+
+            await using var reader = await _connectionService.ExecuteReaderAsync(updateQuery, parameters);
+
+            if (reader == null || !await reader.ReadAsync())
+            {
+                Log($"   ❌ Failed to update or retrieve user {userId}");
+                return (false, "Failed to update profile", null);
+            }
+
+            var user = new User
+            {
+                Id = reader.GetInt32(0),
+                Email = reader.GetString(1),
+                PasswordHash = reader.GetString(2),
+                FullName = reader.GetString(3),
+                PhoneNumber = reader.IsDBNull(4) ? null : reader.GetString(4),
+                CreatedAt = reader.GetDateTime(5),
+                LastLogin = reader.IsDBNull(6) ? null : reader.GetDateTime(6),
+                IsActive = reader.GetBoolean(7)
+            };
+
+            await reader.CloseAsync();
+            Log($"   ✅ User profile updated successfully");
+            return (true, "Profile updated successfully", user);
+        }
+        catch (Exception ex)
+        {
+            Log($"❌ UpdateUserAsync Error: {ex.Message}");
+            return (false, $"Update failed: {ex.Message}", null);
+        }
+    }
 }
 
 /// <summary>
@@ -306,4 +367,5 @@ public interface ISqlServerUserService
     Task<(bool Success, string Message)> ResetPasswordAsync(string email, string newPassword);
     Task<User?> GetUserByEmailAsync(string email);
     Task<User?> GetUserByIdAsync(int userId);
+    Task<(bool Success, string Message, User? User)> UpdateUserAsync(int userId, string? fullName, string? phoneNumber);
 }

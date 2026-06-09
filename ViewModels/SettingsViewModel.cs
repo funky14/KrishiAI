@@ -317,17 +317,15 @@ public partial class SettingsViewModel : BaseViewModel
             // Close dropdown first
             IsProfileDropdownOpen = false;
 
-            // Show a message indicating Edit Profile feature
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Edit Profile",
-                "Edit Profile feature will be available soon.",
-                "OK");
+            // Navigate to EditProfilePage
+            await Shell.Current.GoToAsync("editprofile");
 
-            System.Diagnostics.Debug.WriteLine("📝 Edit Profile button clicked");
+            System.Diagnostics.Debug.WriteLine("📝 Navigating to Edit Profile page");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"❌ Edit Profile Error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"❌ Edit Profile Navigation Error: {ex.Message}");
+            ErrorMessage = $"Navigation error: {ex.Message}";
         }
     }
 

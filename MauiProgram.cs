@@ -55,6 +55,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<VoiceAssistantViewModel>();
         builder.Services.AddSingleton<HistoryViewModel>();
         builder.Services.AddSingleton<SettingsViewModel>();
+        builder.Services.AddSingleton<EditProfileViewModel>();
 
         // Register Views with DI
         builder.Services.AddSingleton<LoginPage>();
@@ -65,6 +66,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<VoiceAssistantPage>();
         builder.Services.AddSingleton<HistoryPage>();
         builder.Services.AddSingleton<SettingsPage>();
+        builder.Services.AddSingleton<EditProfilePage>();
 
         return builder.Build();
     }

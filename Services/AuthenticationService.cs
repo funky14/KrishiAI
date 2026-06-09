@@ -207,6 +207,38 @@ public class AuthenticationService : IAuthenticationService
             return (false, $"Password reset request failed: {ex.Message}");
         }
     }
+
+    /// <summary>
+    /// Update user profile (Full Name and Phone Number)
+    /// </summary>
+    public async Task<(bool Success, string Message)> UpdateUserProfileAsync(string? fullName, string? phoneNumber)
+    {
+        try
+        {
+            var currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                Log($"❌ No current user to update");
+                return (false, "User not authenticated");
+            }
+
+            Log($"UpdateUserProfileAsync: {currentUser.Id}");
+            var (success, message, updatedUser) = await _userService.UpdateUserAsync(currentUser.Id, fullName, phoneNumber);
+
+            if (success && updatedUser != null)
+            {
+                _currentUser = updatedUser;
+                Log($"✅ Profile updated for user: {currentUser.Id}");
+            }
+
+            return (success, message);
+        }
+        catch (Exception ex)
+        {
+            Log($"❌ UpdateUserProfileAsync error: {ex.Message}");
+            return (false, $"Update failed: {ex.Message}");
+        }
+    }
 }
 
 /// <summary>
@@ -222,4 +254,5 @@ public interface IAuthenticationService
     Task LogoutAsync();
     Task<bool> EmailExistsAsync(string email);
     Task<(bool Success, string Message)> RequestPasswordResetAsync(string email);
+    Task<(bool Success, string Message)> UpdateUserProfileAsync(string? fullName, string? phoneNumber);
 }
